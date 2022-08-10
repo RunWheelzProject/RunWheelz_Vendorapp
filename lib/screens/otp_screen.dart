@@ -8,11 +8,13 @@ import 'dart:developer';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:untitled/screens/rw_vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 
 import '../components/future_manager.dart';
 import '../components/logo.dart';
+import '../manager/login_manager.dart';
 import '../model/otp_response.dart';
 import '../model/phone_verification.dart';
 import '../services/phone_verification.dart';
@@ -39,7 +41,7 @@ class _OTPState extends State<OtpScreen> {
   bool isResendOTP = false;
   String  _resendPhoneVerificationRef = '';
 
-  void moveToLogInScreen() {
+  void moveToLogInScreen(String urlType) {
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
       return const LoginScreen();
@@ -58,6 +60,7 @@ class _OTPState extends State<OtpScreen> {
   Widget otpScreenView() {
 
     TextTheme textTheme = Theme.of(context).textTheme;
+    LogInManager logInManager = Provider.of<LogInManager>(context);
 
     return Container(
         height: 400,
@@ -132,11 +135,12 @@ class _OTPState extends State<OtpScreen> {
                                 actions: <Widget>[
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.of(context).pushReplacement(
+                                      Navigator.of(context).pop();
+                                      /*Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                               builder: (BuildContext context) {
                                         return const LoginScreen();
-                                      }));
+                                      }));*/
                                     },
                                     child: const Text('YES'),
                                   ),
@@ -144,7 +148,8 @@ class _OTPState extends State<OtpScreen> {
                                     onPressed: () {
                                       Navigator.pop(context, 'NO');
                                       String phoneNumber = widget.vendorOtpResponse.phoneNumber.substring(2);
-                                      PhoneVerificationService().sendOtp(int.parse(phoneNumber))
+                                      log("logInManager.selectURL: ${logInManager.currentURLs![0]}");
+                                      PhoneVerificationService().sendOtp(int.parse(phoneNumber), logInManager.currentURLs![0])
                                       .then((vendorOtpResponse) {
                                         setState(() => {isResendOTP = true });
                                         setState(() {
@@ -176,16 +181,23 @@ class _OTPState extends State<OtpScreen> {
                           otp: _currentVerificationCode));
                       log("isResendOTP: $isResendOTP");
                       log("phoneVerification: $phoneVerification");
-
-                      Uri uri = Uri.parse("${res.APP_URL}api/auth/login/verifyotp");
-                      PhoneVerificationService().verifyOtp(phoneVerification, uri)
+                      PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1])
                       .then((http.Response response) {
                           var responseJson = json.decode(response.body);
-                          log("responseJson: $responseJson");
+                          log("responseJson: ${response.statusCode}");
                           if (response.statusCode == 404) {
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return const VendorRegistrationV1();
                             }));
+                          }
+                          log("currentUrls: ${logInManager.currentURLs![1]}, ${logInManager.currentURLs![0]}");
+                          if (response.statusCode == 201) {
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                              return const RWVendorRegistration();
+                            }));
+                          }
+                          if (response.statusCode == 200 && logInManager.currentURLs![1].contains("staff")) {
+
                           }
                           var messageMap = responseJson as Map;
                           if (messageMap.containsKey("message")) {
@@ -198,25 +210,6 @@ class _OTPState extends State<OtpScreen> {
                             _msgStyle = const TextStyle(color: Colors.red);
                             });
                           });
-
-                        /*if (response.statusCode == 404) {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                            return const VendorRegistration();
-                          }));
-                        }
-                        var responseJson = jsonDecode(response.body) as Map;
-                        log("responseJson: $responseJson");
-                        if (responseJson.containsKey("message")) {
-                          setState(() {
-                            String str = responseJson["message"];
-                            _msgValue = str;
-                            _msgStyle = const TextStyle(color: Colors.red);
-                            log("str: $_msgValue");
-                          });
-                        }
-                      })*/
                     }
                   },
                   child: const Text(

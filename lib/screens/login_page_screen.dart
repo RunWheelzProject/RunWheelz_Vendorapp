@@ -3,6 +3,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/manager/login_manager.dart';
 import 'package:untitled/model/otp_response.dart';
 
 import '../components/logo.dart';
@@ -13,8 +15,8 @@ import '../resources/resources.dart' as res;
 
 
 class LoginScreen extends StatefulWidget {
-  final Uri uri;
-  const LoginScreen({Key? key, required this.uri}) : super(key: key);
+  const LoginScreen({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _LoginScreen();
 }
@@ -42,6 +44,7 @@ class _LoginScreen extends State<LoginScreen> {
   }
 
   Widget loginView() {
+    LogInManager logInManager = Provider.of<LogInManager>(context);
     return Container(
         height: 300,
         //padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
@@ -107,19 +110,13 @@ class _LoginScreen extends State<LoginScreen> {
     child: ElevatedButton(
               onPressed: readToProceed ? () async {
                 if ((phoneNumberController.text.isNotEmpty) && (phoneNumberController.text.length == 10)) {
-                  PhoneVerificationService().sendOtp(int.parse(phoneNumberController.text), widget.uri)
-                      .then((response) {
-                          if (response.statusCode == 200) {
-                            var responseJson = jsonDecode(response.body);
-                            log("responseJsonVal: $responseJson");
-                            VendorOtpResponse $vendor = VendorOtpResponse(phoneNumber: responseJson["phoneNumber"],
-                                verificationRef: responseJson["verificationRef"], statusMessage: responseJson["statusMessage"]);
-                            Navigator.of(context).pushReplacement(
+                  log("logInManager.selectURL: ${logInManager.currentURLs![0]}");
+                  PhoneVerificationService().sendOtp(int.parse(phoneNumberController.text), logInManager.currentURLs![0])                      .then((vendorOtpResponse) {
+                          Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
-                                  return OtpScreen(vendorOtpResponse: $vendor);
+                                  return OtpScreen(vendorOtpResponse: vendorOtpResponse);
                                 })
                             );
-                          }
                         }).catchError((onError) {
                           showDialog<String>(
                               context: context,

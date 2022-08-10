@@ -5,21 +5,31 @@ import '../exceptions/app_exceptions.dart';
 import '../model/otp_response.dart';
 import '../resources/resources.dart' as res;
 
+
 class PhoneVerificationService {
 
-  //final String _vendorSendOtp = "${res.APP_URL}/api/auth/login/sendotp?phoneNumber=91";
-  //final String _vendorVerify = "http://10.0.2.2:8081/api/auth/login/verifyotp";
 
-  Future<http.Response> sendOtp(int phoneNumber, Uri vendorSendOTP) async {
-    Uri vendorSendOtpURL = Uri.parse("$vendorSendOTP$phoneNumber");
+  Future<VendorOtpResponse> sendOtp(int phoneNumber, String urlType) async {
+    Uri vendorSendOtpURL = Uri.parse("$urlType$phoneNumber");
     log("_vendorSendOtpURL: $vendorSendOtpURL");
 
     http.Response response = await http.get(vendorSendOtpURL);
+    var responseJson = jsonDecode(response.body);
+    log("responseJson: $responseJson");
 
-    return response;
+    if (response.statusCode == 200) {
+      log("responseJsonVal: $responseJson");
+      VendorOtpResponse vendorOtpResponse = VendorOtpResponse(phoneNumber: responseJson["phoneNumber"],
+          verificationRef: responseJson["verificationRef"], statusMessage: responseJson["statusMessage"]);
+
+      return vendorOtpResponse;
+    }
+
+    throw OTPException(responseJson["message"]);
   }
 
-  Future<http.Response> verifyOtp(String phoneVerification, Uri vendorVerifyURL) async {
+  Future<http.Response> verifyOtp(String phoneVerification, String urlType) async {
+    Uri vendorVerifyURL = Uri.parse(urlType);
     log("_vendorVerifyURL: $vendorVerifyURL");
     log("phoneVerification: $phoneVerification");
     Map<String, String> headers = {

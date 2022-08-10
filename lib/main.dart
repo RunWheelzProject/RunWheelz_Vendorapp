@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/login_manager.dart';
 import 'package:untitled/manager/manager.dart';
 import 'package:untitled/manager/location_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/google_map_location_screen.dart';
 import 'package:untitled/screens/login_page_screen.dart';
+import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
-import 'package:untitled/screens/vendor_management_screen.dart';
+import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import './screens/splashscreen.dart';
 import './theme/theme_manager.dart';
@@ -52,14 +54,15 @@ class RunWheelzState extends State<RunWheelz> {
       providers: [
         ChangeNotifierProvider<LocationManager>(create: (context) => LocationManager()),
         ChangeNotifierProvider<ApplicationManager>(create: (context) => ApplicationManager()),
-        ChangeNotifierProvider<VendorManager>(create: (context) => VendorManager())
+        ChangeNotifierProvider<VendorManager>(create: (context) => VendorManager()),
+        ChangeNotifierProvider<LogInManager>(create: (context) => LogInManager()),
       ],
       child: MaterialApp(
           title: 'Flutter Demo',
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeManager.themeMode,
-          home: const VendorManagementPage(),
+          home: const RunWheelManagementPage(),
         ),
     );
   }

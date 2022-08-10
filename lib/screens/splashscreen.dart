@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/manager/login_manager.dart';
+import 'package:untitled/services/phone_verification.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/logo.dart';
 import 'login_page_screen.dart';
@@ -7,15 +10,18 @@ import '../resources/resources.dart' as res;
 
 class SplashScreen extends StatelessWidget{
   const SplashScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    LogInManager logInManager = Provider.of<LogInManager>(context);
+    logInManager.setCurrentURLs("userLogIn");
+
    TextTheme textTheme = Theme.of(context).textTheme;
-    Uri userLoginURL = Uri.parse("${res.APP_URL}/api/auth/login/sendotp?phoneNumber=91");
 
     Timer(
         const Duration(seconds: 3), () async => {
               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (BuildContext context) => LoginScreen(uri: userLoginURL))
+                  builder: (BuildContext context) => const LoginScreen())
               )
         }
     );

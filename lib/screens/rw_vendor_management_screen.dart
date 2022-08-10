@@ -1,9 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/screens/login_page_screen.dart';
+import 'package:untitled/services/phone_verification.dart';
 
 import '../components/logo.dart';
+import '../manager/login_manager.dart';
 import '../resources/resources.dart' as res;
 
 class VendorManagementPage extends StatefulWidget {
@@ -18,6 +21,9 @@ class _VendorManagementPageState extends State<VendorManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+    LogInManager logInManager = Provider.of<LogInManager>(context);
+    logInManager.setCurrentURLs("vendorRegistration");
+
     return Scaffold(
         appBar: AppBar(
           title: const Text("Management"),
@@ -41,9 +47,8 @@ class _VendorManagementPageState extends State<VendorManagementPage> {
                     alignment: Alignment.topLeft,
                     child: ElevatedButton(
                         onPressed: () {
-                          Uri vendorRegistrationURL = Uri.parse("${res.APP_URL}/api/auth/register/vendor/sendOtp");
                           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                              return LoginScreen(uri: vendorRegistrationURL);
+                              return const LoginScreen();
                             })
                           );
                         },
@@ -84,14 +89,46 @@ class _VendorManagementPageState extends State<VendorManagementPage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                SizedBox(
-                    height: 27,
-                    child: ElevatedButton(
-                        onPressed: () => {},
-                        child: const Text(
-                            "VIEW PROFILE", style: TextStyle(
-                            fontSize: 12))
-                    ))
+                IconButton(
+                  onPressed: () {
+                    /*Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                          return Profile();
+                        })
+                    );*/
+                  },
+                  icon: const Icon(Icons.remove_red_eye, color: Colors.purple,),
+                ),
+                IconButton(
+                  onPressed: () {
+                    /*Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                          return const VendorStaffRegistration();
+                        })
+                    );*/
+                  },
+                  icon: const Icon(Icons.edit, color: Colors.purple,),
+                ),
+                IconButton(
+                  onPressed: () {
+                    showDialog<String>(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                            title: const Text("OTPException"),
+                            content: const Text("Delete Mecanic",
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.black87)),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, 'OK'),
+                                child: const Text('OK'),
+                              ),
+                            ])
+                    );
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.purple,),
+                )
               ],
             ),
             const SizedBox(height: 10,),

@@ -4,6 +4,7 @@ import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_profile_screen.dart';
 import 'package:untitled/screens/vendro_staff_list.dart';
 import '../colors/app_colors.dart';
+import '../resources/resources.dart' as res;
 
 class Menu extends StatelessWidget {
   Menu({Key? key}): super(key: key);
@@ -25,6 +26,7 @@ class Menu extends StatelessWidget {
             DrawerHeader(
               child: Text(_header),
             ),
+            for (String item in _menuItems)
             ListTile(
               title: const Text('Home'),
               onTap: () {

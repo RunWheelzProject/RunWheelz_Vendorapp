@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/manager/login_manager.dart';
@@ -14,8 +16,20 @@ import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import './screens/splashscreen.dart';
 import './theme/theme_manager.dart';
 import './theme/themes.dart';
+import 'manager/roles_manager.dart';
+import 'manager/staff_manager.dart';
+
+class MyHttpOverrides extends HttpOverrides{
+  @override
+  HttpClient createHttpClient(SecurityContext? context){
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
+  }
+}
+
 
 void main() {
+  HttpOverrides.global = new MyHttpOverrides();
   runApp(const RunWheelz());
 }
 
@@ -52,6 +66,8 @@ class RunWheelzState extends State<RunWheelz> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        //ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
+        ChangeNotifierProvider<StaffManager>(create: (context) => StaffManager()),
         ChangeNotifierProvider<LocationManager>(create: (context) => LocationManager()),
         ChangeNotifierProvider<ApplicationManager>(create: (context) => ApplicationManager()),
         ChangeNotifierProvider<VendorManager>(create: (context) => VendorManager()),

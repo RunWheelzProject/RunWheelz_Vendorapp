@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/roles_manager.dart';
+import 'package:untitled/manager/staff_manager.dart';
+import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/login_page_screen.dart';
-import 'package:untitled/screens/vendor_dashboard.dart';
+import 'package:untitled/screens/rw_vendor_registration_screen.dart';
 import 'package:untitled/services/phone_verification.dart';
-
+import 'package:http/http.dart' as http;
 import '../components/logo.dart';
 import '../manager/login_manager.dart';
 import '../resources/resources.dart' as res;
@@ -16,20 +20,42 @@ class StaffManagementPage extends StatefulWidget {
 
   @override
   State<StaffManagementPage> createState() => _StaffManagementPageState();
+
 }
 
 class _StaffManagementPageState extends State<StaffManagementPage> {
 
+  late List<VendorRegistrationRequest?> _vendorRegistrations = [];
+
+  @override
+  void initState() {
+/*
+    // get currently registered vendors
+    Future<http.Response> future = http.get(Uri.parse("${res.APP_URL}/api/vendor/getallvendors"));
+    future.then((response) {
+      var jsonResponse = jsonDecode(response.body) as List;
+      var tmp = jsonResponse.where((json) => json["registrationStatus"] == true).toList();
+      for (var item in tmp) {
+        _vendorRegistrations.add(VendorRegistrationRequest.fromJson(item));
+      }
+    })
+        .catchError((onError) => log("Error: $onError"));*/
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    LogInManager logInManager = Provider.of<LogInManager>(context);
-    logInManager.setCurrentURLs("staffRegistration");
+    StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
+    staffManager.setAllStaff();
+    log("_length: ${staffManager.staffList.length}");
+    LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
+    logInManager.setCurrentURLs("vendorRegistration");
 
     return Scaffold(
         appBar: AppBar(
           title: const Text("Management"),
         ),
-        //drawer: menu(),
+        drawer: const Drawer(),
         body: Container(
             padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
             child: Column(
@@ -56,19 +82,35 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
                         child: const Text("Add Vendor + ")
                     ),
                   ),
-                  const SizedBox(height: 20,),
-                  userCard(),
-                  const SizedBox(height: 20,),
-                  userCard(),
-                  const SizedBox(height: 20,),
-                  userCard()
+                  SizedBox(height: 30,),
+                  Expanded(
+                      child: ListView.separated(
+                        itemCount: staffManager.staffList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Consumer<StaffManager>(
+                              builder: (context, staff, child) => userCard(
+                              name: staff.staffList[index].name ?? "",
+                              location: staff.staffList[index]?.city ?? "",
+                              phoneNumber: staff.staffList[index]?.phoneNumber ?? ""));
+                        },
+
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(height: 20,);
+                        },
+                      )
+                  )
                 ]
             ) // This trailing comma makes auto-formatting nicer for build methods.
         )
     );
   }
 
-  Widget userCard() {
+  Widget userCard({
+    AssetImage image = const AssetImage("images/logo.jpg"),
+    name = "Amanda Graham",
+    location = "Bergon",
+    phoneNumber = "91 70876 57843"
+  }) {
     return Container(
         padding: const EdgeInsets.symmetric(
             vertical: 10, horizontal: 20),
@@ -90,14 +132,52 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                SizedBox(
-                    height: 27,
-                    child: ElevatedButton(
-                        onPressed: () => {},
-                        child: const Text(
-                            "VIEW PROFILE", style: TextStyle(
-                            fontSize: 12))
-                    ))
+                IconButton(
+                  onPressed: () {
+                    /*Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                          return Profile();
+                        })
+                    );*/
+                  },
+                  icon: const Icon(Icons.remove_red_eye, color: Colors.purple,),
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                          return const RWVendorRegistration();
+                        })
+                    );
+                  },
+                  icon: const Icon(Icons.edit, color: Colors.purple,),
+                ),
+                IconButton(
+                  onPressed: () {
+                    showDialog<String>(
+                        context: context,
+
+                        builder: (BuildContext context) => AlertDialog(
+                            title: const Text("Delete"),
+                            content: const Text("Are you sure deleting Vendor?",
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.black87)),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, 'YES'),
+                                child: const Text('YES', style: TextStyle(color: Colors.red),),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, 'NO'),
+                                child: const Text('NO'),
+                              )
+                            ])
+                    );
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.purple,),
+                )
               ],
             ),
             const SizedBox(height: 10,),
@@ -105,11 +185,10 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Column(
-                    children: const [
+                    children: [
                       CircleAvatar(
                           radius: 25.0,
-                          backgroundImage: AssetImage(
-                              "images/logo.jpg")
+                          backgroundImage: image
                       )
                     ]
                 ),
@@ -118,9 +197,9 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Row(
-                        children: const [
-                          SizedBox(width: 10,),
-                          Text("Amanda Graham", style: TextStyle(
+                        children: [
+                          const SizedBox(width: 10,),
+                          Text(name, style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               color: Colors.black87
@@ -132,21 +211,21 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
                     ),
                     const SizedBox(height: 5,),
                     Row(
-                      children: const [
-                        SizedBox(width: 15,),
-                        Icon(
+                      children: [
+                        const SizedBox(width: 15,),
+                        const Icon(
                           Icons.location_on, color: Colors.blue,
                           size: 15,),
-                        SizedBox(width: 5,),
-                        Text("Bergen", style: TextStyle(
+                        const SizedBox(width: 5,),
+                        Text(location, style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                             color: Colors.black45
                         )),
-                        SizedBox(width: 15,),
-                        Icon(Icons.link, color: Colors.blue,),
-                        SizedBox(width: 5,),
-                        Text("website.com", style: TextStyle(
+                        const SizedBox(width: 15,),
+                        const Icon(Icons.phone_android, color: Colors.blue, size: 15),
+                        const SizedBox(width: 5,),
+                        Text(phoneNumber, style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                             color: Colors.black45
@@ -159,36 +238,6 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
             )
           ],
         )
-    );
-  }
-
-  Widget menu() {
-    return Drawer(
-      child: ListView(
-          children: [
-          const DrawerHeader(
-            child: Text("Admin, Venkat Chary Padala"),
-          ),
-          ListTile(
-            title: Container(
-              padding: const EdgeInsets.all(5),
-                decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.deepPurple))
-              ),
-              child: Row(
-                children: const [
-                  Icon(Icons.garage)
-                ],
-              )
-            ),
-            onTap: () {
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                  return const VendorDashBoard();
-                })
-              );
-            },
-          )
-      ])
     );
   }
 }

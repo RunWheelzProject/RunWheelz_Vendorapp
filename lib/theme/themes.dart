@@ -28,9 +28,9 @@ ThemeData lightTheme = ThemeData(
             ),
             textStyle: MaterialStateProperty.resolveWith((states) {
               if (states.contains(MaterialState.pressed)) {
-                return const TextStyle(fontSize: 20, color: Colors.white);
+                return const TextStyle(fontSize: 17, color: Colors.white);
               }
-              return const TextStyle(fontSize: 20, color: Colors.white);
+              return const TextStyle(fontSize: 17, color: Colors.white);
             }) ,
             backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple),
         )

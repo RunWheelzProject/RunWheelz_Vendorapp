@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:untitled/model/places_search.dart';
 import 'package:http/http.dart' as http;
-
+import '../resources/resources.dart' as res;
 
 class RPlaceAutoComplete {
 

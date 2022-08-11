@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import '../components/menu.dart';
+import '../manager/roles_manager.dart';
 import '../screens/rw_staff_management_screen.dart';
 import '../screens/rw_vendor_management_screen.dart';
 import '../components/logo.dart';
@@ -120,7 +123,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                   fontWeight: FontWeight.bold
               )
           ),
-          const SizedBox(height: 70,),
+          const SizedBox(height: 80,),
           InkWell(
             child: Container(
               decoration: const BoxDecoration(
@@ -187,7 +190,12 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                 onTap: () {
                   Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (BuildContext context) {
-                        return const VendorManagementPage();
+                        return MultiProvider(
+                                providers: [
+                                  ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
+                                ],
+                                child: const VendorManagementPage()
+                        );
                       })
                   );
                 },
@@ -207,8 +215,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                     )
                 ),
                 onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (BuildContext context) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                         return const StaffManagementPage();
                       })
                   );

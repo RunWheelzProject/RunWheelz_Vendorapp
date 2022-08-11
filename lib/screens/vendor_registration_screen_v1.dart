@@ -106,7 +106,7 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                               ),
                             ),
                             onChanged: (value) => {
-                              vendorManager.vendorRegistrationRequest.phoneNumber = int.parse(value)
+                              vendorManager.vendorRegistrationRequest.phoneNumber = value
                             },
                             validator: (value) {
                               if (value == null || value.isEmpty) {

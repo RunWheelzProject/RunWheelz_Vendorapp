@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:untitled/manager/manager.dart';
+import 'package:untitled/model/vendor.dart';
 import 'dart:core';
 import 'dart:developer';
 
@@ -15,6 +16,8 @@ import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import '../components/future_manager.dart';
 import '../components/logo.dart';
 import '../manager/login_manager.dart';
+import '../manager/roles_manager.dart';
+import '../manager/vendor_manager.dart';
 import '../model/otp_response.dart';
 import '../model/phone_verification.dart';
 import '../services/phone_verification.dart';
@@ -61,6 +64,7 @@ class _OTPState extends State<OtpScreen> {
 
     TextTheme textTheme = Theme.of(context).textTheme;
     LogInManager logInManager = Provider.of<LogInManager>(context);
+    VendorManager vendorManager = Provider.of<VendorManager>(context);
 
     return Container(
         height: 400,
@@ -135,12 +139,12 @@ class _OTPState extends State<OtpScreen> {
                                 actions: <Widget>[
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.of(context).pop();
-                                      /*Navigator.of(context).pushReplacement(
+                                      //Navigator.of(context).pop();
+                                      Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                               builder: (BuildContext context) {
                                         return const LoginScreen();
-                                      }));*/
+                                      }));
                                     },
                                     child: const Text('YES'),
                                   ),
@@ -192,8 +196,15 @@ class _OTPState extends State<OtpScreen> {
                           }
                           log("currentUrls: ${logInManager.currentURLs![1]}, ${logInManager.currentURLs![0]}");
                           if (response.statusCode == 201) {
+                            var jsonResponse = jsonDecode(response.body);
+                            vendorManager.vendorRegistrationRequest = VendorRegistrationRequest.fromJson(jsonResponse);
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                              return const RWVendorRegistration();
+                              return MultiProvider(
+                                    providers: [
+                                      ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
+                                    ],
+                                    child: const RWVendorRegistration()
+                              );
                             }));
                           }
                           if (response.statusCode == 200 && logInManager.currentURLs![1].contains("staff")) {

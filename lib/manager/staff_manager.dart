@@ -15,20 +15,21 @@ class StaffManager extends ChangeNotifier {
   List<StaffDTO> _staffList = [];
 
 
+  StaffManager() { setAllStaff(); }
+
+
   List<StaffDTO> get staffList => _staffList;
   get staffDTO => _staffDTO;
+  set staffDTO(value) => _staffDTO = value;
 
   void setAllStaff() {
 
     StaffService().getAllStaff()
     .then((response) {
+      log("${jsonDecode(response.body)}");
       var jsonResponse = jsonDecode(response.body) as List;
-      var list = jsonResponse.where((element) => element["registrationStatus"] == true).toList();
-      _staffList = jsonResponse.map((json) => StaffDTO.fromJson(json)).toList();
-
-      /*for (var item in list) {
-        _staffList.add(StaffDTO.fromJson(item));
-      }*/
+      _staffList = jsonResponse.where((element) => element["registrationStatus"] == true).toList()
+          .map((json) => StaffDTO.fromJson(json)).toList();
       log("jsonResponse: ${jsonEncode(jsonResponse)}");
       //log("_staffList: $_staffList}");
     });

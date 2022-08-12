@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:untitled/manager/manager.dart';
+import 'package:untitled/manager/staff_manager.dart';
+import 'package:untitled/model/staff.dart';
 import 'package:untitled/model/vendor.dart';
 import 'dart:core';
 import 'dart:developer';
@@ -9,6 +11,7 @@ import 'dart:developer';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:untitled/screens/rw_staff_registration_screen.dart';
 import 'package:untitled/screens/rw_vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
@@ -65,6 +68,7 @@ class _OTPState extends State<OtpScreen> {
     TextTheme textTheme = Theme.of(context).textTheme;
     LogInManager logInManager = Provider.of<LogInManager>(context);
     VendorManager vendorManager = Provider.of<VendorManager>(context);
+    StaffManager staffManager = Provider.of<StaffManager>(context);
 
     return Container(
         height: 400,
@@ -195,7 +199,8 @@ class _OTPState extends State<OtpScreen> {
                             }));
                           }
                           log("currentUrls: ${logInManager.currentURLs![1]}, ${logInManager.currentURLs![0]}");
-                          if (response.statusCode == 201) {
+                          if (response.statusCode == 201 && logInManager.currentURLs![1].contains("vendor")) {
+                            log("vendor");
                             var jsonResponse = jsonDecode(response.body);
                             vendorManager.vendorRegistrationRequest = VendorRegistrationRequest.fromJson(jsonResponse);
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
@@ -207,8 +212,22 @@ class _OTPState extends State<OtpScreen> {
                               );
                             }));
                           }
-                          if (response.statusCode == 200 && logInManager.currentURLs![1].contains("staff")) {
+                          if (response.statusCode == 201 && logInManager.currentURLs![1].contains("staff")) {
+                            log("staff");
+                            var jsonResponse = jsonDecode(response.body);
+                            staffManager.staffDTO = StaffDTO.fromJson(jsonResponse);
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                              return MultiProvider(
+                                  providers: [
+                                    ChangeNotifierProvider(create: (_) => StaffManager()),
+                                    ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
+                                  ],
+                                  child: const RWStaffRegistration()
+                              );
+                            }));
 
+
+                            // RWStaffRegistration
                           }
                           var messageMap = responseJson as Map;
                           if (messageMap.containsKey("message")) {

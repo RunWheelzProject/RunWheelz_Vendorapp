@@ -14,7 +14,7 @@ import '../components/logo.dart';
 import '../manager/login_manager.dart';
 import '../resources/resources.dart' as res;
 
-class StaffManagementPage extends StatefulWidget {
+class StaffManagementPage extends /*StatefulWidget {
 
   const StaffManagementPage({Key? key}) : super(key: key);
 
@@ -23,34 +23,18 @@ class StaffManagementPage extends StatefulWidget {
 
 }
 
-class _StaffManagementPageState extends State<StaffManagementPage> {
+class _StaffManagementPageState extends State<StaffManagementPage>*/ StatelessWidget {
 
   late List<VendorRegistrationRequest?> _vendorRegistrations = [];
+  
 
   @override
-  void initState() {
-/*
-    // get currently registered vendors
-    Future<http.Response> future = http.get(Uri.parse("${res.APP_URL}/api/vendor/getallvendors"));
-    future.then((response) {
-      var jsonResponse = jsonDecode(response.body) as List;
-      var tmp = jsonResponse.where((json) => json["registrationStatus"] == true).toList();
-      for (var item in tmp) {
-        _vendorRegistrations.add(VendorRegistrationRequest.fromJson(item));
-      }
-    })
-        .catchError((onError) => log("Error: $onError"));*/
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {/*
     StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
-    staffManager.setAllStaff();
-    log("_length: ${staffManager.staffList.length}");
+    *//*staffManager.setAllStaff();
+    log("_length: ${staffManager.staffList.length}");*/
     LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
-    logInManager.setCurrentURLs("vendorRegistration");
-
+    logInManager.setCurrentURLs("staffRegistration");
     return Scaffold(
         appBar: AppBar(
           title: const Text("Management"),
@@ -82,18 +66,17 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
                         child: const Text("Add Vendor + ")
                     ),
                   ),
-                  SizedBox(height: 30,),
+                  const SizedBox(height: 30,),
                   Expanded(
                       child: ListView.separated(
-                        itemCount: staffManager.staffList.length,
+                        itemCount: Provider.of<StaffManager>(context, listen: false).staffList.length,
                         itemBuilder: (BuildContext context, int index) {
                           return Consumer<StaffManager>(
-                              builder: (context, staff, child) => userCard(
+                              builder: (context, staff, child) => userCard(context: context,
                               name: staff.staffList[index].name ?? "",
                               location: staff.staffList[index]?.city ?? "",
                               phoneNumber: staff.staffList[index]?.phoneNumber ?? ""));
                         },
-
                         separatorBuilder: (BuildContext context, int index) {
                           return const SizedBox(height: 20,);
                         },
@@ -109,7 +92,8 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
     AssetImage image = const AssetImage("images/logo.jpg"),
     name = "Amanda Graham",
     location = "Bergon",
-    phoneNumber = "91 70876 57843"
+    phoneNumber = "91 70876 57843",
+    required BuildContext context
   }) {
     return Container(
         padding: const EdgeInsets.symmetric(
@@ -155,8 +139,6 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
                 IconButton(
                   onPressed: () {
                     showDialog<String>(
-                        context: context,
-
                         builder: (BuildContext context) => AlertDialog(
                             title: const Text("Delete"),
                             content: const Text("Are you sure deleting Vendor?",
@@ -173,7 +155,7 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
                                     Navigator.pop(context, 'NO'),
                                 child: const Text('NO'),
                               )
-                            ])
+                            ]), context: context
                     );
                   },
                   icon: const Icon(Icons.delete, color: Colors.purple,),

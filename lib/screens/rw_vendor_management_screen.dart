@@ -30,11 +30,16 @@ class _VendorManagementPageState extends State<VendorManagementPage> {
     // get currently registered vendors
     Future<http.Response> future = http.get(Uri.parse("${res.APP_URL}/api/vendor/getallvendors"));
     future.then((response) {
+      log("jsonResponse: ${jsonEncode(response.body)}");
       var jsonResponse = jsonDecode(response.body) as List;
       var tmp = jsonResponse.where((json) => json["registrationStatus"] == true).toList();
+
       for (var item in tmp) {
         _vendorRegistrations.add(VendorRegistrationRequest.fromJson(item));
       }
+
+      log("_length: ${_vendorRegistrations.length}");
+
     })
     .catchError((onError) => log("Error: $onError"));
     super.initState();

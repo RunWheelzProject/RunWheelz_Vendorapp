@@ -460,63 +460,12 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                             const Icon(Icons.account_circle_rounded, color: Colors.deepPurple),
                             vendorManager.vendorRegistrationRequest.role
                         ),*/
-                        Align(
-                            alignment: Alignment.centerLeft,
-                            child: DropdownButtonFormField(
-                              decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.all(10)),
-                              value: _dropDownValue,
-                              icon: const Icon(
-                                Icons.expand_circle_down,
-                                color: Colors.deepPurple,
-                              ),
-                              elevation: 16,
-                              style: const TextStyle(color: Colors.deepPurple),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _dropDownValue = newValue!;
-                                  log("newValue: $newValue");
-                                  RoleDTO roleDTO = RoleDTO(id: 1);
-                                  roleDTO.roleName = newValue;
-                                  vendorManager.vendorRegistrationRequest.role = roleDTO;
-                                  log("RoleDTO: ${jsonEncode(roleDTO)}");
-                                  log("roleName: ${vendorManager.vendorRegistrationRequest.role?.roleName}");
-                                });
-                              },
-                              items: roles
-                                  .map<DropdownMenuItem<String>>((String item) {
-                                return DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
-                            )),
                         addVerticalSpace(30),
-                        Align(
-                            alignment: Alignment.topLeft,
-                            child: Row(
-                              children: [
-                                Checkbox(
-                                  value: _isTermsChecked,
-                                  onChanged: (value) {
-                                    vendorManager.vendorRegistrationRequest
-                                        .termsAndConditions = value as bool;
-                                    setState(() {
-                                      _isTermsChecked = value;
-                                    });
-                                  },
-                                ),
-                                TextButton(
-                                    onPressed: () => {},
-                                    child: const Text("Terms and Conditions"))
-                              ],
-                            )),
                         addVerticalSpace(20),
                         Container(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton(
-                                onPressed: _isTermsChecked
-                                    ? () {
+                                onPressed: () {
                                         if (_formKey.currentState!.validate()) {
                                           vendorManager.vendorRegistrationRequest.registrationStatus = true;
                                           log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
@@ -531,14 +480,8 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                               );
                                             }
                                           });
-                                          /*Navigator.of(context)
-                                        .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                      //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                      return const GoogleMapLocationPickerV1();
-                                    }));*/
                                         }
-                                      }
-                                    : null,
+                                      },
                                 child: const Text(
                                   'Register',
                                   style: TextStyle(fontSize: 24),

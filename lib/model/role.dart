@@ -9,10 +9,14 @@ class RoleDTO {
     "roleName": roleName
   };
 
-  factory RoleDTO.fromJson(Map<String, dynamic> json) {
-    return RoleDTO(
-      id: json["id"],
-      roleName: json["roleName"]
-    );
+  factory RoleDTO.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return RoleDTO();
+    } else {
+      return RoleDTO(
+        id: json["id"],
+        roleName: json["roleName"]
+      );
+    }
   }
 }

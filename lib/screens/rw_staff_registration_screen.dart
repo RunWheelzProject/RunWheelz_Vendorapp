@@ -8,6 +8,7 @@ import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
+import 'package:untitled/services/staff_service.dart';
 import 'package:untitled/services/vendor_registration.dart';
 import '../manager/roles_manager.dart';
 import '../model/role.dart';
@@ -27,10 +28,20 @@ class RWStaffRegistration extends StatefulWidget {
 class RWStaffRegistrationState extends State<RWStaffRegistration> {
   final _formKey = GlobalKey<FormState>();
   final List<String> _inidianStates = indianStates.values.toList();
+
   bool _isTermsChecked = false;
+
   String _dropDownValue = 'Select Role';
   String _dropDownStateVAlue = 'Select State';
-  dynamic _onChangeValue;
+
+  String? _name = '';
+  String? _address = '';
+  String? _country = '';
+  String? _city = '';
+  String? _aadhaarCard = '';
+  String? _zipCode = '';
+  bool _isMale = false;
+  bool _isFemale = false;
 
   @override
   void initState() {
@@ -39,9 +50,12 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
 
   @override
   Widget build(BuildContext context) {
-    final StaffManager staffManager = Provider.of<StaffManager>(context);
+
+    final StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
     final RoleManager roleManager = Provider.of<RoleManager>(context);
+    log("rolesNames: ${jsonEncode(roleManager.roleNames)}");
     List<String> roles = roleManager.roleNames.map((role) => role.roleName as String).toList();
+    log("rolesNames: ${jsonEncode(roles)}");
     return Scaffold(
       appBar: AppBar(title: const Text("Run Wheelz")),
       body: SingleChildScrollView(
@@ -99,408 +113,129 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                                           fontFamily: 'Roboto Bold'))
                                 ])),
                         addVerticalSpace(25),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: "Name",
-                            prefixIcon: const Icon(Icons.person,
-                                color: Colors.deepPurple),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                          ),
-                          onChanged: (value) => {
-                            staffManager.staffDTO.name =
-                                value
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'this field required';
-                            }
-                            return null;
-                          },
+                        RWTextFormField(
+                            label: 'Name',
+                            icon: const Icon(Icons.person, color: Colors.deepPurple),
+                            onSaved: (value) => _name = value
                         ),
                         addVerticalSpace(25),
                         Row(
                           children: [
-                            Checkbox(
-                              onChanged: (val) => {},
-                              value: true,
+                            RWCheckBox(
+                              name: "M",
+                              isText: true,
+                              value: _isMale,
+                              onChanged: (value) => _isMale = value!,
                             ),
-                            const Text("M"),
                             addHorizontalSpace(20),
-                            Checkbox(
-                              onChanged: (val) => {},
-                              value: false,
+                            RWCheckBox(
+                              name: "M",
+                              isText: true,
+                              value: _isFemale,
+                              onChanged: (value) => _isFemale = value!,
                             ),
-                            const Text("F"),
                           ],
                         ),
                         addVerticalSpace(20),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: "Aadhaar Card",
-                            helperText: "9090-9090-9090",
-                            helperStyle: const TextStyle(color: Colors.red, fontSize: 16),
-                            prefixIcon: const Icon(Icons.credit_card_outlined,
-                                color: Colors.deepPurple),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                          ),
-                          onChanged: (value) => {
-                            staffManager.staffDTO.aadharNumber = value
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'this field required';
-                            }
-                            return null;
-                          },
-                          keyboardType: TextInputType.number,
-                          maxLength: 14,
-                          inputFormatters: [
-                            MaskedTextInputFormatter(mask: '0000-0000-0000', separator: '-')
-                          ],
+                        RWTextFormField(
+                            label: 'Aadhaar Card',
+                            icon: const Icon(Icons.location_on, color: Colors.deepPurple),
+                            helperText: '9090-9090-9090',
+                            maxLength: 14,
+                            textInputType: TextInputType.number,
+                            textInputFormatters: [
+                              MaskedTextInputFormatter(mask: '0000-0000-0000', separator: '-')
+                            ],
+                            onSaved: (value) => _aadhaarCard = value
                         ),
                         addVerticalSpace(40),
-                        TextFormField(
-                          maxLines: null,
-                          keyboardType: TextInputType.multiline,
-                          decoration: InputDecoration(
-                            labelText: "address",
-                            prefixIcon: const Icon(Icons.location_on,
-                                color: Colors.deepPurple),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                          ),
-                          onChanged: (value) => {
-                            staffManager.staffDTO.addressLine = value
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'this field required';
-                            }
-                            return null;
-                          },
+                        RWTextFormField(
+                            label: 'Address',
+                            icon: const Icon(Icons.location_on, color: Colors.deepPurple),
+                            onSaved: (value) => _address = value
                         ),
-                        /*Container(
-                          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          alignment: Alignment.centerLeft,
-                          child: Text(vendorManager.vendorRegistrationRequest.addressLine ?? "",
-                          style: const TextStyle(fontSize: 20, color: Colors.green, fontFamily: 'Roboto Bold'),),
-                        )*/
                         addVerticalSpace(40),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: "City",
-                            prefixIcon: const Icon(Icons.location_on,
-                                color: Colors.deepPurple),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                          ),
-                          onChanged: (value) => {
-                            staffManager.staffDTO.city = value
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'this field required';
-                            }
-                            return null;
-                          },
+                        RWTextFormField(
+                            label: 'City',
+                            icon: const Icon(Icons.location_on, color: Colors.deepPurple),
+                            onSaved: (value) => _city = value
                         ),
                         addVerticalSpace(20),
                         Align(
                             alignment: Alignment.centerLeft,
-                            child: DropdownButtonFormField(
-                              decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.all(10)),
+                            child: RWDropDown(
                               value: _dropDownStateVAlue,
-                              icon: const Icon(
-                                Icons.expand_circle_down,
-                                color: Colors.deepPurple,
-                              ),
-                              elevation: 16,
-                              style: const TextStyle(color: Colors.deepPurple),
+                              items: _inidianStates,
                               onChanged: (String? newValue) {
-                                setState(() {
                                   _dropDownStateVAlue = newValue!;
                                   staffManager.staffDTO.state = newValue;
-                                });
                               },
-                              items: _inidianStates
-                                  .map<DropdownMenuItem<String>>((String item) {
-                                return DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
                             )
-                        )
-
-                        /*TextFormField(
-                          decoration: InputDecoration(
-                            labelText: "State",
-                            prefixIcon: const Icon(Icons.location_city,
-                                color: Colors.deepPurple),
-                            labelStyle: const TextStyle(color: Colors.green),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                          ),
-                          onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.state =
-                                value
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'this field required';
-                            }
-                            return null;
-                          },
-                        )*/,
-                        addVerticalSpace(20),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: "Zipcode",
-                            prefixIcon: const Icon(Icons.perm_identity,
-                                color: Colors.deepPurple),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                          ),
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp('[0-9]'))
-                          ],
-                          onChanged: (value) => {
-                            staffManager.staffDTO.zipcode =
-                                value
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'this field required';
-                            }
-                            return null;
-                          },
                         ),
                         addVerticalSpace(20),
-                        TextFormField(
-                          initialValue: 'India',
-                          decoration: InputDecoration(
-                            labelText: "Country",
-                            prefixIcon: const Icon(Icons.location_city,
-                                color: Colors.deepPurple),
-                            labelStyle: const TextStyle(color: Colors.green),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.purple,
-                                  width: 0,
-                                )),
-                          ),
-                          onChanged: (value) => {
-                            staffManager.staffDTO.country =
-                                value
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'this field required';
-                            }
-                            return null;
-                          },
+                        RWTextFormField(
+                            label: 'Zipcode',
+                            icon: const Icon(Icons.location_on, color: Colors.deepPurple),
+                            maxLength: 6,
+                            textInputType: TextInputType.number,
+                            textInputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp('[0-9]'))
+                            ],
+                            onSaved: (value) => _zipCode = value
                         ),
                         addVerticalSpace(20),
-                        /*textFormField(
-                            "Role",
-                            const Icon(Icons.account_circle_rounded, color: Colors.deepPurple),
-                            vendorManager.vendorRegistrationRequest.role
-                        ),*/
+                        RWTextFormField(
+                            label: 'Country',
+                            icon: const Icon(Icons.location_on, color: Colors.deepPurple),
+                            onSaved: (value) => _country = value
+                        ),
+                        addVerticalSpace(20),
                         Align(
                             alignment: Alignment.centerLeft,
-                            child: DropdownButtonFormField(
-                              decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.all(10)),
+                            child: RWDropDown(
                               value: _dropDownValue,
-                              icon: const Icon(
-                                Icons.expand_circle_down,
-                                color: Colors.deepPurple,
-                              ),
-                              elevation: 16,
-                              style: const TextStyle(color: Colors.deepPurple),
+                              items: roles,
                               onChanged: (String? newValue) {
-                                setState(() {
                                   _dropDownValue = newValue!;
-                                  log("newValue: $newValue");
-                                  RoleDTO roleDTO = RoleDTO(id: 1);
-                                  roleDTO.roleName = newValue;
-                                  staffManager.staffDTO.role = roleDTO;
-                                  log("RoleDTO: ${jsonEncode(roleDTO)}");
-                                  log("roleName: ${staffManager.staffDTO.role?.roleName}");
-                                });
+                                  RoleDTO roleDTO = RoleDTO();
+                                  for (var role in roleManager.roleNames) {
+                                    if (role.roleName == newValue) {
+                                      roleDTO.id = role.id;
+                                      break;
+                                    }
+                                    roleDTO.roleName = newValue;
+                                    staffManager.staffDTO.role = roleDTO;
+                                  }
                               },
-                              items: roles
-                                  .map<DropdownMenuItem<String>>((String item) {
-                                return DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
-                            )),
-                        addVerticalSpace(30),
-                        Align(
-                            alignment: Alignment.topLeft,
-                            child: Row(
-                              children: [
-                                Checkbox(
-                                  value: _isTermsChecked,
-                                  onChanged: (value) {
-                                    staffManager.staffDTO
-                                        .termsAndConditions = value as bool;
-                                    setState(() {
-                                      _isTermsChecked = value;
-                                    });
-                                  },
-                                ),
-                                TextButton(
-                                    onPressed: () => {},
-                                    child: const Text("Terms and Conditions"))
-                              ],
-                            )),
+                            )
+                        ),
                         addVerticalSpace(20),
                         Container(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton(
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
-                                    staffManager.staffDTO.registrationStatus =
-                                    true;
-                                    log("vendor: ${jsonEncode(
-                                        staffManager.staffDTO)}");
-                                    /*VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest)
-                                        .then((response) {
-                                      log("status: ${response.statusCode}");
+                                    _formKey.currentState?.save();
+                                    staffManager.staffDTO.registrationStatus = true;
+                                    staffManager.staffDTO.name = _name;
+                                    staffManager.staffDTO.addressLine = _address;
+                                    staffManager.staffDTO.country = _country;
+                                    staffManager.staffDTO.city = _city;
+                                    staffManager.staffDTO.aadharNumber = _aadhaarCard;
+                                    staffManager.staffDTO.zipcode = _zipCode;
+
+                                    log("vendor: ${jsonEncode(staffManager.staffDTO)}");
+
+                                    StaffService().updateStaffInfo(staffManager.staffDTO)
+                                    .then((response) {
                                       if (response.statusCode == 200) {
                                         log("status: ${response.statusCode}");
-                                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                          return const RunWheelManagementPage();
-                                        })
-                                        );
+                                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                                              return const RunWheelManagementPage();
+                                            })
+                                          );
                                       }
-                                    });*/
-                                    /*Navigator.of(context)
-                                        .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                      //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                      return const GoogleMapLocationPickerV1();
-                                    }));*/
+                                    });
                                   }
                                 },
                                 child: const Text(
@@ -515,10 +250,101 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
     );
   }
 
-  Widget textFormField(String label, Icon icon, dynamic val) {
+}
+
+
+typedef DropDownOnChanged = void Function(String?)?;
+typedef FunctionSaved = void Function(String?)?;
+typedef FunctionChanged = void Function(bool?)?;
+typedef FunctionPressed = void Function()?;
+
+
+
+class RWDropDown extends StatelessWidget {
+  final String value;
+  final DropDownOnChanged onChanged;
+  final List<String>? items;
+
+  RWDropDown({
+    required this.value,
+    required this.onChanged,
+    required this.items
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField(
+      decoration: const InputDecoration(
+          contentPadding: EdgeInsets.all(10)),
+      value: value,
+      icon: const Icon(
+        Icons.expand_circle_down,
+        color: Colors.deepPurple,
+      ),
+      elevation: 16,
+      style: const TextStyle(color: Colors.deepPurple),
+      onChanged: onChanged,
+      items: items?.map<DropdownMenuItem<String>>((String item) { return DropdownMenuItem<String>(value: item, child: Text(item));}).toList(),
+    );
+  }
+}
+
+class RWCheckBox extends StatelessWidget {
+  final String name;
+  final bool isText;
+  final bool value;
+  final FunctionChanged onChanged;
+  final FunctionPressed? onPressed;
+
+  RWCheckBox({
+    required this.name,
+    required this.isText,
+    required this.value,
+    required this.onChanged,
+    this.onPressed
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Checkbox(value: value, onChanged: onChanged),
+        (isText ? Text(name) : TextButton(onPressed: onPressed, child: Text(name)))
+      ],
+    );
+  }
+}
+
+class RWTextFormField extends StatelessWidget {
+  final String label;
+  final Icon icon;
+  final FunctionSaved onSaved;
+  final String? helperText;
+  final int? maxLength;
+  final TextInputType? textInputType;
+  final List<TextInputFormatter>? textInputFormatters;
+
+  const RWTextFormField({
+    required this.label,
+    required this.icon,
+    required this.onSaved,
+    this.helperText,
+    this.maxLength,
+    this.textInputType,
+    this.textInputFormatters
+  });
+
+
+  @override
+  Widget build(BuildContext context) {
     return TextFormField(
+      onSaved: onSaved,
+      keyboardType: textInputType,
+      inputFormatters: textInputFormatters,
+      maxLength: maxLength,
       decoration: InputDecoration(
         labelText: label,
+        helperText: helperText,
         prefixIcon: icon,
         labelStyle: const TextStyle(color: Colors.green),
         border: OutlineInputBorder(
@@ -540,7 +366,6 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
               width: 0,
             )),
       ),
-      onChanged: (value) => {val = value},
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'this field required';
@@ -550,9 +375,6 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
     );
   }
 }
-
-
-
 
 class MaskedTextInputFormatter extends TextInputFormatter {
   final String mask;

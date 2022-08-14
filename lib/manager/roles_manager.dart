@@ -10,10 +10,10 @@ class RoleManager extends ChangeNotifier{
 
   RoleManager() {
     RolesService().getAllRoles().then((roles) {
-      log("roles: ${jsonEncode(roles)}");
       for (RoleDTO item in roles) {
         _roleNames.add(item);
       }
+      notifyListeners();
     });
 //    log("roles: ${jsonEncode(_roleNames.map((item) => item.roleName))}");
   }

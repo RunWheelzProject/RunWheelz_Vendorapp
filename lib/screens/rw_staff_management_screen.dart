@@ -7,6 +7,8 @@ import 'package:untitled/manager/roles_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/login_page_screen.dart';
+import 'package:untitled/screens/profile.dart';
+import 'package:untitled/screens/rw_staff_registration_screen.dart';
 import 'package:untitled/screens/rw_vendor_registration_screen.dart';
 import 'package:untitled/services/phone_verification.dart';
 import 'package:http/http.dart' as http;
@@ -29,10 +31,7 @@ class _StaffManagementPageState extends State<StaffManagementPage>*/ StatelessWi
   
 
   @override
-  Widget build(BuildContext context) {/*
-    StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
-    *//*staffManager.setAllStaff();
-    log("_length: ${staffManager.staffList.length}");*/
+  Widget build(BuildContext context) {
     LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
     logInManager.setCurrentURLs("staffRegistration");
     return Scaffold(
@@ -69,14 +68,14 @@ class _StaffManagementPageState extends State<StaffManagementPage>*/ StatelessWi
                   const SizedBox(height: 30,),
                   Expanded(
                       child: ListView.separated(
-                        itemCount: Provider.of<StaffManager>(context, listen: false).staffList.length,
+                        itemCount: Provider.of<StaffManager>(context).staffList.length,
                         itemBuilder: (BuildContext context, int index) {
                           return Consumer<StaffManager>(
                               builder: (context, staff, child) => userCard(context: context,
-                              name: staff.staffList[index].name ?? "",
-                              location: staff.staffList[index]?.city ?? "",
-                              phoneNumber: staff.staffList[index]?.phoneNumber ?? ""));
-                        },
+                                    name: staff.staffList[index].name ?? "",
+                                    location: staff.staffList[index]?.city ?? "",
+                                    phoneNumber: staff.staffList[index]?.phoneNumber ?? ""));
+                          },
                         separatorBuilder: (BuildContext context, int index) {
                           return const SizedBox(height: 20,);
                         },
@@ -89,6 +88,18 @@ class _StaffManagementPageState extends State<StaffManagementPage>*/ StatelessWi
   }
 
   Widget userCard({
+    AssetImage image = const AssetImage("images/logo.jpg"),
+    name = "Amanda Graham",
+    location = "Bergon",
+    phoneNumber = "91 70876 57843",
+    required BuildContext context
+  }) {
+    return ListTile(
+      leading: Text("test"),
+      onTap: () => log("tapped"),
+    );
+  }
+  /*Widget userCard({
     AssetImage image = const AssetImage("images/logo.jpg"),
     name = "Amanda Graham",
     location = "Bergon",
@@ -110,7 +121,9 @@ class _StaffManagementPageState extends State<StaffManagementPage>*/ StatelessWi
                   offset: Offset(10, 10))
             ]
         ),
-        child: Column(
+        child: ListTile(
+        onTap: () => {log("tapped")},
+        leading: Column(
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -118,11 +131,11 @@ class _StaffManagementPageState extends State<StaffManagementPage>*/ StatelessWi
               children: [
                 IconButton(
                   onPressed: () {
-                    /*Navigator.of(context).pushReplacement(
+                    Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (BuildContext context) {
                           return Profile();
                         })
-                    );*/
+                    );
                   },
                   icon: const Icon(Icons.remove_red_eye, color: Colors.purple,),
                 ),
@@ -130,7 +143,13 @@ class _StaffManagementPageState extends State<StaffManagementPage>*/ StatelessWi
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (BuildContext context) {
-                          return const RWVendorRegistration();
+                          return MultiProvider(
+                            providers: [
+                              ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
+                              ChangeNotifierProvider<StaffManager>(create: (context) => StaffManager()),
+                              ],
+                            child: const RWStaffRegistration(),
+                          );
                         })
                     );
                   },
@@ -220,6 +239,6 @@ class _StaffManagementPageState extends State<StaffManagementPage>*/ StatelessWi
             )
           ],
         )
-    );
-  }
+    ));
+  }*/
 }

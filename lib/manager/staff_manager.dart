@@ -15,14 +15,21 @@ class StaffManager extends ChangeNotifier {
   List<StaffDTO> _staffList = [];
 
 
-  StaffManager() { setAllStaff(); }
+  StaffManager() {
+    StaffService().getAllStaff().then((staff) {
+      for (StaffDTO item in staff) {
+        if (item.registrationStatus == true) _staffList.add(item);
+      }
+      notifyListeners();
+    });
+  }
 
 
   List<StaffDTO> get staffList => _staffList;
   get staffDTO => _staffDTO;
   set staffDTO(value) => _staffDTO = value;
 
-  void setAllStaff() {
+  /*void setAllStaff() {
 
     StaffService().getAllStaff()
     .then((response) {
@@ -34,6 +41,6 @@ class StaffManager extends ChangeNotifier {
       //log("_staffList: $_staffList}");
     });
     notifyListeners();
-  }
+  }*/
 
 }

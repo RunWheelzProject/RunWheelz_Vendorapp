@@ -94,7 +94,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
             onTap: () {
               Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (BuildContext context) {
-                    return const VendorManagementPage();
+                    return VendorManagementPage();
                   })
               );
             },
@@ -134,7 +134,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
             onTap: () {
               Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (BuildContext context) {
-                    return const VendorManagementPage();
+                    return VendorManagementPage();
                   })
               );
             },
@@ -194,7 +194,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                                 providers: [
                                   ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
                                 ],
-                                child: const VendorManagementPage()
+                                child: VendorManagementPage()
                         );
                       })
                   );

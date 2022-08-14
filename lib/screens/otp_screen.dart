@@ -202,6 +202,7 @@ class _OTPState extends State<OtpScreen> {
                           if (response.statusCode == 201 && logInManager.currentURLs![1].contains("vendor")) {
                             log("vendor");
                             var jsonResponse = jsonDecode(response.body);
+                            log("jsonRespone: ${jsonEncode(jsonResponse)}");
                             vendorManager.vendorRegistrationRequest = VendorRegistrationRequest.fromJson(jsonResponse);
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return MultiProvider(
@@ -215,11 +216,11 @@ class _OTPState extends State<OtpScreen> {
                           if (response.statusCode == 201 && logInManager.currentURLs![1].contains("staff")) {
                             log("staff");
                             var jsonResponse = jsonDecode(response.body);
+                            log("JsonResponse: $jsonResponse");
                             staffManager.staffDTO = StaffDTO.fromJson(jsonResponse);
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return MultiProvider(
                                   providers: [
-                                    ChangeNotifierProvider(create: (_) => StaffManager()),
                                     ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
                                   ],
                                   child: const RWStaffRegistration()

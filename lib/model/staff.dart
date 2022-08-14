@@ -9,8 +9,6 @@ class StaffDTO {
   String? phoneNumber;
   Uint8List? proPic;
   String? aadharNumber;
-  double? longitude;
-  double? latitude;
   String? addressLine;
   String? city;
   String? state;
@@ -26,8 +24,6 @@ class StaffDTO {
     this.phoneNumber = "",
     this.proPic,
     this.aadharNumber = "",
-    this.longitude = 0,
-    this.latitude = 0,
     this.addressLine = "",
     this.city = "",
     this.state = "",
@@ -44,8 +40,6 @@ class StaffDTO {
       "phoneNumber": phoneNumber,
       "proPic": proPic,
       "aadharNumber": aadharNumber,
-      "longitude": longitude,
-      "latitude": latitude,
       "addressLine": addressLine,
       "city": city,
       "state": state,
@@ -63,8 +57,6 @@ class StaffDTO {
         phoneNumber: json["phoneNumber"],
         proPic: json["proPic"],
         aadharNumber: json["aadharNumber"],
-        latitude: json["latitude"],
-        longitude: json["longitude"],
         addressLine: json["addressLine"],
         city: json["city"],
         state: json["state"],

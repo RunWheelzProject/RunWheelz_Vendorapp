@@ -13,18 +13,42 @@ class VendorManager extends ChangeNotifier {
   late VendorRegistrationRequest vendorRegistrationRequest = VendorRegistrationRequest();
 
   List<VendorRegistrationRequest> _vendorList = [];
+  List<VendorRegistrationRequest> _filteredList = [];
+  bool _isRegistered = true;
 
 
   VendorManager() {
     VendorRegistrationService().getAllVendor().then((staff) {
       for (VendorRegistrationRequest item in staff) {
-        if (item.registrationStatus == true) _vendorList.add(item);
+        _vendorList.add(item);
       }
       notifyListeners();
     });
+    getRegisteredList();
+  }
+
+  void getRegisteredList() {
+    _filteredList = [];
+    for (VendorRegistrationRequest item in _vendorList) {
+      if (item.registrationStatus == true) _filteredList.add(item);
+    }
+    notifyListeners();
+  }
+
+  void getNotRegisteredList() {
+    _filteredList = [];
+    for (VendorRegistrationRequest item in _vendorList) {
+      if (item.registrationStatus == false) _filteredList.add(item);
+    }
+    notifyListeners();
   }
 
   List<VendorRegistrationRequest> get vendorList => _vendorList;
   get _vendorRegistrationRequest => vendorRegistrationRequest;
+
+  List<VendorRegistrationRequest> get filteredList => _filteredList;
+  bool get isRegistered => _isRegistered;
+
+  set isRegistered(bool val) => _isRegistered = val;
 
 }

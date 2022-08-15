@@ -52,6 +52,7 @@ dependencies:
   provider: ^6.0.3
   profile: ^0.0.1
   image_picker: ^0.8.5+3
+  searchable_listview: ^2.0.0
 
 dev_dependencies:
   flutter_test:

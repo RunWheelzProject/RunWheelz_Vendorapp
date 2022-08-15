@@ -1,16 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:untitled/screens/rw_management_screen.dart';
+import 'package:untitled/screens/rw_staff_management_screen.dart';
 
 
-class Profile extends StatefulWidget {
-  Profile({Key? key}) : super(key: key);
-
-  @override
-  _ProfileState createState() => _ProfileState();
-}
-
-class _ProfileState extends State<Profile> {
+class Profile extends StatelessWidget {
 
   bool circular = false;
   //PickedFile? _imageFile = null;
@@ -18,12 +13,24 @@ class _ProfileState extends State<Profile> {
 
   final ImagePicker _picker = ImagePicker();
 
-
+  Profile({Key? key}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.purple,
+        onPressed: () => {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+                return const StaffManagementPage();
+              })
+          )
+        },
+        child: const Icon(Icons.arrow_back),
+      ),
       appBar: AppBar(
         title: const Center(
           child: Text(
@@ -37,40 +44,19 @@ class _ProfileState extends State<Profile> {
       body: Form(
 
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30),
 
           children: <Widget>[
 
-            imageProfile(),
-            const SizedBox(
-              height: 30,
-
-            ),
-            nameTextField(),
-            const SizedBox(
-              height: 20,
-            ),
-            emailTextField(),
-
-            const SizedBox(
-              height: 20,
-            ),
-            phonenumberTextField(),
-            const SizedBox(
-
-              width: 2,
-
-              height: 90,),
-            ElevatedButton(
-              child: const Text('Update'),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.purple,
-
-              ),
-              onPressed: () {},
-            ),
-
-//
+            imageProfile(context),
+            const SizedBox(height: 30,),
+            fieldName("Name", "Venkata Chary, Padala", "Vendor"),
+            const SizedBox(height: 80,),
+            fieldLeft("Phone Number", "00918985654602"),
+            const SizedBox(height: 30,),
+            fieldLeft("Aadhaar Card", "9090-9090-9090"),
+            const SizedBox(height: 30,),
+            fieldLeft("Address", "2-41, chelgal\nJagtial, Karimnaga\nTelangana, India - 505455")
 
           ],
         ),
@@ -78,7 +64,28 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget imageProfile() {
+  Widget fieldName(String key, String value, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(key, style: const TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
+        Text(value, style: const TextStyle(fontSize: 20)),
+        Text(title, style: const TextStyle(fontSize: 16))
+      ],
+    );
+  }
+
+  Widget fieldLeft(String key, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(key, style: const TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
+        Text(value, style: const TextStyle(fontSize: 20))
+      ],
+    );
+  }
+
+  Widget imageProfile(BuildContext context) {
     return Center(
 
       child: Stack(children: <Widget>[
@@ -99,7 +106,7 @@ class _ProfileState extends State<Profile> {
             onTap: () {
               showModalBottomSheet(
                 context: context,
-                builder: ((builder) => bottomSheet()),
+                builder: ((builder) => bottomSheet(context)),
               );
             },
             child: const Icon(
@@ -107,16 +114,13 @@ class _ProfileState extends State<Profile> {
               color: Colors.purple,
               size: 28.0,
             ),
-
-
-
           ),
         ),
       ]),
     );
   }
 
-  Widget bottomSheet() {
+  Widget bottomSheet(BuildContext context) {
     return Container(
       height: 100.0,
       width: MediaQuery
@@ -173,11 +177,10 @@ class _ProfileState extends State<Profile> {
 
   Future<File?> takePhoto(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source);
-
     final File? file = File(image!.path);
-    setState(() {
+    /*setState(() {
       _imageFile = image;
-    });
+    });*/
     return file;
   }
 

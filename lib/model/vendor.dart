@@ -16,7 +16,7 @@ class VendorRegistrationRequest {
   String? state;
   String? zipcode;
   String? country;
-  int? roleId;
+  RoleDTO? role;
   bool? registrationStatus;
 
   VendorRegistrationRequest({this.ownerName = '',
@@ -34,7 +34,7 @@ class VendorRegistrationRequest {
     this.state = "",
     this.zipcode = "",
     this.country = "",
-    this.roleId,
+    this.role,
     this.registrationStatus = false
 
   });
@@ -55,7 +55,7 @@ class VendorRegistrationRequest {
     "state": state,
     "zipcode": zipcode,
     "country": country,
-    "roleId": roleId,
+    "role": role,
     "registrationStatus": registrationStatus
   };
 
@@ -75,7 +75,7 @@ class VendorRegistrationRequest {
       city: json["city"],
       zipcode: json["zipcode"],
       country: json["country"],
-      roleId: json["roleId"],
+      role: RoleDTO.fromJson(json["roleId"]),
       registrationStatus: json["registrationStatus"]
     );
   }

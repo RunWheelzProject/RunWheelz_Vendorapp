@@ -15,6 +15,7 @@ class StaffManager extends ChangeNotifier {
   List<StaffDTO> _staffList = [];
   List<StaffDTO> _filteredList = [];
   bool _isRegistered = true;
+  bool _isEnable = false;
 
 
   StaffManager() {
@@ -48,22 +49,12 @@ class StaffManager extends ChangeNotifier {
   List<StaffDTO> get filteredList => _filteredList;
   get staffDTO => _staffDTO;
   bool get isRegistered => _isRegistered;
+  bool get isEnabled => _isEnable;
 
+  set isEnabled(bool val) => _isEnable;
   set isRegistered(bool val) => _isRegistered = val;
   set staffDTO(value) => _staffDTO = value;
 
-  /*void setAllStaff() {
 
-    StaffService().getAllStaff()
-    .then((response) {
-      log("${jsonDecode(response.body)}");
-      var jsonResponse = jsonDecode(response.body) as List;
-      _staffList = jsonResponse.where((element) => element["registrationStatus"] == true).toList()
-          .map((json) => StaffDTO.fromJson(json)).toList();
-      log("jsonResponse: ${jsonEncode(jsonResponse)}");
-      //log("_staffList: $_staffList}");
-    });
-    notifyListeners();
-  }*/
 
 }

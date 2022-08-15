@@ -1,15 +1,8 @@
-import 'dart:convert';
-import 'dart:developer';
-
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/utils/add_space.dart';
-
-import '../colors/app_colors.dart';
 import '../components/menu.dart';
 import '../components/pending_order_card.dart';
-import '../components/header_text.dart';
 import '../resources/resources.dart' as res;
 
 class PendingOrder extends StatefulWidget {

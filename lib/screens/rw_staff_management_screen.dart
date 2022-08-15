@@ -3,22 +3,13 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled/manager/roles_manager.dart';
+import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/model/staff.dart';
-import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
-import 'package:untitled/screens/rw_staff_registration_screen.dart';
-import 'package:untitled/screens/rw_vendor_registration_screen.dart';
-import 'package:untitled/services/phone_verification.dart';
-import 'package:http/http.dart' as http;
-import '../components/logo.dart';
 import '../manager/login_manager.dart';
-import '../resources/resources.dart' as res;
-
-import 'dart:async';
 import 'package:searchable_listview/searchable_listview.dart';
 
 class StaffManagementPage extends StatelessWidget {
@@ -28,7 +19,7 @@ class StaffManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
     StaffManager staffManager = Provider.of<StaffManager>(context);
     logInManager.setCurrentURLs("staffRegistration");
@@ -116,30 +107,36 @@ class StaffManagementPage extends StatelessWidget {
                   const Text('Staff List', style: TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
                   Expanded(
                       child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: SearchableList<StaffDTO>(
-                      initialList: staffManager.filteredList,
-                      builder: (StaffDTO staff) => Item(
-                        staffDTO: staff,
-                      ),
-                      filter: (value) => staffManager.filteredList
-                          .where((element) =>
-                              element.phoneNumber?.contains(value) as bool)
-                          .toList(),
-                      onItemSelected: (StaffDTO staff) =>
-                          log("staff: ${jsonEncode(staff)}"),
-                      inputDecoration: InputDecoration(
-                        labelText: "Search Staff",
-                        fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.blue,
-                            width: 1.0,
+                      padding: const EdgeInsets.all(15),
+                      child: SearchableList<StaffDTO>(
+                        initialList: staffManager.filteredList,
+                        builder: (StaffDTO staff) => Item(
+                          staffDTO: staff,
+                        ),
+                        filter: (value) => staffManager.filteredList
+                            .where((element) =>
+                                element.phoneNumber?.contains(value) as bool)
+                            .toList(),
+                        onItemSelected: (StaffDTO staff) {
+                          profileManager.staffDTO = staff;
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (BuildContext context) {
+                                return Profile(isStaff: true);
+                              })
+                          );
+                         },
+                        inputDecoration: InputDecoration(
+                          labelText: "Search Staff",
+                          fillColor: Colors.white,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.blue,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
-                          borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
-                    ),
                   ))
                 ]
                 )
@@ -176,70 +173,11 @@ class Item extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (BuildContext context) {
-                      return Profile();
-                    }));
-                  },
-                  icon: const Icon(
-                    Icons.remove_red_eye,
-                    color: Colors.purple,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (BuildContext context) {
-                      return MultiProvider(
-                        providers: [
-                          ChangeNotifierProvider<RoleManager>(
-                              create: (context) => RoleManager()),
-                          ChangeNotifierProvider<StaffManager>(
-                              create: (context) => StaffManager()),
-                        ],
-                        child: const RWStaffRegistration(),
-                      );
-                    }));
-                  },
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Colors.purple,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    showDialog<String>(
-                        builder: (BuildContext context) => AlertDialog(
-                                title: const Text("Delete"),
-                                content: Text(
-                                    "Are you sure deleting Vendor: -  '${staffDTO.name}' -  ?",
-                                    style: const TextStyle(
-                                        fontSize: 18, color: Colors.black87)),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, 'YES'),
-                                    child: const Text(
-                                      'YES',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, 'NO'),
-                                    child: const Text('NO'),
-                                  )
-                                ]),
-                        context: context);
-                  },
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Colors.purple,
-                  ),
-                ),
+              children: const [
+                Icon(
+                  Icons.remove_red_eye,
+                  color: Colors.purple,
+                )
               ],
             ),
             const SizedBox(

@@ -70,7 +70,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                               fontWeight: FontWeight.bold),
                         )),
                         addVerticalSpace(40),
-                        Container(
+                        /*Container(
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.symmetric(
                                 vertical: 25, horizontal: 20),
@@ -96,7 +96,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                           fontSize: 16,
                                           color: Colors.green,
                                           fontFamily: 'Roboto Bold'))
-                                ])),
+                                ])),*/
                         addVerticalSpace(25),
                         TextFormField(
                           decoration: InputDecoration(
@@ -468,7 +468,9 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 onPressed: () {
                                         if (_formKey.currentState!.validate()) {
                                           vendorManager.vendorRegistrationRequest.registrationStatus = true;
-                                          log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
+                                          RoleDTO role = RoleDTO(id: 3, roleName: "VENDOR");
+                                          vendorManager.vendorRegistrationRequest.role = role;
+                                          log("vendor1: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
                                           VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest)
                                           .then((response) {
                                             log("status: ${response.statusCode}");

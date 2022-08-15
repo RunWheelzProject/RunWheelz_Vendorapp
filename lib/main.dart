@@ -16,6 +16,7 @@ import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import './screens/splashscreen.dart';
 import './theme/theme_manager.dart';
 import './theme/themes.dart';
+import 'manager/profile_manager.dart';
 import 'manager/roles_manager.dart';
 import 'manager/staff_manager.dart';
 
@@ -72,13 +73,14 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<ApplicationManager>(create: (context) => ApplicationManager()),
         ChangeNotifierProvider<VendorManager>(create: (context) => VendorManager()),
         ChangeNotifierProvider<LogInManager>(create: (context) => LogInManager()),
+        ChangeNotifierProvider<ProfileManager>(create: (context) => ProfileManager())
       ],
       child: MaterialApp(
           title: 'Flutter Demo',
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeManager.themeMode,
-          home: const RunWheelManagementPage(),
+          home: const VendorDashBoard(),
         ),
     );
   }

@@ -11,8 +11,10 @@ import 'dart:developer';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_registration_screen.dart';
 import 'package:untitled/screens/rw_vendor_registration_screen.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 
@@ -192,10 +194,20 @@ class _OTPState extends State<OtpScreen> {
                       PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1])
                       .then((http.Response response) {
                           var responseJson = json.decode(response.body);
-                          log("responseJson: ${response.statusCode}");
+                          log("responseJson: ${jsonEncode(responseJson)}");
                           if (response.statusCode == 404) {
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return const VendorRegistrationV1();
+                            }));
+                          }
+                          if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                              return const VendorDashBoard();
+                            }));
+                          }
+                          if (response.statusCode == 201 && responseJson["runwheelzStaffDTO"] != null) {
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                              return const RunWheelManagementPage();
                             }));
                           }
                           log("currentUrls: ${logInManager.currentURLs![1]}, ${logInManager.currentURLs![0]}");

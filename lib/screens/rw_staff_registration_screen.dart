@@ -85,7 +85,7 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                                   fontWeight: FontWeight.bold),
                             )),
                         addVerticalSpace(40),
-                        Container(
+                        /*Container(
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.symmetric(
                                 vertical: 25, horizontal: 20),
@@ -111,7 +111,7 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                                           fontSize: 16,
                                           color: Colors.green,
                                           fontFamily: 'Roboto Bold'))
-                                ])),
+                                ])),*/
                         addVerticalSpace(25),
                         RWTextFormField(
                             label: 'Name',
@@ -347,6 +347,7 @@ class RWTextFormField extends StatelessWidget {
         helperText: helperText,
         prefixIcon: icon,
         labelStyle: const TextStyle(color: Colors.green),
+        helperStyle: const TextStyle(color: Colors.red, fontSize: 14),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
             borderSide: const BorderSide(

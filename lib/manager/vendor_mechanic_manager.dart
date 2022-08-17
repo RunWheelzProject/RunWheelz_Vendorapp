@@ -9,7 +9,7 @@ import 'package:untitled/services/vendor_registration.dart';
 
 import '../model/role.dart';
 
-class VendorManager extends ChangeNotifier {
+class VendorMechanicManager extends ChangeNotifier {
   late VendorRegistrationRequest vendorRegistrationRequest = VendorRegistrationRequest();
 
   List<VendorRegistrationRequest> _vendorList = [];

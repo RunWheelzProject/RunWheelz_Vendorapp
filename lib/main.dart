@@ -1,37 +1,84 @@
+import 'dart:developer';
 import 'dart:io';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/manager/login_manager.dart';
 import 'package:untitled/manager/manager.dart';
 import 'package:untitled/manager/location_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
-import 'package:untitled/model/vendor.dart';
-import 'package:untitled/screens/google_map_location_screen.dart';
-import 'package:untitled/screens/login_page_screen.dart';
-import 'package:untitled/screens/rw_management_screen.dart';
-import 'package:untitled/screens/vendor_dashboard.dart';
-import 'package:untitled/screens/rw_vendor_management_screen.dart';
-import 'package:untitled/screens/vendor_registration_screen_v1.dart';
-import './screens/splashscreen.dart';
 import './theme/theme_manager.dart';
 import './theme/themes.dart';
 import 'manager/profile_manager.dart';
-import 'manager/roles_manager.dart';
 import 'manager/staff_manager.dart';
 
-class MyHttpOverrides extends HttpOverrides{
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
   @override
-  HttpClient createHttpClient(SecurityContext? context){
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
-  }
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
+class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+                onPressed: () async {
+                  log("subscribing...");
+                  await FirebaseMessaging.instance.subscribeToTopic('test');
+                  log("subscribed");
+                },
+                child: const Text('Subscribe To Topic')),
+            ElevatedButton(
+                onPressed: () async {
+                  await FirebaseMessaging.instance.unsubscribeFromTopic('test');
+                },
+                child: const Text('un Subscribe To Topic')),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+// c1BK_MR5Q_OK-ajaTOmF2V:APA91bFwl89ycpFXiW3696mtCjw7_emQ9hpNp8NPxHJV7EEpdeqRsl-JtBBZiEtvM22Glck1DDCn5Yj4VwPtLOsbb1oPO1B-xWn-PZ1WiM5NuUShLSHEC_XvW7uAxzt0eNnHmzcLRqv2
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
+}
 
 void main() {
-  HttpOverrides.global = new MyHttpOverrides();
-  runApp(const RunWheelz());
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  runApp(RunWheelz());
 }
 
 
@@ -80,13 +127,11 @@ class RunWheelzState extends State<RunWheelz> {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeManager.themeMode,
-          home: const VendorDashBoard(),
+          home: const MyHomePage(title: "test"),
         ),
     );
   }
 }
-
-
 
 /*
 

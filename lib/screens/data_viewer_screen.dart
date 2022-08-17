@@ -1,144 +1,254 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/manager/profile_manager.dart';
+import 'package:untitled/manager/staff_manager.dart';
+import 'package:untitled/model/staff.dart';
+import 'package:untitled/screens/login_page_screen.dart';
+import 'package:untitled/screens/profile.dart';
+import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
-import 'package:untitled/utils/add_space.dart';
-import '../components/menu.dart';
-import '../components/pending_order_card.dart';
-import '../resources/resources.dart' as res;
+import '../manager/login_manager.dart';
+import 'package:searchable_listview/searchable_listview.dart';
 
-class PendingOrder extends StatefulWidget {
+class VendorDataManagementPage extends StatelessWidget {
   final String pageTitle;
-  final Map<String, String> data;
-  const PendingOrder({Key? key, required this.pageTitle, required this.data}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => PendingOrderData();
-}
-
-class PendingOrderData extends State<PendingOrder> {
+  const VendorDataManagementPage({Key? key, required this.pageTitle}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
+    LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
+    StaffManager staffManager = Provider.of<StaffManager>(context);
+    logInManager.setCurrentURLs("staffRegistration");
+
     return Scaffold(
-      primary: true,
-      appBar: AppBar(
-        flexibleSpace: SafeArea(
-          child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text("Run Wheelz",
-                      style: TextStyle(color: Colors.white, fontSize: 23)),
-                  addHorizontalSpace(100),
-                  const Icon(
-                    Icons.account_circle_rounded,
-                    color: Colors.white,
-                  ),
-                  addHorizontalSpace(20),
-                  const Icon(
-                    Icons.notification_add_rounded,
-                    color: Colors.white,
-                  ),
-                  addHorizontalSpace(20),
-                ],
-              )),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.purple,
+          onPressed: () => {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return const VendorDashBoard();
+                })
+            )
+          },
+          child: const Icon(Icons.arrow_back),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.arrow_back),
-        backgroundColor: Colors.purple,
-        onPressed: () => {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (BuildContext context) {
-              return const VendorDashBoard();
-            })
-          )
-        },
-      ),
-      drawer: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),
-          child: Menu.menuData("menu", res.menuItems)),
-      body: Column(
-        children: [
-          Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Text(widget.pageTitle, style: const TextStyle(fontSize: 34, color: Colors.white),),
-                  addVerticalSpace(20),
-                  const SizedBox(
-                      width: 300,
-                      child: TextField(
-                          decoration: InputDecoration(
-                              fillColor: Color(0xfffbfcfb),
-                              hintStyle: TextStyle(color: Colors.black54),
-                              hintText: 'Search a location',
-                            prefixIcon: Icon(Icons.person, color: Colors.purple),
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.purple,
-                                  width: 1,
-                                )
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.purple,
-                                  width: 2,
-                                )
-                            ),
-                              suffixIcon: Icon(
-                                Icons.search_outlined,
-                                color: Colors.purple,
-                              )
-                          )
+        appBar: AppBar(
+          title: const Text("Vendor Dashboard"),
+        ),
+        body: SafeArea(
+            child: SizedBox(
+                width: double.infinity,
+                child: Column(children: [
+                  const SizedBox(height: 40,),
+                  /*Align(
+                      alignment: Alignment.centerLeft,
+                      child:ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                              return const LoginScreen();
+                            })
+                            );
+                          },
+                          child: const Text("Add Staff + ")
                       )
-                  )
+                  ),*/
+                  const SizedBox(height: 20,),
+                  /*Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Text("Registered", textAlign: TextAlign.center,),
+                                    Checkbox(
+                                        value: staffManager.isRegistered,
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            if (val) {
+                                              staffManager.isRegistered = true;
+                                              staffManager.getRegisteredList();
+                                            }
+                                          }
+                                        }),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Text("Not Registered"),
+                                    Checkbox(
+                                        value: !staffManager.isRegistered,
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            if (val) {
+                                              staffManager.isRegistered = false;
+                                              staffManager.getNotRegisteredList();
+
+                                            }
+                                          }
+                                        }),
+                                  ],
+                                ),
+                              ]
+                          )
+
+                        ],
+                      )
+                  ),*/
+                  const SizedBox(height: 20,),
+                  Text(pageTitle, style: const TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
+                  Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: SearchableList<StaffDTO>(
+                          initialList: staffManager.filteredList,
+                          builder: (StaffDTO staff) => Item(
+                            staffDTO: staff,
+
+                          ),
+                          filter: (value) => staffManager.filteredList
+                              .where((element) =>
+                          element.phoneNumber?.contains(value) as bool)
+                              .toList(),
+                          onItemSelected: (StaffDTO staff) {
+                            profileManager.staffDTO = staff;
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: (BuildContext context) {
+                                  return Profile(isStaff: true);
+                                })
+                            );
+                          },
+                          inputDecoration: InputDecoration(
+                            labelText: "Search $pageTitle",
+                            fillColor: Colors.white,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.blue,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                        ),
+                      ))
                 ]
-              )
-          ),
-          addVerticalSpace(10),
-          Expanded(
-            child: ListView.separated(
-            shrinkWrap: true,
-            itemCount: 30,
-            padding: const EdgeInsets.all(10),
-            separatorBuilder: (BuildContext context, int index) {
-              return addVerticalSpace(20);
-            },
-            itemBuilder: (BuildContext context, int index) {
-              return const PendingOrderCard();
-            },
-          ))
-        ]
-      )
+                )
+            )
+        )
     );
   }
 }
 
+class Item extends StatelessWidget {
+  final StaffDTO staffDTO;
+  final AssetImage image = const AssetImage("images/logo.jpg");
+  const Item({Key? key, required this.staffDTO}) : super(key: key);
 
-/*
-TextField(
-controller: _locationController,
-enabled: !_isChecked,
-decoration: const InputDecoration(
-hintText: 'Search a location',
-enabledBorder: OutlineInputBorder(
-borderSide: BorderSide(width: 1.0)),
-suffixIcon: Icon(
-Icons.search_outlined,
-color: Colors.black,
-)),
-onChanged: (value) {
-log("value: $value");
-_locationManager.searchLocations(value);
-*/
-/*RPlaceAutoComplete()
-                            .getAutoComplete(value)
-                            .then((placeSearchData) {
-                              _locationManager.setSearchedLocations = placeSearchData;
-                          //_locationManager.searchedLocations(value);
-                        });*//*
-
-},
-)*/
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(5),
+          /*boxShadow: const <BoxShadow>[
+             BoxShadow(color: Colors.black45,
+                 blurRadius: 10,
+                 offset: Offset(5, 5)),
+             BoxShadow(color: Colors.black45,
+                 blurRadius: 10,
+                 offset: Offset(10, 10))
+           ]*/
+        ),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: const [
+                Icon(
+                  Icons.remove_red_eye,
+                  color: Colors.purple,
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Column(children: [
+                  CircleAvatar(radius: 25.0, backgroundImage: image)
+                ]),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        staffDTO.name ?? "No Name",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.black87),
+                        textAlign: TextAlign.left,
+                      )
+                    ]),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        const Icon(
+                          Icons.location_on,
+                          color: Colors.blue,
+                          size: 15,
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(staffDTO.city ?? "not found",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                                color: Colors.black45)),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        const Icon(Icons.phone_android,
+                            color: Colors.blue, size: 15),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(staffDTO.phoneNumber ?? "00000 00000",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                                color: Colors.black45))
+                      ],
+                    )
+                  ],
+                )
+              ],
+            )
+          ],
+        ));
+  }
+}

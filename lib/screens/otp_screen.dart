@@ -193,7 +193,7 @@ class _OTPState extends State<OtpScreen> {
                       log("phoneVerification: $phoneVerification");
                       PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1])
                       .then((http.Response response) {
-                          var responseJson = json.decode(response.body);
+                          var responseJson = jsonDecode(response.body);
                           log("responseJson: ${jsonEncode(responseJson)}");
                           if (response.statusCode == 404) {
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
@@ -201,11 +201,14 @@ class _OTPState extends State<OtpScreen> {
                             }));
                           }
                           if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
+                            vendorManager.vendorRegistrationRequest =
+                                VendorRegistrationRequest.fromJson(responseJson["vendorDTO"]);
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return const VendorDashBoard();
                             }));
                           }
                           if (response.statusCode == 201 && responseJson["runwheelzStaffDTO"] != null) {
+                            staffManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return const RunWheelManagementPage();
                             }));
@@ -242,7 +245,7 @@ class _OTPState extends State<OtpScreen> {
 
                             // RWStaffRegistration
                           }
-                          var messageMap = responseJson as Map;
+                         var messageMap = responseJson as Map;
                           if (messageMap.containsKey("message")) {
                             log("ServerError: ${messageMap["message"]}");
                           }

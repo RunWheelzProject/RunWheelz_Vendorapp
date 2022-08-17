@@ -1,4 +1,3 @@
-/*
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -15,8 +14,13 @@ import '../model/staff.dart';
 import '../services/staff_service.dart';
 
 
-class StaffProfile extends StatelessWidget {
+class MechanicProfile extends StatelessWidget {
+  final bool isStaff;
+  final bool isVendor;
+
+
   bool circular = false;
+  //PickedFile? _imageFile = null;
   XFile? _imageFile;
 
   final ImagePicker _picker = ImagePicker();
@@ -33,16 +37,30 @@ class StaffProfile extends StatelessWidget {
       fillColor: Colors.white
   );
 
-  final StaffDTO staffDTO;
-  StaffProfile({Key? key, required this.staffDTO}) : super(key: key);
+  MechanicProfile({Key? key, this.isStaff = false, this.isVendor = false}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
+    ProfileManager profileManager = Provider.of<ProfileManager>(context);
+    late final StaffDTO staffDTO;
+    late final VendorRegistrationRequest vendor;
+
+    if (isStaff) {
+      staffDTO = profileManager.staffDTO;
+      log("staffDTO2: ${jsonEncode(staffDTO)}");
       _nameController.text = staffDTO.name ?? "not exits";
       _phoneController.text = staffDTO.phoneNumber ?? "not exits";
       _aadhaarController.text = staffDTO.aadharNumber ?? "not exits";
-    _addressController.text = staffDTO.addressLine ?? "not exits";
+      _addressController.text = staffDTO.addressLine ?? "not exits";
+    }
+    if (isVendor) {
+      vendor = profileManager.vendorRegistrationRequest;
+      _nameController.text = vendor.ownerName ?? "not exists";
+      _phoneController.text = vendor.phoneNumber ?? "not exists";
+      _aadhaarController.text = vendor.aadharNumber ?? "not exists";
+      _addressController.text = vendor.addressLine ?? "not exists";
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -198,6 +216,52 @@ class StaffProfile extends StatelessWidget {
       ),
     );
   }
+/*
+  Widget fieldName(String key, String? value, String title, BuildContext context, String? data) {
+    ProfileManager profileManager = Provider.of<ProfileManager>(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(key, style: const TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
+        //Text(value ?? "not exists", style: const TextStyle(fontSize: 20)),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            IntrinsicWidth(
+              child: TextField(
+                controller: _name,
+                enabled: profileManager.isEnable,
+                decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                onChanged: (val) => data = val,
+              ),
+            ),
+          ],
+        ),
+        Text(title, style: const TextStyle(fontSize: 16))
+      ],
+    );
+  }
+
+  Widget fieldLeft(String key, String? value, BuildContext context) {
+    ProfileManager profileManager = Provider.of<ProfileManager>(context);
+    TextEditingController controller = TextEditingController();
+    controller.text = value!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(key, style: const TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
+        IntrinsicWidth(
+          child: TextField(
+            controller: controller,
+            enabled: profileManager.isEnable,
+            decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
+            onChanged: (val) => data = val,
+          ),
+        )
+      ],
+    );
+  }*/
 
   Widget imageProfile(BuildContext context, ImagePicker _picker) {
     return Center(
@@ -279,14 +343,11 @@ class StaffProfile extends StatelessWidget {
   Future<File?> takePhoto(ImageSource source, ImagePicker _picker) async {
     final XFile? image = await _picker.pickImage(source: source);
     final File file = File(image!.path);
-    */
-/*setState(() {
+    /*setState(() {
       _imageFile = image;
-    });*//*
-
+    });*/
     return file;
   }
 
 }
 
-*/

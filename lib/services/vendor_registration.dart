@@ -47,4 +47,18 @@ class VendorRegistrationService {
     return response;
   }
 
+  Future<VendorRegistrationRequest> getVendorById(int id) async {
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendor/$id"));
+    var jsonResponse = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+
+      VendorRegistrationRequest vendorRegistrationRequest = VendorRegistrationRequest.fromJson(jsonResponse);
+      return vendorRegistrationRequest;
+    }
+
+    throw jsonResponse["message"];
+
+  }
+
+
 }

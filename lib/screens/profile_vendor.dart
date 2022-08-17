@@ -1,4 +1,3 @@
-/*
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -6,16 +5,19 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
+import 'package:untitled/services/vendor_registration.dart';
 
 import '../manager/profile_manager.dart';
 import '../model/staff.dart';
 import '../services/staff_service.dart';
 
 
-class StaffProfile extends StatelessWidget {
+class VendorProfile extends StatelessWidget {
   bool circular = false;
   XFile? _imageFile;
 
@@ -33,27 +35,30 @@ class StaffProfile extends StatelessWidget {
       fillColor: Colors.white
   );
 
-  final StaffDTO staffDTO;
-  StaffProfile({Key? key, required this.staffDTO}) : super(key: key);
+  VendorProfile({Key? key}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
-      _nameController.text = staffDTO.name ?? "not exits";
-      _phoneController.text = staffDTO.phoneNumber ?? "not exits";
-      _aadhaarController.text = staffDTO.aadharNumber ?? "not exits";
-    _addressController.text = staffDTO.addressLine ?? "not exits";
+    final VendorManager vendorManager = Provider.of<VendorManager>(context);
+    final vendor = vendorManager.vendorRegistrationRequest;
+    log("vendor: ${jsonEncode(vendor)}");
+      _nameController.text = vendor.ownerName ?? "not exists";
+      _phoneController.text = vendor.phoneNumber ?? "not exists";
+      _aadhaarController.text = vendor.aadharNumber ?? "not exists";
+      _addressController.text = vendor.addressLine ?? "not exists";
 
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.purple,
-        onPressed: () => {
+        onPressed: () {
+          vendorManager.isEnabled = false;
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return const StaffManagementPage();
+                return const VendorDashBoard();
               })
-          )
+          );
         },
         child: const Icon(Icons.arrow_back),
       ),
@@ -77,18 +82,21 @@ class StaffProfile extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: () {
-                  if (profileManager.isEnable) {
-                    profileManager.isEnable = false;
-                    StaffService().updateStaffInfo(profileManager.staffDTO);
-                    Future<StaffDTO> future = StaffService().getStaffById(staffDTO.id as int);
-                    future.then((StaffDTO staffDTO) => profileManager.staffDTO = staffDTO)
+                  log("isEnabled: ${vendorManager.isEnabled}");
+                  if (vendorManager.isEnabled) {
+                    vendorManager.isEnabled = false;
+                    VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest);
+                    Future<VendorRegistrationRequest> future =
+                      VendorRegistrationService().getVendorById(vendorManager.vendorRegistrationRequest.id as int);
+                    future.then((VendorRegistrationRequest vendorRegistrationRequest) =>
+                      vendorManager.vendorRegistrationRequest = vendorRegistrationRequest)
                         .catchError((error) { log("error: $error"); });
                   } else {
-                    profileManager.isEnable = true;
+                    vendorManager.isEnabled = true;
                   }
                 },
                 icon: Icon(
-                  profileManager.isEnable ? Icons.save : Icons.edit,
+                  vendorManager.isEnabled ? Icons.save : Icons.edit,
                   color: Colors.purple,
                 ),
               ),
@@ -98,7 +106,7 @@ class StaffProfile extends StatelessWidget {
                       builder: (BuildContext context) => AlertDialog(
                           title: const Text("Delete"),
                           content: Text(
-                              "Are you sure deleting Vendor: -  '${staffDTO.name}' -  ?",
+                              "Are you sure deleting Vendor: -  '${vendor.ownerName}' -  ?",
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black87)),
                           actions: <Widget>[
@@ -139,14 +147,14 @@ class StaffProfile extends StatelessWidget {
                   IntrinsicWidth(
                     child: TextField(
                       controller: _nameController,
-                      enabled: profileManager.isEnable,
-                      decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                      onChanged: (val) => profileManager.staffDTO.name = val,
+                      enabled: vendorManager.isEnabled,
+                      decoration: vendorManager.isEnabled ? enableInputDecoration : disableInputDecoration,
+                      onChanged: (val) => vendorManager.vendorRegistrationRequest.ownerName = val,
                     ),
                   ),
                 ],
               ),
-              Text(isVendor ? "Vendor" : "Staff", style: const TextStyle(fontSize: 16))
+              const Text("Vendor", style: TextStyle(fontSize: 16))
             ],
           ),
           const SizedBox(height: 80,),
@@ -157,9 +165,9 @@ class StaffProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _phoneController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.staffDTO.phoneNumber = val,
+                  enabled: vendorManager.isEnabled,
+                  decoration: vendorManager.isEnabled ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorRegistrationRequest.phoneNumber = val,
                 ),
               )
             ],
@@ -172,9 +180,9 @@ class StaffProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _aadhaarController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.staffDTO.aadharNumber = val,
+                  enabled: vendorManager.isEnabled,
+                  decoration: vendorManager.isEnabled ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorRegistrationRequest.aadharNumber = val,
                 ),
               )
             ],
@@ -187,9 +195,9 @@ class StaffProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _addressController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.staffDTO.addressLine = val,
+                  enabled: vendorManager.isEnabled,
+                  decoration: vendorManager.isEnabled ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorRegistrationRequest.addressLine = val,
                 ),
               )
             ],
@@ -279,14 +287,11 @@ class StaffProfile extends StatelessWidget {
   Future<File?> takePhoto(ImageSource source, ImagePicker _picker) async {
     final XFile? image = await _picker.pickImage(source: source);
     final File file = File(image!.path);
-    */
-/*setState(() {
+    /*setState(() {
       _imageFile = image;
-    });*//*
-
+    });*/
     return file;
   }
 
 }
 
-*/

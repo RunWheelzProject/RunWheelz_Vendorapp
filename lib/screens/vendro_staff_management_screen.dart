@@ -6,26 +6,23 @@ import 'package:provider/provider.dart';
 import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/model/staff.dart';
-import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 
-import '../manager/vendor_manager.dart';
+class VendorStaffManagementPage extends StatelessWidget {
 
-class VendorManagementPage extends StatelessWidget {
-
-  const VendorManagementPage({Key? key}) : super(key: key);
+  const VendorStaffManagementPage({Key? key}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
-    VendorManager vendorManager = Provider.of<VendorManager>(context);
-    logInManager.setCurrentURLs("vendorRegistration");
+    StaffManager staffManager = Provider.of<StaffManager>(context);
+    logInManager.setCurrentURLs("staffRegistration");
 
     return Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -40,7 +37,7 @@ class VendorManagementPage extends StatelessWidget {
           child: const Icon(Icons.arrow_back),
         ),
         appBar: AppBar(
-          title: const Text("Management"),
+          title: const Text("Staff Management"),
         ),
         body: SafeArea(
             child: SizedBox(
@@ -56,7 +53,7 @@ class VendorManagementPage extends StatelessWidget {
                             })
                             );
                           },
-                          child: const Text("Add Vendor + ")
+                          child: const Text("Add Mechanic + ")
                       )
                   ),
                   const SizedBox(height: 20,),
@@ -68,17 +65,17 @@ class VendorManagementPage extends StatelessWidget {
                           Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Row(
+                                /*Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     const Text("Registered", textAlign: TextAlign.center,),
                                     Checkbox(
-                                        value: vendorManager.isRegistered,
+                                        value: staffManager.isRegistered,
                                         onChanged: (val) {
                                           if (val != null) {
                                             if (val) {
-                                              vendorManager.isRegistered = true;
-                                              vendorManager.getRegisteredList();
+                                              staffManager.isRegistered = true;
+                                              staffManager.getRegisteredList();
                                             }
                                           }
                                         }),
@@ -88,18 +85,18 @@ class VendorManagementPage extends StatelessWidget {
                                   children: [
                                     const Text("Not Registered"),
                                     Checkbox(
-                                        value: !vendorManager.isRegistered,
+                                        value: !staffManager.isRegistered,
                                         onChanged: (val) {
                                           if (val != null) {
                                             if (val) {
-                                              vendorManager.isRegistered = false;
-                                              vendorManager.getNotRegisteredList();
+                                              staffManager.isRegistered = false;
+                                              staffManager.getNotRegisteredList();
 
                                             }
                                           }
                                         }),
                                   ],
-                                ),
+                                )*/
                               ]
                           )
 
@@ -107,24 +104,24 @@ class VendorManagementPage extends StatelessWidget {
                       )
                   ),
                   const SizedBox(height: 20,),
-                  const Text('Vendor List', style: TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
+                  const Text('Mechanic List', style: TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
                   Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(15),
-                        child: SearchableList<VendorRegistrationRequest>(
-                          initialList: vendorManager.filteredList,
-                          builder: (VendorRegistrationRequest vendor) => Item(
-                            vendorRegistrationRequest: vendor,
+                        child: SearchableList<StaffDTO>(
+                          initialList: staffManager.filteredList,
+                          builder: (StaffDTO staff) => Item(
+                            staffDTO: staff,
                           ),
-                          filter: (value) => vendorManager.filteredList
+                          filter: (value) => staffManager.filteredList
                               .where((element) =>
                           element.phoneNumber?.contains(value) as bool)
                               .toList(),
-                          onItemSelected: (VendorRegistrationRequest vendor) {
-                            profileManager.vendorRegistrationRequest = vendor;
+                          onItemSelected: (StaffDTO staff) {
+                            profileManager.staffDTO = staff;
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
-                                  return Profile(isVendor: true);
+                                  return Profile(isStaff: true);
                                 })
                             );
                           },
@@ -150,9 +147,9 @@ class VendorManagementPage extends StatelessWidget {
 }
 
 class Item extends StatelessWidget {
-  final VendorRegistrationRequest vendorRegistrationRequest;
+  final StaffDTO staffDTO;
   final AssetImage image = const AssetImage("images/logo.jpg");
-  const Item({Key? key, required this.vendorRegistrationRequest}) : super(key: key);
+  const Item({Key? key, required this.staffDTO}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +198,7 @@ class Item extends StatelessWidget {
                         width: 10,
                       ),
                       Text(
-                        vendorRegistrationRequest.ownerName ?? "No Name",
+                        staffDTO.name ?? "No Name",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -225,7 +222,7 @@ class Item extends StatelessWidget {
                         const SizedBox(
                           width: 5,
                         ),
-                        Text(vendorRegistrationRequest.city ?? "not found",
+                        Text(staffDTO.city ?? "not found",
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,
@@ -238,7 +235,7 @@ class Item extends StatelessWidget {
                         const SizedBox(
                           width: 5,
                         ),
-                        Text(vendorRegistrationRequest.phoneNumber ?? "00000 00000",
+                        Text(staffDTO.phoneNumber ?? "00000 00000",
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,

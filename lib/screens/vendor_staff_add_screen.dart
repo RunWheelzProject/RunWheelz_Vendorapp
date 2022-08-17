@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/logo.dart';
 import 'package:untitled/components/menu.dart';
-import '../screens/vendro_staff_list.dart';
+import '../screens/vendro_staff_management_screen.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
-import 'package:untitled/screens/vendor_profile_screen.dart';
+import 'package:untitled/screens/profile_vendor.dart';
 import './google_map_location_screen.dart';
 import '../utils/add_space.dart';
 import '../model/vendor.dart';
@@ -56,7 +56,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                       onPressed: () {
                         Navigator.of(context).pushReplacement(
                             MaterialPageRoute(builder: (BuildContext context) {
-                              return const VendorProfile();
+                              return VendorProfile();
                             })
                         );
                       },
@@ -83,7 +83,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  return const VendorStaff();
+                  return const VendorStaffManagementPage();
                 })
             )
           },
@@ -238,7 +238,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                                   if (_formKey.currentState!.validate()) {
                                     Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(builder: (BuildContext context) {
-                                          return const VendorStaff();
+                                          return const VendorStaffManagementPage();
                                         })
                                     );
                                   }

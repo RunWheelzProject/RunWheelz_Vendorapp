@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/manager/staff_manager.dart';
@@ -24,6 +27,10 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+    StaffManager staffManager = Provider.of<StaffManager>(context);
+    ProfileManager profileManager = Provider.of<ProfileManager>(context);
+    profileManager.staffDTO = staffManager.staffDTO;
+
     return Scaffold(
         primary: true,
         appBar: AppBar(
@@ -38,12 +45,9 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                     addHorizontalSpace(70),
                     IconButton(
                         onPressed: () {
-                          StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
-                          ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
-                          profileManager.staffDTO = staffManager.staffDTO;
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (BuildContext context) {
-                                return Profile();
+                                return Profile(isStaff: true,);
                               })
                           );
                         },
@@ -80,7 +84,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
             child: Logo()
           ),
           const SizedBox(height: 20,),
-          const Text("Activities",
+          const Text("Dashboard",
           textAlign: TextAlign.end,
           style: TextStyle(
               fontSize: 24,
@@ -88,7 +92,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
             )
           ),
           const SizedBox(height: 70,),
-          InkWell(
+          /*InkWell(
             child: Container(
               decoration: const BoxDecoration(
                 border: Border(bottom: BorderSide(color: Colors.blue))
@@ -98,7 +102,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
             onTap: () {
               Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (BuildContext context) {
-                    return VendorManagementPage();
+                    return const VendorManagementPage();
                   })
               );
             },
@@ -158,7 +162,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                   })
               );
             },
-          )
+          )*/
         ]
       ) // This trailing comma makes auto-formatting nicer for build methods.
     );

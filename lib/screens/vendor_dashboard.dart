@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:untitled/components/dashboard_box.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/profile.dart';
-import 'package:untitled/screens/vendor_profile_screen.dart';
+import 'package:untitled/screens/profile_vendor.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/menu.dart';
 import '../resources/resources.dart' as res;
@@ -24,7 +24,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   void goToRequests() {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (BuildContext context) {
-          return const PendingOrder(pageTitle: "New Requests", data: {"": ""});
+          return const VendorDataManagementPage(pageTitle: "New Requests");
         })
     );
   }
@@ -32,14 +32,14 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   void goToInProgress() {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (BuildContext context) {
-          return const PendingOrder(pageTitle: "In Progress", data: {"": ""});
+          return const VendorDataManagementPage(pageTitle: "In Progress");
         })
     );
   }
   void goToPendingRequests() {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (BuildContext context) {
-          return const PendingOrder(pageTitle: "Pending Requests", data: {"": ""});
+          return const VendorDataManagementPage(pageTitle: "Pending Requests");
         })
     );
   }
@@ -47,7 +47,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   void goToRaisedRequests() {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (BuildContext context) {
-          return const PendingOrder(pageTitle: "Raised Requests", data: {"": ""});
+          return const VendorDataManagementPage(pageTitle: "Raised Requests");
         })
     );
   }
@@ -71,7 +71,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (BuildContext context) {
-                            return Profile();
+                            return VendorProfile();
                           })
                       );
                     },

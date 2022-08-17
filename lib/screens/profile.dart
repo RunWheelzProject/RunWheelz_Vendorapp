@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
+import 'package:untitled/screens/rw_vendor_management_screen.dart';
 
 import '../manager/profile_manager.dart';
 import '../model/staff.dart';
@@ -69,7 +70,7 @@ class Profile extends StatelessWidget {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  return const StaffManagementPage();
+                  return isStaff ? const StaffManagementPage() : const VendorManagementPage();
                 })
             )
           },

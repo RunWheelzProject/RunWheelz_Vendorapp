@@ -2,6 +2,14 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:untitled/screens/login_page_screen.dart';
+import 'package:untitled/screens/rw_vendor_management_screen.dart';
+import 'package:untitled/screens/splashscreen.dart';
+import 'package:untitled/screens/test_screen.dart';
+import 'package:untitled/screens/vendor_inprogrees_screen.dart';
+import 'package:untitled/screens/vendor_pending_screen.dart';
+import 'package:untitled/screens/vendor_registration_screen_v1.dart';
+import 'package:untitled/screens/vendor_request_accept.screen.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,71 +21,41 @@ import './theme/theme_manager.dart';
 import './theme/themes.dart';
 import 'manager/profile_manager.dart';
 import 'manager/staff_manager.dart';
+import 'manager/vendor_mechanic_manager.dart';
 
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-                onPressed: () async {
-                  log("subscribing...");
-                  await FirebaseMessaging.instance.subscribeToTopic('test');
-                  log("subscribed");
-                },
-                child: const Text('Subscribe To Topic')),
-            ElevatedButton(
-                onPressed: () async {
-                  await FirebaseMessaging.instance.unsubscribeFromTopic('test');
-                },
-                child: const Text('un Subscribe To Topic')),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-// c1BK_MR5Q_OK-ajaTOmF2V:APA91bFwl89ycpFXiW3696mtCjw7_emQ9hpNp8NPxHJV7EEpdeqRsl-JtBBZiEtvM22Glck1DDCn5Yj4VwPtLOsbb1oPO1B-xWn-PZ1WiM5NuUShLSHEC_XvW7uAxzt0eNnHmzcLRqv2
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
 
-  print("Handling a background message: ${message.messageId}");
+  log("Handling a background message: ${message.messageId}");
 }
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    name: "run wheelz",
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  String? token = await FirebaseMessaging.instance.getToken();
+  log("$token");
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    log('Got a message whilst in the foreground!');
+    log('Message data: ${message.data}');
+
+    if (message.notification != null) {
+      log('Message also contained a notification: ${message.notification?.title}');
+    }
+  });
   runApp(RunWheelz());
 }
 
@@ -120,103 +98,50 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<ApplicationManager>(create: (context) => ApplicationManager()),
         ChangeNotifierProvider<VendorManager>(create: (context) => VendorManager()),
         ChangeNotifierProvider<LogInManager>(create: (context) => LogInManager()),
-        ChangeNotifierProvider<ProfileManager>(create: (context) => ProfileManager())
+        ChangeNotifierProvider<ProfileManager>(create: (context) => ProfileManager()),
+        ChangeNotifierProvider<VendorMechanicManager>(create: (context) => VendorMechanicManager())
       ],
       child: MaterialApp(
           title: 'Flutter Demo',
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeManager.themeMode,
-          home: const MyHomePage(title: "test"),
+          //home: const SplashScreen(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => SplashScreen(),
+          '/phone_verification': (context) => const LoginScreen()
+        },
         ),
     );
   }
 }
 
-/*
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // TODO: implement build
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        appBar: AppBar(),
+        body: Center(
+            child: Container(
+            color: Colors.white,
+            width: 350,
+            height: 300,
+            padding: const EdgeInsets.all(30),
+            child: OTPEntryBox(
+              numOfFields: 6,
+              onFieldTextChanged: (val) => log("fieldvalue: $val"),
+              onCompleted: (val) => {
+                log("_completedOTP: $val")
+              },
+            )
+          )
+        )
     );
   }
+
 }
-*/
+

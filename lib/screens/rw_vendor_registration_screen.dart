@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/vendor_manager.dart';
@@ -33,7 +34,37 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
 
   @override
   void initState() {
+    final VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
+    _determinePosition().then((position) {
+      log("position: ${position.longitude}, ${position.latitude}");
+      vendorManager.vendorRegistrationRequest.latitude = position.latitude;
+      vendorManager.vendorRegistrationRequest.longitude = position.longitude;
+    }).catchError((error) => log("Error: $error"));
     super.initState();
+  }
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    return await Geolocator.getCurrentPosition();
   }
 
   @override

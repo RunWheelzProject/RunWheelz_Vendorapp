@@ -6,17 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/staff_manager.dart';
-import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/services/staff_service.dart';
-import 'package:untitled/services/vendor_registration.dart';
 import '../manager/roles_manager.dart';
 import '../model/role.dart';
-import './google_map_location_screen.dart';
 import '../utils/add_space.dart';
-import '../resources/resources.dart' as res;
 import '../resources/IndianStates.dart';
-import 'package:http/http.dart' as http;
 
 class RWStaffRegistration extends StatefulWidget {
   const RWStaffRegistration({Key? key}) : super(key: key);
@@ -85,34 +80,6 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                                   fontWeight: FontWeight.bold),
                             )),
                         addVerticalSpace(40),
-                        /*Container(
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 25, horizontal: 20),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black12),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "ID: ${staffManager.staffDTO.id}",
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.green,
-                                        fontFamily: 'Roboto Bold'),
-                                  ),
-                                  addVerticalSpace(15),
-                                  Text(
-                                      "Phone Number: ${staffManager.staffDTO.phoneNumber}",
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.green,
-                                          fontFamily: 'Roboto Bold'))
-                                ])),*/
-                        addVerticalSpace(25),
                         RWTextFormField(
                             label: 'Name',
                             icon: const Icon(Icons.person, color: Colors.deepPurple),

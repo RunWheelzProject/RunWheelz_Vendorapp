@@ -9,11 +9,13 @@ import 'package:untitled/model/staff.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
+import 'package:untitled/screens/profile_vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 
 import '../manager/vendor_manager.dart';
+import '../services/vendor_registration.dart';
 
 class VendorManagementPage extends StatelessWidget {
 
@@ -93,7 +95,11 @@ class VendorManagementPage extends StatelessWidget {
                                           if (val != null) {
                                             if (val) {
                                               vendorManager.isRegistered = false;
-                                              vendorManager.getNotRegisteredList();
+                                              VendorRegistrationService().getVendorsNotRegistered()
+                                              .then((vendors) {
+
+                                              });
+                                              //vendorManager.getNotRegisteredList();
 
                                             }
                                           }
@@ -124,7 +130,7 @@ class VendorManagementPage extends StatelessWidget {
                             profileManager.vendorRegistrationRequest = vendor;
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
-                                  return Profile(isVendor: true);
+                                  return VendorProfile();
                                 })
                             );
                           },

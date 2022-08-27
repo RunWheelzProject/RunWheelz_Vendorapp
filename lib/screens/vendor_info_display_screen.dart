@@ -16,6 +16,7 @@ class VendorRegistrationInfoDisplay extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+        backgroundColor: Colors.deepPurple,
         body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,

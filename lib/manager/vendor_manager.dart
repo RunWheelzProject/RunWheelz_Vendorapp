@@ -15,7 +15,7 @@ class VendorManager extends ChangeNotifier {
   List<VendorRegistrationRequest> _vendorList = [];
   List<VendorRegistrationRequest> _filteredList = [];
   bool _isRegistered = true;
-  bool _isEnabled = false;
+  bool _isEnable = false;
 
 
   VendorManager() {
@@ -36,8 +36,9 @@ class VendorManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void getNotRegisteredList() {
+  void getNotRegisteredList() async {
     _filteredList = [];
+    List<VendorRegistrationRequest> vendors = await VendorRegistrationService().getVendorsNotRegistered();
     for (VendorRegistrationRequest item in _vendorList) {
       if (item.registrationStatus == false) _filteredList.add(item);
     }
@@ -50,10 +51,10 @@ class VendorManager extends ChangeNotifier {
 
   List<VendorRegistrationRequest> get filteredList => _filteredList;
   bool get isRegistered => _isRegistered;
-  bool get isEnabled => _isEnabled;
+  bool get isEnable => _isEnable;
   set isRegistered(bool val) => _isRegistered = val;
-  set isEnabled(bool val) {
-    _isEnabled = val;
+  set isEnable(bool val) {
+    _isEnable = val;
     notifyListeners();
   }
 

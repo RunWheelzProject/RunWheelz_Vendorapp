@@ -66,6 +66,16 @@ class Menu extends StatelessWidget {
                 );
               },
             ),
+            ListTile(
+              title: const Text('Raise Request'),
+              onTap: () {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (BuildContext context) {
+                      return const VendorDataManagementPage(pageTitle: "New Requests");
+                    })
+                );
+              },
+            ),
           ],
         )
     );

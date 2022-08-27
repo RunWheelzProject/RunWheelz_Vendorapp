@@ -5,11 +5,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
-import 'package:untitled/screens/vendor_assign_screen.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/services/vendor_registration.dart';
 
 import '../manager/profile_manager.dart';
@@ -17,7 +18,7 @@ import '../model/staff.dart';
 import '../services/staff_service.dart';
 
 
-class VendorProfile extends StatelessWidget {
+class VendorDashboardProfile extends StatelessWidget {
 
   bool circular = false;
   //PickedFile? _imageFile = null;
@@ -37,13 +38,13 @@ class VendorProfile extends StatelessWidget {
       fillColor: Colors.white
   );
 
-  VendorProfile({Key? key}) : super(key: key);
+  VendorDashboardProfile({Key? key}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
-    final ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    final VendorRegistrationRequest vendor = profileManager.vendorRegistrationRequest;
+    final VendorManager vendorManager = Provider.of<VendorManager>(context);
+    final VendorRegistrationRequest vendor = vendorManager.vendorRegistrationRequest;
     _nameController.text = vendor.ownerName ?? "not exists";
     _phoneController.text = vendor.phoneNumber ?? "not exists";
     _aadhaarController.text = vendor.aadharNumber ?? "not exists";
@@ -56,11 +57,10 @@ class VendorProfile extends StatelessWidget {
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return const VendorManagementPage();
+                return const VendorDashBoard();
               })
           )
         },
-        //VendorSelectExecutiveScreen
         child: const Icon(Icons.arrow_back),
       ),
       appBar: AppBar(
@@ -81,22 +81,21 @@ class VendorProfile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-
               IconButton(
                 onPressed: () {
-                    if (profileManager.isEnable) {
-                      profileManager.isEnable = false;
-                      VendorRegistrationService().updateVendorInfo(profileManager.vendorRegistrationRequest);
-                      Future<VendorRegistrationRequest> future =
-                      VendorRegistrationService().getVendorById(vendor.id as int);
-                      future.then((VendorRegistrationRequest vendor) => profileManager.vendorRegistrationRequest = vendor)
-                          .catchError((error) { log("error: $error"); });
-                    } else {
-                      profileManager.isEnable = true;
-                    }
+                  if (vendorManager.isEnable) {
+                    vendorManager.isEnable = false;
+                    VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest);
+                    Future<VendorRegistrationRequest> future =
+                    VendorRegistrationService().getVendorById(vendor.id as int);
+                    future.then((VendorRegistrationRequest vendor) => vendorManager.vendorRegistrationRequest = vendor)
+                        .catchError((error) { log("error: $error"); });
+                  } else {
+                    vendorManager.isEnable = true;
+                  }
                 },
                 icon: Icon(
-                  profileManager.isEnable ? Icons.save : Icons.edit,
+                  vendorManager.isEnable ? Icons.save : Icons.edit,
                   color: Colors.purple,
                 ),
               ),
@@ -147,9 +146,9 @@ class VendorProfile extends StatelessWidget {
                   IntrinsicWidth(
                     child: TextField(
                       controller: _nameController,
-                      enabled: profileManager.isEnable,
-                      decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                      onChanged: (val) => profileManager.vendorRegistrationRequest.ownerName = val,
+                      enabled: vendorManager.isEnable,
+                      decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                      onChanged: (val) => vendorManager.vendorRegistrationRequest.ownerName = val,
                     ),
                   ),
                 ],
@@ -165,9 +164,9 @@ class VendorProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _phoneController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.vendorRegistrationRequest.phoneNumber = val,
+                  enabled: vendorManager.isEnable,
+                  decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorRegistrationRequest.phoneNumber = val,
                 ),
               )
             ],
@@ -180,9 +179,9 @@ class VendorProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _aadhaarController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.vendorRegistrationRequest.aadharNumber = val,
+                  enabled: vendorManager.isEnable,
+                  decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorRegistrationRequest.aadharNumber = val,
                 ),
               )
             ],
@@ -195,14 +194,13 @@ class VendorProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _addressController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.staffDTO.addressLine = val,
+                  enabled: vendorManager.isEnable,
+                  decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorRegistrationRequest.addressLine = val,
                 ),
               )
             ],
           ),
-
         ],
       ),
     );

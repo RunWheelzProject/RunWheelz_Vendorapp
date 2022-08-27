@@ -1,8 +1,8 @@
 class PlaceSearchData {
-  final String description;
-  final String placeId;
+  String? description;
+  String? placeId;
 
-  PlaceSearchData({required this.description, required this.placeId});
+  PlaceSearchData({this.description, this.placeId});
 
   Map toJson() {
     return {

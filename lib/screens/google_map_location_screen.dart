@@ -13,7 +13,6 @@ import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import 'package:untitled/utils/add_space.dart';
 
-
 class GoogleMapLocationPickerV1 extends StatefulWidget {
   const GoogleMapLocationPickerV1({Key? key}) : super(key: key);
 
@@ -28,12 +27,14 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
   String location = "Search Location";
   double _latitude = 0.0;
   double _longitude = 0.0;
-  String _currentLocation = "";
   bool _isChecked = true;
+
   @override
   void initState() {
     super.initState();
-    _vendorRegistrationRequest = Provider.of<VendorManager>(context, listen: false).vendorRegistrationRequest;
+    _vendorRegistrationRequest =
+        Provider.of<VendorManager>(context, listen: false)
+            .vendorRegistrationRequest;
     _locationManager = Provider.of<LocationManager>(context, listen: false);
     _determinePosition().then((Position position) async {
       _latitude = position.latitude;
@@ -52,8 +53,8 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
           await placemarkFromCoordinates(position.latitude, position.longitude);
       Placemark place = placeMarks[0];
 
-      _locationManager.setCurrentLocation = '${place.locality}, ${place.subLocality}';
-
+      _locationManager.setCurrentLocation =
+          '${place.locality}, ${place.subLocality}';
     }).catchError((onError) => log("GoogleMapError: $onError"));
   }
 
@@ -85,8 +86,6 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
 
   @override
   Widget build(BuildContext context) {
-
-    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
         appBar: AppBar(
@@ -122,15 +121,14 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
                     Row(
                       children: [
                         Checkbox(
-                            shape: const CircleBorder(),
+                            //shape: const CircleBorder(),
                             value: _isChecked,
                             onChanged: (value) {
                               log("_isLocationChecked: $value");
                               setState(() {
                                 _isChecked = value as bool;
                               });
-                            }
-                        ),
+                            }),
                         addHorizontalSpace(5),
                         const Text(
                           "Use current location",
@@ -156,12 +154,6 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
                       onChanged: (value) {
                         log("value: $value");
                         _locationManager.searchLocations(value);
-                        /*RPlaceAutoComplete()
-                            .getAutoComplete(value)
-                            .then((placeSearchData) {
-                              _locationManager.setSearchedLocations = placeSearchData;
-                          //_locationManager.searchedLocations(value);
-                        });*/
                       },
                     ),
                   ])),
@@ -173,7 +165,8 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
                         top: BorderSide(color: Colors.black12, width: 2)),
                     color: Colors.white),
                 child: const RGoogleMap()),
-            if (_locationManager.searchedLocations.isNotEmpty || _locationController.text.isNotEmpty)
+            if (_locationManager.searchedLocations.isNotEmpty ||
+                _locationController.text.isNotEmpty)
               Container(
                   height: MediaQuery.of(context).size.height,
                   width: double.infinity,
@@ -181,12 +174,10 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
                       color: Colors.grey.withOpacity(0.8),
                       backgroundBlendMode: BlendMode.darken),
                   child: const SearchedLocationListView()),
-            const Positioned(
-                top: 480,
-                bottom: 0,
-                child: ConfirmLocation())
+            const Positioned(top: 380, bottom: 0, child: ConfirmLocation())
           ]),
-        ]))
+        ])
+        )
     );
   }
 }

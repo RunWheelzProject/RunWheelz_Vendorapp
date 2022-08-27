@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../model/vendor.dart';
 import '../resources/resources.dart' as res;
-class VendorRegistrationService {
+class VendorMechanicService {
 
   final Uri vendorRegistrationRequestURL = Uri.parse("${res.APP_URL}/api/vendor/registrationrequest");
   final Uri updateVendorInfoURL = Uri.parse("${res.APP_URL}/api/vendor/editvendor");

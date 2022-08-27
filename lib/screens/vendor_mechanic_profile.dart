@@ -5,19 +5,23 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/vendor_manager.dart';
+import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
-import 'package:untitled/screens/vendor_assign_screen.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
+import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/services/vendor_registration.dart';
 
 import '../manager/profile_manager.dart';
 import '../model/staff.dart';
+import '../model/vendor_mechanic.dart';
 import '../services/staff_service.dart';
 
 
-class VendorProfile extends StatelessWidget {
+class VendorMechanicProfile extends StatelessWidget {
 
   bool circular = false;
   //PickedFile? _imageFile = null;
@@ -37,17 +41,15 @@ class VendorProfile extends StatelessWidget {
       fillColor: Colors.white
   );
 
-  VendorProfile({Key? key}) : super(key: key);
+  VendorMechanicProfile({Key? key}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
-    final ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    final VendorRegistrationRequest vendor = profileManager.vendorRegistrationRequest;
-    _nameController.text = vendor.ownerName ?? "not exists";
-    _phoneController.text = vendor.phoneNumber ?? "not exists";
-    _aadhaarController.text = vendor.aadharNumber ?? "not exists";
-    _addressController.text = vendor.addressLine ?? "not exists";
+    final VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
+    final VendorMechanic vendorMechanic = vendorMechanicManager.vendorMechanic;
+    _nameController.text = vendorMechanic.name ?? "not exists";
+    _phoneController.text = vendorMechanic.phoneNumber ?? "not exists";
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -56,11 +58,10 @@ class VendorProfile extends StatelessWidget {
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return const VendorManagementPage();
+                return const VendorMechanicDashBoard();
               })
           )
         },
-        //VendorSelectExecutiveScreen
         child: const Icon(Icons.arrow_back),
       ),
       appBar: AppBar(
@@ -81,22 +82,20 @@ class VendorProfile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-
               IconButton(
                 onPressed: () {
-                    if (profileManager.isEnable) {
-                      profileManager.isEnable = false;
-                      VendorRegistrationService().updateVendorInfo(profileManager.vendorRegistrationRequest);
-                      Future<VendorRegistrationRequest> future =
-                      VendorRegistrationService().getVendorById(vendor.id as int);
-                      future.then((VendorRegistrationRequest vendor) => profileManager.vendorRegistrationRequest = vendor)
-                          .catchError((error) { log("error: $error"); });
-                    } else {
-                      profileManager.isEnable = true;
-                    }
+                  if (vendorMechanicManager.isEnable) {
+                    vendorMechanicManager.isEnable = false;
+                    //VendorRegistrationService().updateVendorInfo(vendorMechanicManager.vendorRegistrationRequest);
+                    Future<VendorRegistrationRequest> future = VendorRegistrationService().getVendorById(vendorMechanic.id as int);
+                    future.then((VendorRegistrationRequest vendor) => vendorMechanicManager.vendorMechanic = vendorMechanic)
+                        .catchError((error) { log("error: $error"); });
+                  } else {
+                    vendorMechanicManager.isEnable = true;
+                  }
                 },
                 icon: Icon(
-                  profileManager.isEnable ? Icons.save : Icons.edit,
+                  vendorMechanicManager.isEnable ? Icons.save : Icons.edit,
                   color: Colors.purple,
                 ),
               ),
@@ -106,7 +105,7 @@ class VendorProfile extends StatelessWidget {
                       builder: (BuildContext context) => AlertDialog(
                           title: const Text("Delete"),
                           content: Text(
-                              "Are you sure deleting Vendor: -  '${vendor.ownerName}' -  ?",
+                              "Are you sure deleting Vendor: -  '${vendorMechanic.name}' -  ?",
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black87)),
                           actions: <Widget>[
@@ -147,9 +146,9 @@ class VendorProfile extends StatelessWidget {
                   IntrinsicWidth(
                     child: TextField(
                       controller: _nameController,
-                      enabled: profileManager.isEnable,
-                      decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                      onChanged: (val) => profileManager.vendorRegistrationRequest.ownerName = val,
+                      enabled: vendorMechanicManager.isEnable,
+                      decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                      onChanged: (val) => vendorMechanicManager.vendorMechanic.name = val,
                     ),
                   ),
                 ],
@@ -165,94 +164,18 @@ class VendorProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _phoneController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.vendorRegistrationRequest.phoneNumber = val,
+                  enabled: vendorMechanicManager.isEnable,
+                  decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorMechanicManager.vendorMechanic.phoneNumber = val,
                 ),
               )
             ],
           ),
           const SizedBox(height: 20,),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Aadhaar Card", style: TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-              IntrinsicWidth(
-                child: TextField(
-                  controller: _aadhaarController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.vendorRegistrationRequest.aadharNumber = val,
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 20,),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Address", style: TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-              IntrinsicWidth(
-                child: TextField(
-                  controller: _addressController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.staffDTO.addressLine = val,
-                ),
-              )
-            ],
-          ),
-
         ],
       ),
     );
   }
-/*
-  Widget fieldName(String key, String? value, String title, BuildContext context, String? data) {
-    ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(key, style: const TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-        //Text(value ?? "not exists", style: const TextStyle(fontSize: 20)),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            IntrinsicWidth(
-              child: TextField(
-                controller: _name,
-                enabled: profileManager.isEnable,
-                decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                onChanged: (val) => data = val,
-              ),
-            ),
-          ],
-        ),
-        Text(title, style: const TextStyle(fontSize: 16))
-      ],
-    );
-  }
-
-  Widget fieldLeft(String key, String? value, BuildContext context) {
-    ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    TextEditingController controller = TextEditingController();
-    controller.text = value!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(key, style: const TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-        IntrinsicWidth(
-          child: TextField(
-            controller: controller,
-            enabled: profileManager.isEnable,
-            decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-            onChanged: (val) => data = val,
-          ),
-        )
-      ],
-    );
-  }*/
 
   Widget imageProfile(BuildContext context, ImagePicker _picker) {
     return Center(

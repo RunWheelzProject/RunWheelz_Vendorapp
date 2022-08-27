@@ -9,6 +9,7 @@ import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
+import 'package:untitled/services/vendor_registration.dart';
 
 import '../manager/profile_manager.dart';
 import '../model/staff.dart';
@@ -96,14 +97,28 @@ class Profile extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: () {
-                    if (profileManager.isEnable) {
-                      profileManager.isEnable = false;
-                      StaffService().updateStaffInfo(profileManager.staffDTO);
-                      Future<StaffDTO> future = StaffService().getStaffById(staffDTO.id as int);
-                      future.then((StaffDTO staffDTO) => profileManager.staffDTO = staffDTO)
-                      .catchError((error) { log("error: $error"); });
-                    } else {
-                      profileManager.isEnable = true;
+                    if (isStaff) {
+                      if (profileManager.isEnable) {
+                        profileManager.isEnable = false;
+                        StaffService().updateStaffInfo(profileManager.staffDTO);
+                        Future<StaffDTO> future = StaffService().getStaffById(staffDTO.id as int);
+                        future.then((StaffDTO staffDTO) => profileManager.staffDTO = staffDTO)
+                            .catchError((error) { log("error: $error"); });
+                      } else {
+                        profileManager.isEnable = true;
+                      }
+                    }
+                    if (isVendor) {
+                      if (profileManager.isEnable) {
+                        profileManager.isEnable = false;
+                        VendorRegistrationService().updateVendorInfo(profileManager.vendorRegistrationRequest);
+                        Future<VendorRegistrationRequest> future =
+                        VendorRegistrationService().getVendorById(vendor.id as int);
+                        future.then((VendorRegistrationRequest vendor) => profileManager.vendorRegistrationRequest = vendor)
+                            .catchError((error) { log("error: $error"); });
+                      } else {
+                        profileManager.isEnable = true;
+                      }
                     }
                   },
                   icon: Icon(

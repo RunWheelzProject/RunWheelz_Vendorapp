@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:untitled/manager/manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
+import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/model/staff.dart';
 import 'package:untitled/model/vendor.dart';
+import 'package:untitled/model/vendor_mechanic.dart';
 import 'dart:core';
 import 'dart:developer';
 
@@ -15,6 +18,7 @@ import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_registration_screen.dart';
 import 'package:untitled/screens/rw_vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
+import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/screens/vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 
@@ -40,14 +44,13 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OTPState extends State<OtpScreen> {
-
   String _currentVerificationCode = '';
   Color _disabledVerifyTextColor = Colors.white;
   bool _isVerifyDisabled = false;
   String _msgValue = "";
   TextStyle _msgStyle = const TextStyle(color: Colors.black);
   bool isResendOTP = false;
-  String  _resendPhoneVerificationRef = '';
+  String _resendPhoneVerificationRef = '';
 
   void moveToLogInScreen(String urlType) {
     Navigator.of(context)
@@ -56,21 +59,53 @@ class _OTPState extends State<OtpScreen> {
     }));
   }
 
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    return await Geolocator.getCurrentPosition();
+  }
+
+  @override
+  void initState() {
+    VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
+    _determinePosition().then((position) {
+      log("position: ${position.longitude}, ${position.latitude}");
+      vendorManager.vendorRegistrationRequest.latitude = position.latitude;
+      vendorManager.vendorRegistrationRequest.longitude = position.longitude;
+    }).catchError((error) => log("Error: $error"));
+  }
+
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return PositionedView(positionChildWidget: otpScreenView(),
-        childWidget: Logo(),
-        top: 200
-    );
+    return PositionedView(
+        positionChildWidget: otpScreenView(), childWidget: Logo(), top: 200);
   }
 
   Widget otpScreenView() {
-
     TextTheme textTheme = Theme.of(context).textTheme;
     LogInManager logInManager = Provider.of<LogInManager>(context);
     VendorManager vendorManager = Provider.of<VendorManager>(context);
     StaffManager staffManager = Provider.of<StaffManager>(context);
+    VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
 
     return Container(
         height: 400,
@@ -82,8 +117,7 @@ class _OTPState extends State<OtpScreen> {
               BoxShadow(
                   color: Colors.black12, spreadRadius: 10, blurRadius: 30),
             ]),
-        child: Column(
-            children: <Widget>[
+        child: Column(children: <Widget>[
           Center(
               child: Text(
             "OTP Verification",
@@ -157,13 +191,16 @@ class _OTPState extends State<OtpScreen> {
                                   TextButton(
                                     onPressed: () {
                                       Navigator.pop(context, 'NO');
-                                      String phoneNumber = widget.vendorOtpResponse.phoneNumber.substring(2);
+                                      String phoneNumber = widget
+                                          .vendorOtpResponse.phoneNumber
+                                          .substring(2);
                                       log("logInManager.selectURL: ${logInManager.currentURLs![0]}");
-                                      PhoneVerificationService().sendOtp(int.parse(phoneNumber), logInManager.currentURLs![0])
-                                      .then((vendorOtpResponse) {
-                                        setState(() => {isResendOTP = true });
+                                      PhoneVerificationService().sendOtp(int.parse(phoneNumber), "", logInManager.currentURLs![0])
+                                          .then((vendorOtpResponse) {
+                                        setState(() => {isResendOTP = true});
                                         setState(() {
-                                         _resendPhoneVerificationRef = vendorOtpResponse.verificationRef;
+                                          _resendPhoneVerificationRef =
+                                              vendorOtpResponse.verificationRef;
                                           log("_resendPhoneVerificationRef: $_resendPhoneVerificationRef");
                                         });
                                       });
@@ -171,98 +208,120 @@ class _OTPState extends State<OtpScreen> {
                                     child: const Text('NO'),
                                   ),
                                 ]));
-                      setState(() {
-                        _msgValue = "we have sent an OTP to ${widget.vendorOtpResponse.phoneNumber}";
-                        _msgStyle = const TextStyle(color: Colors.blue);
-                      });
+                    setState(() {
+                      _msgValue =
+                          "we have sent an OTP to ${widget.vendorOtpResponse.phoneNumber}";
+                      _msgStyle = const TextStyle(color: Colors.blue);
+                    });
                   },
                   child: const Text(
                     "Resend OTP",
                   )),
               ElevatedButton(
-                  onPressed: () {
-                    if (!_isVerifyDisabled) {
-                      return;
-                    } else {
-                      log("verificationCode: $_currentVerificationCode");
-                      String phoneVerification = jsonEncode(PhoneVerification(
-                          phoneNumber: widget.vendorOtpResponse.phoneNumber,
-                          verificationRef: isResendOTP? _resendPhoneVerificationRef : widget.vendorOtpResponse.verificationRef,
-                          otp: _currentVerificationCode));
-                      log("isResendOTP: $isResendOTP");
-                      log("phoneVerification: $phoneVerification");
-                      PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1])
-                      .then((http.Response response) {
-                          var responseJson = jsonDecode(response.body);
-                          log("responseJson: ${jsonEncode(responseJson)}");
-                          if (response.statusCode == 404) {
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                              return const VendorRegistrationV1();
-                            }));
-                          }
-                          if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
-                            vendorManager.vendorRegistrationRequest =
-                                VendorRegistrationRequest.fromJson(responseJson["vendorDTO"]);
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                              return const VendorDashBoard();
-                            }));
-                          }
-                          if (response.statusCode == 201 && responseJson["runwheelzStaffDTO"] != null) {
-                            staffManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                              return const RunWheelManagementPage();
-                            }));
-                          }
-                          log("currentUrls: ${logInManager.currentURLs![1]}, ${logInManager.currentURLs![0]}");
-                          if (response.statusCode == 201 && logInManager.currentURLs![1].contains("vendor")) {
-                            log("vendor");
-                            var jsonResponse = jsonDecode(response.body);
-                            log("jsonRespone: ${jsonEncode(jsonResponse)}");
-                            vendorManager.vendorRegistrationRequest = VendorRegistrationRequest.fromJson(jsonResponse);
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                              return MultiProvider(
-                                    providers: [
-                                      ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
-                                    ],
-                                    child: const RWVendorRegistration()
-                              );
-                            }));
-                          }
-                          if (response.statusCode == 201 && logInManager.currentURLs![1].contains("staff")) {
-                            log("staff");
-                            var jsonResponse = jsonDecode(response.body);
-                            log("JsonResponse: $jsonResponse");
-                            staffManager.staffDTO = StaffDTO.fromJson(jsonResponse);
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                              return MultiProvider(
-                                  providers: [
-                                    ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
-                                  ],
-                                  child: const RWStaffRegistration()
-                              );
-                            }));
-
-
-                            // RWStaffRegistration
-                          }
-                         var messageMap = responseJson as Map;
-                          if (messageMap.containsKey("message")) {
-                            log("ServerError: ${messageMap["message"]}");
-                          }
-                        }).catchError((error) {
-                            log("ServerError: $error");
-                            setState(() {
-                            _msgValue = error.toString();
-                            _msgStyle = const TextStyle(color: Colors.red);
-                            });
-                          });
-                    }
-                  },
+                  onPressed: () => verifyOtp(),
                   child: const Text(
                     "Verify OTP",
                   ))
             ],
           )
         ]));
+  }
+
+  void verifyOtp() {
+    LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
+    VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
+    StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
+    VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context, listen: false);
+
+    if (!_isVerifyDisabled) {
+      return;
+    } else {
+      log("verificationCode: $_currentVerificationCode");
+      String phoneVerification = jsonEncode(PhoneVerification(
+          phoneNumber: widget.vendorOtpResponse.phoneNumber,
+          verificationRef: isResendOTP
+              ? _resendPhoneVerificationRef
+              : widget.vendorOtpResponse.verificationRef,
+          otp: _currentVerificationCode));
+      log("isResendOTP: $isResendOTP");
+      log("phoneVerification: $phoneVerification");
+      PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1]).then((http.Response response) {
+        var responseJson = jsonDecode(response.body);
+        log("staff: ${jsonEncode(responseJson)}");
+        if (response.statusCode == 404) {
+          vendorManager.vendorRegistrationRequest.phoneNumber = responseJson["phoneNumber"];
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+            return const VendorRegistrationV1();
+          }));
+        }
+        if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
+
+          vendorManager.vendorRegistrationRequest =
+              VendorRegistrationRequest.fromJson(responseJson["vendorDTO"]);
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+            return const VendorDashBoard();
+          }));
+        }
+        if (response.statusCode == 201 && responseJson["vendorStaffDTO"] != null) {
+          vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+                return const VendorMechanicDashBoard();
+              }));
+        }
+        if (response.statusCode == 201 &&
+            responseJson["runwheelzStaffDTO"] != null) {
+          staffManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+            return const RunWheelManagementPage();
+          }));
+        }
+        log("currentUrls: ${logInManager.currentURLs![1]}, ${logInManager.currentURLs![0]}");
+        if (response.statusCode == 201 &&
+            logInManager.currentURLs![1].contains("vendor")) {
+          log("vendor");
+          var jsonResponse = jsonDecode(response.body);
+          log("jsonRespone: ${jsonEncode(jsonResponse)}");
+          vendorManager.vendorRegistrationRequest =
+              VendorRegistrationRequest.fromJson(jsonResponse);
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+            return MultiProvider(providers: [
+              ChangeNotifierProvider<RoleManager>(
+                  create: (context) => RoleManager()),
+            ], child: const RWVendorRegistration());
+          }));
+        }
+        if (response.statusCode == 201 &&
+            logInManager.currentURLs![1].contains("staff")) {
+          log("staff");
+          var jsonResponse = jsonDecode(response.body);
+          log("JsonResponse: $jsonResponse");
+          staffManager.staffDTO = StaffDTO.fromJson(jsonResponse);
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+            return MultiProvider(providers: [
+              ChangeNotifierProvider<RoleManager>(
+                  create: (context) => RoleManager()),
+            ], child: const RWStaffRegistration());
+          }));
+
+          // RWStaffRegistration
+        }
+        var messageMap = responseJson as Map;
+        if (messageMap.containsKey("message")) {
+          log("ServerError: ${messageMap["message"]}");
+        }
+      }).catchError((error) {
+        log("ServerError: $error");
+        setState(() {
+          _msgValue = error.toString();
+          _msgStyle = const TextStyle(color: Colors.red);
+        });
+      });
+    }
   }
 }

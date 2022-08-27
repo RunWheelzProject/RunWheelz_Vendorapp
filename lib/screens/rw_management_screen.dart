@@ -72,7 +72,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
+          /*Container(
             padding: const EdgeInsets.all(30),
             decoration: const BoxDecoration(
               border: Border(bottom: BorderSide(
@@ -82,10 +82,10 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
             ),
             width: MediaQuery.of(context).size.width,
             child: Logo()
-          ),
+          ),*/
           const SizedBox(height: 20,),
           const Text("Dashboard",
-          textAlign: TextAlign.end,
+          textAlign: TextAlign.center,
           style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold

@@ -9,6 +9,7 @@ import 'package:untitled/model/staff.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 
@@ -30,7 +31,7 @@ class VendorStaffManagementPage extends StatelessWidget {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  return const RunWheelManagementPage();
+                  return const VendorDashBoard();
                 })
             )
           },

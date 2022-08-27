@@ -3,6 +3,7 @@ import 'package:untitled/components/dashboard_box.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/profile_vendor.dart';
+import 'package:untitled/screens/vendor_dashboard_profile.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/menu.dart';
 import '../resources/resources.dart' as res;
@@ -71,7 +72,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (BuildContext context) {
-                            return VendorProfile();
+                            return VendorDashboardProfile();
                           })
                       );
                     },

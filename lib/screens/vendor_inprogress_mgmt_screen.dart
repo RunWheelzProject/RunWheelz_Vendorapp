@@ -10,8 +10,6 @@ import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
-import 'package:untitled/screens/vendor_inprogrees_screen.dart';
-import 'package:untitled/screens/vendor_pending_screen.dart';
 import 'package:untitled/screens/vendor_request_accept.screen.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
@@ -24,9 +22,9 @@ class NewRequests {
   NewRequests({required this.requestID, required this.serviceType});
 }
 
-class VendorDataManagementPage extends StatelessWidget {
+class VendorInProgressManagementPage extends StatelessWidget {
   final String pageTitle;
-  const VendorDataManagementPage({Key? key, required this.pageTitle}) : super(key: key);
+  const VendorInProgressManagementPage({Key? key, required this.pageTitle}) : super(key: key);
 
 
   @override
@@ -57,9 +55,65 @@ class VendorDataManagementPage extends StatelessWidget {
                 width: double.infinity,
                 child: Column(children: [
                   const SizedBox(height: 40,),
-
+                  /*Align(
+                      alignment: Alignment.centerLeft,
+                      child:ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                              return const LoginScreen();
+                            })
+                            );
+                          },
+                          child: const Text("Add Staff + ")
+                      )
+                  ),*/
                   const SizedBox(height: 20,),
+                  /*Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Text("Registered", textAlign: TextAlign.center,),
+                                    Checkbox(
+                                        value: staffManager.isRegistered,
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            if (val) {
+                                              staffManager.isRegistered = true;
+                                              staffManager.getRegisteredList();
+                                            }
+                                          }
+                                        }),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Text("Not Registered"),
+                                    Checkbox(
+                                        value: !staffManager.isRegistered,
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            if (val) {
+                                              staffManager.isRegistered = false;
+                                              staffManager.getNotRegisteredList();
 
+                                            }
+                                          }
+                                        }),
+                                  ],
+                                ),
+                              ]
+                          )
+
+                        ],
+                      )
+                  ),*/
                   const SizedBox(height: 20,),
                   Text(pageTitle, style: const TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
                   Expanded(
@@ -74,28 +128,11 @@ class VendorDataManagementPage extends StatelessWidget {
                               .toList(),
                           onItemSelected: (NewRequests item) {
                             //profileManager.staffDTO = staff;
-                            if (pageTitle == "New Requests") {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorRequestAcceptScreen();
-                                  })
-                              );
-                            }
-                            if (pageTitle == "In Progress") {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorInprogressScreen();
-                                  })
-                              );
-                            }
-                            if (pageTitle == "Pending Requests") {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorPendingScreen();
-                                  })
-                              );
-                            }
-
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: (BuildContext context) {
+                                  return VendorRequestAcceptScreen();
+                                })
+                            );
                           },
                           inputDecoration: InputDecoration(
                             labelText: "Search $pageTitle",
@@ -153,21 +190,21 @@ class Item extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-                Row(
-                  children: const [
-                    Text("Service: "),
-                    SizedBox(width: 10,),
-                    Text("Puncture")
-                  ],
-                ),
-                const SizedBox(height: 10,),
-                Row(
-                  children: const [
-                    Text("Request ID: "),
-                    SizedBox(width: 10,),
-                    Text("1231")
-                  ],
-                )
+            Row(
+              children: const [
+                Text("Service: "),
+                SizedBox(width: 10,),
+                Text("Puncture")
+              ],
+            ),
+            const SizedBox(height: 10,),
+            Row(
+              children: const [
+                Text("Request ID: "),
+                SizedBox(width: 10,),
+                Text("1231")
+              ],
+            )
           ],
         ));
   }

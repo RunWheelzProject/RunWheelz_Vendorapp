@@ -87,7 +87,7 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                           return null;
                         },
                       ),
-                      addVerticalSpace(30),
+                      /*addVerticalSpace(30),
                       TextFormField(
                             decoration: const InputDecoration(
                               labelText: 'Phone Number',
@@ -122,7 +122,7 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                           ),
                       const SizedBox(
                         height: 30,
-                      ),
+                      ),*/
                   TextFormField(
                           decoration: const InputDecoration(
                             labelText: 'Garage Name',

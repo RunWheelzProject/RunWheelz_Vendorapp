@@ -9,8 +9,8 @@ import '../resources/resources.dart' as res;
 class PhoneVerificationService {
 
 
-  Future<VendorOtpResponse> sendOtp(int phoneNumber, String urlType) async {
-    Uri vendorSendOtpURL = Uri.parse("$urlType$phoneNumber");
+  Future<VendorOtpResponse> sendOtp(int phoneNumber, String? deviceToken, String urlType) async {
+    Uri vendorSendOtpURL = Uri.parse("${urlType}phoneNumber=91${phoneNumber}&deviceToken=${deviceToken}");
     log("_vendorSendOtpURL: $vendorSendOtpURL");
 
     http.Response response = await http.get(vendorSendOtpURL);

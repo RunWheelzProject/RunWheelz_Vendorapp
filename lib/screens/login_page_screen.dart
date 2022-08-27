@@ -13,6 +13,10 @@ import '../services/phone_verification.dart';
 import 'otp_screen.dart';
 import '../resources/resources.dart' as res;
 
+import 'package:firebase_core/firebase_core.dart';
+import '../firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -26,9 +30,17 @@ class _LoginScreen extends State<LoginScreen> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController countryCodeController = TextEditingController();
 
+
+  Future<String?> getFireBaseToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    return token;
+  }
+
+
   @override
   void initState() {
-    // TODO: implement initState
+
+
     super.initState();
     countryCodeController = TextEditingController(text: '+91');
   }
@@ -111,28 +123,32 @@ class _LoginScreen extends State<LoginScreen> {
               onPressed: readToProceed ? () async {
                 if ((phoneNumberController.text.isNotEmpty) && (phoneNumberController.text.length == 10)) {
                   log("logInManager.selectURL: ${logInManager.currentURLs![0]}");
-                  PhoneVerificationService().sendOtp(int.parse(phoneNumberController.text), logInManager.currentURLs![0])                      .then((vendorOtpResponse) {
-                          Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (BuildContext context) {
-                                  return OtpScreen(vendorOtpResponse: vendorOtpResponse);
-                                })
-                            );
-                        }).catchError((onError) {
-                          showDialog<String>(
-                              context: context,
-                              builder: (BuildContext context) => AlertDialog(
-                                title: const Text("OTPException"),
-                                content: Text(onError.toString(),
-                                    style: const TextStyle(
-                                        fontSize: 18, color: Colors.black87)),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, 'OK'),
-                                    child: const Text('OK'),
-                                  ),
-                                ]));
+                  getFireBaseToken().then((String? str) {
+                    PhoneVerificationService().sendOtp(int.parse(phoneNumberController.text), str, logInManager.currentURLs![0])                      .then((vendorOtpResponse) {
+                      log("test");
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                            return OtpScreen(vendorOtpResponse: vendorOtpResponse);
+                          })
+                      );
+                    }).catchError((onError) {
+                      showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                              title: const Text("OTPException"),
+                              content: Text(onError.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 18, color: Colors.black87)),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, 'OK'),
+                                  child: const Text('OK'),
+                                ),
+                              ]));
+                    });
                   });
+
                 } else {
                   showDialog(
                     context: context,

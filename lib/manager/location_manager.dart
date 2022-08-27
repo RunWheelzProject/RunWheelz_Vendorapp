@@ -8,7 +8,7 @@ import 'package:untitled/services/places_autocomplete.dart';
 
 class LocationManager extends ChangeNotifier {
   final String _apiKey = "AIzaSyBphyueg6xoPG3upFK_6KUzmR_mvbCdcsA";
-  late String _currentLocation;
+  late String _currentLocation = "";
   late List<PlaceSearchData> _searchedLocations = [];
   late GoogleMapController? _mapController;
 

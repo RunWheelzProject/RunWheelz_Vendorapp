@@ -12,11 +12,19 @@ import '../components/positioned_view.dart';
 import '../services/phone_verification.dart';
 import 'otp_screen.dart';
 import '../resources/resources.dart' as res;
+import 'package:http/http.dart' as http;
 
 import 'package:firebase_core/firebase_core.dart';
 import '../firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  log("Handling a background message: ${message.messageId}");
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -36,10 +44,37 @@ class _LoginScreen extends State<LoginScreen> {
     return token;
   }
 
+  void fireMessagingService() async {
+    /*http.Response execute = await http.get(Uri.parse("http://10.0.2.2:8081/api/admin/send_sms"));
+
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    //await FirebaseMessaging.instance.subscribeToTopic('test2');
+    String? token = await FirebaseMessaging.instance.getToken();
+    log("$token");
+
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      log('Got a message whilst in the foreground!');
+      log('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        log('Message also contained a notification: ${message.notification?.title}');
+      }
+    });*/
+
+  }
 
   @override
   void initState() {
 
+    fireMessagingService();
 
     super.initState();
     countryCodeController = TextEditingController(text: '+91');

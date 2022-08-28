@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/splashscreen.dart';
@@ -28,18 +30,23 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
 
   log("Handling a background message: ${message.messageId}");
+  if (message.notification != null ) {
+    navigatorKey.currentState?.pushNamed('/vendor_accept_screen');
+  }
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    name: "run wheelz",
     options: DefaultFirebaseOptions.currentPlatform,
   );
   String? token = await FirebaseMessaging.instance.getToken();
@@ -52,14 +59,19 @@ void main() async {
     log('Got a message whilst in the foreground!');
     log('Message data: ${message.data}');
 
+
     if (message.notification != null) {
+      log('body: ${message.notification?.body}');
+      navigatorKey.currentState?.pushNamed('/vendor_accept_screen');
       log('Message also contained a notification: ${message.notification?.title}');
     }
   });
   runApp(RunWheelz());
 }
 
+void _handleScreen() {
 
+}
 ThemeManager themeManager = ThemeManager();
 
 class RunWheelz extends StatefulWidget {
@@ -99,10 +111,12 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<VendorManager>(create: (context) => VendorManager()),
         ChangeNotifierProvider<LogInManager>(create: (context) => LogInManager()),
         ChangeNotifierProvider<ProfileManager>(create: (context) => ProfileManager()),
-        ChangeNotifierProvider<VendorMechanicManager>(create: (context) => VendorMechanicManager())
+        ChangeNotifierProvider<VendorMechanicManager>(create: (context) => VendorMechanicManager()),
+        ChangeNotifierProvider<ServiceRequestManager>(create: (context) => ServiceRequestManager())
       ],
       child: MaterialApp(
           title: 'Flutter Demo',
+          navigatorKey: navigatorKey,
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeManager.themeMode,
@@ -110,7 +124,8 @@ class RunWheelzState extends State<RunWheelz> {
         initialRoute: '/',
         routes: {
           '/': (context) => SplashScreen(),
-          '/phone_verification': (context) => const LoginScreen()
+          '/phone_verification': (context) => const LoginScreen(),
+          '/vendor_accept_screen': (context) => VendorRequestAcceptScreen()
         },
         ),
     );

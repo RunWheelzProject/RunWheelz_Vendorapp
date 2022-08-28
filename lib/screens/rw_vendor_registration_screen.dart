@@ -499,7 +499,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 onPressed: () {
                                         if (_formKey.currentState!.validate()) {
                                           vendorManager.vendorRegistrationRequest.registrationStatus = true;
-                                          RoleDTO role = RoleDTO(id: 3, roleName: "VENDOR");
+                                          RoleDTO role = RoleDTO(id: 2, roleName: "VENDOR");
                                           vendorManager.vendorRegistrationRequest.role = role;
                                           log("vendor1: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
                                           VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest)

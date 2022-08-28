@@ -7,6 +7,7 @@ import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import '../components/menu.dart';
+import '../manager/login_manager.dart';
 import '../manager/profile_manager.dart';
 import '../manager/roles_manager.dart';
 import '../screens/rw_staff_management_screen.dart';
@@ -196,6 +197,8 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                     )
                 ),
                 onTap: () {
+                  LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
+                  logInManager.setCurrentURLs("vendorRegistration");
                   Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (BuildContext context) {
                         return MultiProvider(

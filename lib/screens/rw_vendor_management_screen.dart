@@ -25,9 +25,7 @@ class VendorManagementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
-    LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
     VendorManager vendorManager = Provider.of<VendorManager>(context);
-    logInManager.setCurrentURLs("vendorRegistration");
 
     return Scaffold(
         floatingActionButton: FloatingActionButton(

@@ -7,12 +7,14 @@ import 'package:untitled/model/places_search.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/model/vendor_mechanic.dart';
 import 'package:untitled/services/vendor_registration.dart';
-
+import 'package:http/http.dart' as http;
 import '../model/role.dart';
+import '../resources/resources.dart' as res;
 
 class VendorMechanicManager extends ChangeNotifier {
 
- VendorMechanic vendorMechanic = VendorMechanic();
+ List<VendorMechanic> _vendorMechanicList = [];
+ VendorMechanic _vendorMechanic = VendorMechanic();
  bool _isEnable = false;
 
  bool get isEnable => _isEnable;
@@ -20,4 +22,35 @@ class VendorMechanicManager extends ChangeNotifier {
   _isEnable = val;
   notifyListeners();
  }
+
+ Future<List<VendorMechanic>> getMechanics() async {
+  ///api/vendorstaff/getallmechanics
+  http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getallmechanics"));
+  var jsonList = jsonDecode(response.body) as List;
+  List<VendorMechanic> vendorMechanicList = [];
+
+  return jsonList.map((mechanic) => VendorMechanic.fromJson(mechanic)).toList();
+
+ }
+
+ VendorMechanicManager() {
+  getMechanics().then((mechanics) {
+   log("mechanic: ${jsonEncode(mechanics[0])}");
+   _vendorMechanicList = mechanics;
+   notifyListeners();
+  });
+  notifyListeners();
+ }
+ set vendorMechanicList(List<VendorMechanic> vendorMechanic) {
+  _vendorMechanicList = vendorMechanic;
+  notifyListeners();
+ }
+ List<VendorMechanic> get vendorMechanicList => _vendorMechanicList;
+
+ set vendorMechanic(VendorMechanic vendorMechanic) {
+  _vendorMechanic = vendorMechanic;
+  notifyListeners();
+ }
+ VendorMechanic get vendorMechanic => _vendorMechanic;
+
 }

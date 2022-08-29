@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
@@ -24,14 +25,21 @@ import './theme/themes.dart';
 import 'manager/profile_manager.dart';
 import 'manager/staff_manager.dart';
 import 'manager/vendor_mechanic_manager.dart';
-
+import 'package:http/http.dart' as http;
+import '../resources/resources.dart' as res;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'model/servie_request.dart';
+import 'model/vendor_mechanic.dart';
+
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
+FirebaseMessaging? messaging;
+AndroidNotificationChannel? channel;
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
@@ -40,7 +48,26 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   log("Handling a background message: ${message.messageId}");
   if (message.notification != null ) {
-    navigatorKey.currentState?.pushNamed('/vendor_accept_screen');
+    String val = message.notification?.body ?? "1";
+    int id = int.parse(val);
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
+    var json = jsonDecode(response.body);
+    log("request: $json");
+
+    navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
+        arguments: ServiceRequestArgs(
+          id: json["id"],
+          serviceType: json["serviceType"],
+          make: json["make"],
+          vehicleNumber: json["vehicleNumber"],
+          latitude: json["latitude"],
+          longitude: json["longitude"],
+          acceptedByVendor: json["acceptedByVendor"],
+          assignedToMechanic: json["assignedToMechanic"],
+          status: json["status"],
+          comments: json["comments"],
+        )
+    );
   }
 }
 
@@ -49,29 +76,32 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  messaging = FirebaseMessaging.instance;
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  channel = const AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    'This channel is used for important notifications.', // description
+    importance: Importance.max,
+  );
+
+  await flutterLocalNotificationsPlugin?.
+  resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel as AndroidNotificationChannel);
+
+
+
   String? token = await FirebaseMessaging.instance.getToken();
   log("$token");
 
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    log('Got a message whilst in the foreground!');
-    log('Message data: ${message.data}');
 
 
-    if (message.notification != null) {
-      log('body: ${message.notification?.body}');
-      navigatorKey.currentState?.pushNamed('/vendor_accept_screen');
-      log('Message also contained a notification: ${message.notification?.title}');
-    }
-  });
-  runApp(RunWheelz());
+  runApp(const RunWheelz());
 }
 
-void _handleScreen() {
 
-}
 ThemeManager themeManager = ThemeManager();
 
 class RunWheelz extends StatefulWidget {
@@ -84,17 +114,146 @@ class RunWheelz extends StatefulWidget {
 
 class RunWheelzState extends State<RunWheelz> {
 
+
+  /*Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage =
+    await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) async {
+    if (message.notification != null) {
+
+      final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
+      final ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
+      log("requestId: ${args.requestID}");
+
+      http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/${args.requestID}"));
+      var responseJson = jsonDecode(response.body);
+      log("request: $responseJson");
+      serviceRequestManager.serviceRequestDTO = ServiceRequestDTO.fromJson(responseJson);
+
+      Navigator.pushNamed(context, '/phone_verification',
+        arguments: ServiceRequestArgs(requestID: int.parse(message.notification?.body ?? "")),
+      );
+
+    }
+  }
+*/
   @override
   void dispose() {
-      super.dispose();
-      themeManager.removeListener(themeListener);
+    super.dispose();
+    themeManager.removeListener(themeListener);
   }
+
+
 
   @override
   void initState() {
     super.initState();
+
+    var initializationSettingsAndroid = const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = const IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin?.initialize(
+      initializationSettings,
+      onSelectNotification: onSelectNotification
+    );
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+
+      RemoteNotification? remoteNotification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+
+      if (remoteNotification != null && android != null ) {
+        String action = jsonEncode(message.notification?.body ?? "1");
+        flutterLocalNotificationsPlugin?.show(
+            remoteNotification.hashCode,
+            remoteNotification.title,
+            remoteNotification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel!.id,
+                channel!.name,
+                channel!.description,
+                icon: android.smallIcon,
+                priority: Priority.high,
+                importance: Importance.max,
+                setAsGroupSummary: true,
+                styleInformation: const DefaultStyleInformation(true, true),
+                largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+                channelShowBadge: true,
+                autoCancel: true,
+              ),
+            ),
+            payload: action);
+      }
+
+      log('Got a message whilst in the foreground!');
+      log('Message data: ${message.data}');
+
+      /*if (message.notification != null) {
+        log('body: ${message.notification?.body}');
+        int id = int.parse(message.notification?.body ?? "");
+        navigatorKey.currentState?.pushNamed('/vendor_accept_screen', arguments: ServiceRequestArgs(requestID: id));
+        log('Message also contained a notification: ${message.notification?.title}');
+      }*/
+    });
+
+
+    FirebaseMessaging.onMessageOpenedApp
+        .listen((message) => _handleMessage(message.notification?.body ?? ""));
+
     themeManager.addListener(themeListener);
   }
+
+  Future<dynamic> onSelectNotification(payload) async {
+    // Map<String, dynamic> action = jsonDecode(payload);
+    _handleMessage(payload);
+  }
+/*
+  Future<void> setupInteractedMessage() async {
+    await FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((value) =>
+        _handleMessage(value.notification?.body != null ? value.notification?.body : ""));
+  }*/
+
+  void _handleMessage(String data) async {
+    int id = int.parse(data);
+    log("requestId: $id");
+
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
+    var json = jsonDecode(response.body);
+    log("request: $json");
+
+    navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
+        arguments: ServiceRequestArgs(
+            id: json["id"],
+            serviceType: json["serviceType"],
+            make: json["make"],
+            vehicleNumber: json["vehicleNumber"],
+            latitude: json["latitude"],
+            longitude: json["longitude"],
+            acceptedByVendor: json["acceptedByVendor"],
+            assignedToMechanic: json["assignedToMechanic"],
+            status: json["status"],
+            comments: json["comments"],
+        )
+    );
+  }
+
   themeListener() {
     if (mounted) {
       setState(() => {} );
@@ -115,19 +274,19 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<ServiceRequestManager>(create: (context) => ServiceRequestManager())
       ],
       child: MaterialApp(
-          title: 'Flutter Demo',
-          navigatorKey: navigatorKey,
-          theme: lightTheme,
-          darkTheme: darkTheme,
-          themeMode: themeManager.themeMode,
-          //home: const SplashScreen(),
+        title: 'Flutter Demo',
+        navigatorKey: navigatorKey,
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: themeManager.themeMode,
+        //home: const SplashScreen(),
         initialRoute: '/',
         routes: {
           '/': (context) => SplashScreen(),
           '/phone_verification': (context) => const LoginScreen(),
-          '/vendor_accept_screen': (context) => VendorRequestAcceptScreen()
+          VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen()
         },
-        ),
+      ),
     );
   }
 }
@@ -142,21 +301,19 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(),
         body: Center(
             child: Container(
-            color: Colors.white,
-            width: 350,
-            height: 300,
-            padding: const EdgeInsets.all(30),
-            child: OTPEntryBox(
-              numOfFields: 6,
-              onFieldTextChanged: (val) => log("fieldvalue: $val"),
-              onCompleted: (val) => {
-                log("_completedOTP: $val")
-              },
+                color: Colors.white,
+                width: 350,
+                height: 300,
+                padding: const EdgeInsets.all(30),
+                child: OTPEntryBox(
+                  numOfFields: 6,
+                  onFieldTextChanged: (val) => log("fieldvalue: $val"),
+                  onCompleted: (val) => {
+                    log("_completedOTP: $val")
+                  },
+                )
             )
-          )
         )
     );
   }
-
 }
-

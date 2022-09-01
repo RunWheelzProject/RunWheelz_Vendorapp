@@ -73,7 +73,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
     final RoleManager roleManager = Provider.of<RoleManager>(context);
     List<String> roles = roleManager.roleNames.map((role) => role.roleName as String).toList();
     return Scaffold(
-      appBar: AppBar(title: const Text("Run Wheelz")),
+      appBar: AppBar(title: const Text("Run Wheelz"), automaticallyImplyLeading: false,),
       body: SingleChildScrollView(
           padding: const EdgeInsets.only(top: 34, bottom: 34),
           child: Column(children: [

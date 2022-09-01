@@ -39,9 +39,9 @@ class VendorManagementPage extends StatelessWidget {
           },
           child: const Icon(Icons.arrow_back),
         ),
-        appBar: AppBar(
+        /*appBar: AppBar(
           title: const Text("Management"),
-        ),
+        ),*/
         body: SafeArea(
             child: SizedBox(
                 width: double.infinity,

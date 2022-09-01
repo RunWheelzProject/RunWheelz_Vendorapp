@@ -38,6 +38,7 @@ class VendorStaffManagementPage extends StatelessWidget {
           child: const Icon(Icons.arrow_back),
         ),
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text("Staff Management"),
         ),
         body: SafeArea(

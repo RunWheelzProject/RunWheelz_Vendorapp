@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -11,6 +12,7 @@ import 'package:untitled/screens/rw_staff_management_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
+import 'package:untitled/screens/vendor_request_accept.screen.dart';
 import 'package:untitled/screens/vendor_select_mechanic.dart';
 import 'package:untitled/services/vendor_registration.dart';
 
@@ -18,14 +20,88 @@ import '../manager/profile_manager.dart';
 import '../model/staff.dart';
 import '../services/staff_service.dart';
 
-class VendorMechanicRequestAcceptScreen extends StatelessWidget {
-  VendorMechanicRequestAcceptScreen({Key? key}) : super(key: key);
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:location/location.dart' as loc;
+import 'package:permission_handler/permission_handler.dart';
+
+class VendorMechanicRequestAcceptScreen extends StatefulWidget {
+  const VendorMechanicRequestAcceptScreen({Key? key}) : super(key: key);
+
+  @override
+  _VendorMechanicRequestAcceptScreen createState() => _VendorMechanicRequestAcceptScreen();
+}
+class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcceptScreen> {
 
 
-  List<String> stauts = ["Select", "Completed", "Pending"];
+  final loc.Location location = loc.Location();
+  StreamSubscription<loc.LocationData>? _locationSubscription;
+  List<String> stauts = ["completed", "open"];
+
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermission();
+    location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
+    location.enableBackgroundMode(enable: true);
+  }
+
+
+
+  _getLocation() async {
+    final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
+    try {
+      final loc.LocationData _locationResult = await location.getLocation();
+      await FirebaseFirestore.instance.collection('location').doc(args.customerArgs?.id.toString()).set({
+        'latitude': _locationResult.latitude,
+        'longitude': _locationResult.longitude,
+        'name': 'john'
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> _listenLocation() async {
+    final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
+    _locationSubscription = location.onLocationChanged.handleError((onError) {
+      log(onError);
+      _locationSubscription?.cancel();
+      setState(() {
+        _locationSubscription = null;
+      });
+    }).listen((loc.LocationData currentlocation) async {
+      await FirebaseFirestore.instance.collection('location')
+          .doc(args.customerArgs?.id.toString()).set({
+        'latitude': currentlocation.latitude,
+        'longitude': currentlocation.longitude
+      }, SetOptions(merge: true));
+    });
+  }
+
+  _stopListening() {
+    _locationSubscription?.cancel();
+    setState(() {
+      _locationSubscription = null;
+    });
+  }
+
+  _requestPermission() async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      log('done');
+    } else if (status.isDenied) {
+      _requestPermission();
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.purple,
@@ -38,6 +114,7 @@ class VendorMechanicRequestAcceptScreen extends StatelessWidget {
         child: const Icon(Icons.arrow_back),
       ),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Center(
           child: Text(
             "Submit Request",
@@ -60,125 +137,83 @@ class VendorMechanicRequestAcceptScreen extends StatelessWidget {
               ),
               child: Column(children: [
                 Row(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "Request ID: ",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
-                    Text("1231")
+                    Text(args.id.toString() ?? "")
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
+                  height: 10,
+                ),
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
-                  children: const [
-                    Text(
-                      "Reqest Date: ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text("12/7/2022")
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: const [
-                    Text(
-                      "Service Category: ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text("Breakdown")
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "ServiceType: ",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
-                    Text("Puncture")
+                    Text(args.serviceType ?? "")
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
-                  children: const [
-                    Text(
-                      "Vehicle Type: ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text("Hero")
-                  ],
-                ),
-                Row(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "Vehicle Number: ",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
-                    Text("AP 29 PQ 7966")
+                    Text(args.vehicleNumber ?? "")
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "Customer Name: ",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
-                    Text("HARI")
+                    Text(args.customerArgs?.name ?? "")
                   ],
                 ),
                 SizedBox(
                   height: 10,
                 ),
                 Row(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "Customer Mobile Number: ",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
-                    Text("9848005023")
+                    Text(args.customerArgs?.phoneNumber ?? "")
                   ],
                 ),
               ])),
@@ -231,7 +266,9 @@ class VendorMechanicRequestAcceptScreen extends StatelessWidget {
           ),
           SizedBox(height: 30,),
           ElevatedButton(
-              onPressed: () => {},
+              onPressed: () => {
+                _listenLocation()
+              },
               child: const Text("Submit")
           )
         ],

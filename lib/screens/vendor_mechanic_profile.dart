@@ -65,6 +65,7 @@ class VendorMechanicProfile extends StatelessWidget {
         child: const Icon(Icons.arrow_back),
       ),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Center(
           child: Text(
             "My Profile",

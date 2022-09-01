@@ -25,6 +25,19 @@ import '../services/staff_service.dart';
 import 'package:http/http.dart' as http;
 import '../resources/resources.dart' as res;
 
+
+class CustomerArgs {
+  int? id;
+  String? name;
+  String? phoneNumber;
+
+  CustomerArgs({
+    this.id,
+    this.name,
+    this.phoneNumber
+  });
+}
+
 class ServiceRequestArgs {
   int? id;
   String? serviceType;
@@ -36,6 +49,7 @@ class ServiceRequestArgs {
   int? assignedToMechanic;
   String? status;
   String? comments;
+  CustomerArgs? customerArgs;
 
   ServiceRequestArgs(
       {this.id,
@@ -47,7 +61,9 @@ class ServiceRequestArgs {
       this.acceptedByVendor,
       this.assignedToMechanic,
       this.status,
-      this.comments});
+      this.comments,
+        this.customerArgs
+      });
 }
 
 class VendorRequestAcceptScreen extends StatelessWidget {
@@ -100,6 +116,7 @@ class VendorRequestAcceptScreen extends StatelessWidget {
           child: const Icon(Icons.arrow_back),
         ),
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Center(
             child: Text(
               "Accept Request",
@@ -111,8 +128,8 @@ class VendorRequestAcceptScreen extends StatelessWidget {
         ),
         body: Center(
           child: Container(
-            height: 450,
-            margin: const EdgeInsets.only(top: 60, left: 20, right: 20),
+            height: 500,
+            margin: const EdgeInsets.only(top: 0, left: 20, right: 20),
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30.0),
@@ -216,13 +233,46 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                     Text("lingampalley")
                   ],
                 ),
-                const SizedBox(height: 20,),
+
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      "Customer Name: ",
+                      style:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(args.customerArgs?.name ?? "")
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      "Customer Mobile Number: ",
+                      style:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(args.customerArgs?.phoneNumber ?? "")
+                  ],
+                ),
+                const SizedBox(height: 30,),
                 Row(
                   children: [
                     const Text("Mechanic", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
                     const SizedBox(width: 20,),
                     DropdownButton<String>(
-                        value: vendorMechanicManager.vendorMechanicList[0].name,
+                        value: vendorMechanicManager.curDropDownValue,
                         items: vendorMechanicManager.vendorMechanicList.map<DropdownMenuItem<String>>((item) {
                           return DropdownMenuItem<String>(
                               value: item.name,
@@ -230,13 +280,15 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                           );
                         }).toList(),
                         onChanged: (val) {
+                          vendorMechanicManager.curDropDownValue = val!;
                           vendorMechanic = vendorMechanicManager.vendorMechanicList.firstWhere((element) => element.name == val);
+                          log("vendoMechanicId: ${vendorMechanic.id}");
                         }
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 70,
+                const SizedBox(
+                  height: 40,
                 ),
                 Align(
                     alignment: Alignment.centerRight,
@@ -274,6 +326,8 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                             serviceRequestDTO.status = 'ACCEPTED';
                             serviceRequestDTO.acceptedByVendor = Provider.of<VendorManager>(context, listen: false).vendorRegistrationRequest.id;
                             serviceRequestDTO.assignedToMechanic = vendorMechanic.id;
+                            log("vendoMechanicId: ${vendorMechanic.id}");
+                            log("vendoMechanicId: ${vendorMechanic.deviceToken}");
                             Map<String, String> headers = {
                               'Content-type': 'application/json',
                               'Accept': 'application/json',
@@ -283,13 +337,13 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                                 body: jsonEncode(serviceRequestDTO),
                                 headers: headers
                             );
-
+                            log("url: ${res.APP_URL}/api/vendorstaff/sendNotification?deviceToken=${vendorMechanic.deviceToken}&requestId=${serviceRequestDTO.id}}");
                             response =
-                            await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/sendNotification/?deviceToken=${vendorMechanic.deviceToken}&requestId=${serviceRequestDTO.id}"));
+                            await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/sendNotification?deviceToken=${vendorMechanic.deviceToken}&requestId=${serviceRequestDTO.id}"));
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                     builder: (BuildContext context) {
-                              return VendorSelectMechanicScreen();
+                              return VendorDashBoard();
                             }));
                           }
                         },

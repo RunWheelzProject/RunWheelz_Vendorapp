@@ -10,6 +10,7 @@ import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/splashscreen.dart';
 import 'package:untitled/screens/test_screen.dart';
 import 'package:untitled/screens/vendor_inprogrees_screen.dart';
+import 'package:untitled/screens/vendor_mechanic_accept_screen.dart';
 import 'package:untitled/screens/vendor_pending_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import 'package:untitled/screens/vendor_request_accept.screen.dart';
@@ -22,6 +23,7 @@ import 'package:untitled/manager/location_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import './theme/theme_manager.dart';
 import './theme/themes.dart';
+import 'manager/live_tracker_manager.dart';
 import 'manager/profile_manager.dart';
 import 'manager/staff_manager.dart';
 import 'manager/vendor_mechanic_manager.dart';
@@ -71,32 +73,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 }
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  messaging = FirebaseMessaging.instance;
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  channel = const AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    'This channel is used for important notifications.', // description
-    importance: Importance.max,
-  );
-
-  await flutterLocalNotificationsPlugin?.
-  resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel as AndroidNotificationChannel);
-
-
-
-  String? token = await FirebaseMessaging.instance.getToken();
-  log("$token");
-
-
 
   runApp(const RunWheelz());
 }
@@ -110,6 +91,30 @@ class RunWheelz extends StatefulWidget {
 
   @override
   RunWheelzState createState() => RunWheelzState();
+}
+
+void _handleMessage(String data) async {
+  int id = int.parse(data);
+  log("requestId: $id");
+
+  http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
+  var json = jsonDecode(response.body);
+  log("request: $json");
+
+  navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
+      arguments: ServiceRequestArgs(
+        id: json["id"],
+        serviceType: json["serviceType"],
+        make: json["make"],
+        vehicleNumber: json["vehicleNumber"],
+        latitude: json["latitude"],
+        longitude: json["longitude"],
+        acceptedByVendor: json["acceptedByVendor"],
+        assignedToMechanic: json["assignedToMechanic"],
+        status: json["status"],
+        comments: json["comments"],
+      )
+  );
 }
 
 class RunWheelzState extends State<RunWheelz> {
@@ -158,11 +163,41 @@ class RunWheelzState extends State<RunWheelz> {
   }
 
 
+  void fireBaseInstallation() async {
+    messaging = FirebaseMessaging.instance;
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    channel = const AndroidNotificationChannel(
+      'high_importance_channel', // id
+      'High Importance Notifications', // title
+      'This channel is used for important notifications.', // description
+      importance: Importance.max,
+    );
+
+    await flutterLocalNotificationsPlugin?.
+    resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel as AndroidNotificationChannel);
+
+    await FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((value) =>
+        _handleMessage(value?.notification?.body ?? "1"));
+
+    String? token = await FirebaseMessaging.instance.getToken();
+    log("$token");
+
+    /*await FirebaseMessaging.instance
+      .getInitialMessage()
+      .then((value) =>
+      _handleMessage(value?.notification?.body ?? "1"));
+*/
+
+  }
 
   @override
   void initState() {
     super.initState();
-
+    fireBaseInstallation();
     var initializationSettingsAndroid = const AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = const IOSInitializationSettings();
     var initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
@@ -176,8 +211,10 @@ class RunWheelzState extends State<RunWheelz> {
       RemoteNotification? remoteNotification = message.notification;
       AndroidNotification? android = message.notification?.android;
 
+      log("test: ${message.notification}, ${message.data["id"]}");
+
       if (remoteNotification != null && android != null ) {
-        String action = jsonEncode(message.notification?.body ?? "1");
+        String action = jsonEncode(message.data);
         flutterLocalNotificationsPlugin?.show(
             remoteNotification.hashCode,
             remoteNotification.title,
@@ -201,7 +238,7 @@ class RunWheelzState extends State<RunWheelz> {
       }
 
       log('Got a message whilst in the foreground!');
-      log('Message data: ${message.data}');
+      log('Message data: ${message.data}, ${message.notification}');
 
       /*if (message.notification != null) {
         log('body: ${message.notification?.body}');
@@ -211,6 +248,7 @@ class RunWheelzState extends State<RunWheelz> {
       }*/
     });
 
+    setupInteractedMessage();
 
     FirebaseMessaging.onMessageOpenedApp
         .listen((message) => _handleMessage(message.notification?.body ?? ""));
@@ -219,39 +257,67 @@ class RunWheelzState extends State<RunWheelz> {
   }
 
   Future<dynamic> onSelectNotification(payload) async {
-    // Map<String, dynamic> action = jsonDecode(payload);
-    _handleMessage(payload);
+    Map<String, dynamic> action = jsonDecode(payload);
+    log("clicked on notification");
+    _handleMessage(action);
   }
-/*
+
   Future<void> setupInteractedMessage() async {
     await FirebaseMessaging.instance
         .getInitialMessage()
         .then((value) =>
-        _handleMessage(value.notification?.body != null ? value.notification?.body : ""));
-  }*/
+        _handleMessage(value?.notification?.body ?? "1"));
+  }
 
-  void _handleMessage(String data) async {
-    int id = int.parse(data);
+  void _handleMessage(data) async {
+    log("id: ${data["id"]}");
+    int id = int.parse(data["id"]);
     log("requestId: $id");
 
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
-    var json = jsonDecode(response.body);
-    log("request: $json");
+    var serviceJson = jsonDecode(response.body);
 
-    navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
-        arguments: ServiceRequestArgs(
-            id: json["id"],
-            serviceType: json["serviceType"],
-            make: json["make"],
-            vehicleNumber: json["vehicleNumber"],
-            latitude: json["latitude"],
-            longitude: json["longitude"],
-            acceptedByVendor: json["acceptedByVendor"],
-            assignedToMechanic: json["assignedToMechanic"],
-            status: json["status"],
-            comments: json["comments"],
-        )
-    );
+    response = await http.get(Uri.parse("${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
+    var customerJson = jsonDecode(response.body);
+
+    log("customerJson: $customerJson");
+
+    if (data["screen"] == "vendor_accept") {
+      navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
+          arguments: ServiceRequestArgs(
+            id: serviceJson["id"],
+            serviceType: serviceJson["serviceType"],
+            make: serviceJson["make"],
+            vehicleNumber: serviceJson["vehicleNumber"],
+            latitude: serviceJson["latitude"],
+            longitude: serviceJson["longitude"],
+            acceptedByVendor: serviceJson["acceptedByVendor"],
+            assignedToMechanic: serviceJson["assignedToMechanic"],
+            status: serviceJson["status"],
+            comments: serviceJson["comments"],
+            customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"])
+          )
+      );
+    }
+
+    if (data["screen"] == "mechanic_accept") {
+      navigatorKey.currentState?.pushNamed('/mechanic_accept_screen',
+          arguments: ServiceRequestArgs(
+            id: serviceJson["id"],
+            serviceType: serviceJson["serviceType"],
+            make: serviceJson["make"],
+            vehicleNumber: serviceJson["vehicleNumber"],
+            latitude: serviceJson["latitude"],
+            longitude: serviceJson["longitude"],
+            acceptedByVendor: serviceJson["acceptedByVendor"],
+            assignedToMechanic: serviceJson["assignedToMechanic"],
+            status: serviceJson["status"],
+            comments: serviceJson["comments"],
+              customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"])
+          )
+      );
+    }
+
   }
 
   themeListener() {
@@ -271,7 +337,10 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<LogInManager>(create: (context) => LogInManager()),
         ChangeNotifierProvider<ProfileManager>(create: (context) => ProfileManager()),
         ChangeNotifierProvider<VendorMechanicManager>(create: (context) => VendorMechanicManager()),
-        ChangeNotifierProvider<ServiceRequestManager>(create: (context) => ServiceRequestManager())
+        ChangeNotifierProvider<ServiceRequestManager>(create: (context) => ServiceRequestManager()),
+        //LiveTrackerManager
+        ChangeNotifierProvider<LiveTrackerManager>(create: (context) => LiveTrackerManager())
+
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -284,7 +353,8 @@ class RunWheelzState extends State<RunWheelz> {
         routes: {
           '/': (context) => SplashScreen(),
           '/phone_verification': (context) => const LoginScreen(),
-          VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen()
+          VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen(),
+          '/mechanic_accept_screen': (context) => VendorMechanicRequestAcceptScreen()
         },
       ),
     );

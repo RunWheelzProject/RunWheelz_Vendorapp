@@ -38,6 +38,7 @@ class StaffManagementPage extends StatelessWidget {
         ),
         appBar: AppBar(
           title: const Text("Management"),
+          automaticallyImplyLeading: false,
         ),
         body: SafeArea(
             child: SizedBox(

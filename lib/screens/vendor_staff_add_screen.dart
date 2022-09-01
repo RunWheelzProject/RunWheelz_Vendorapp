@@ -43,6 +43,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
     return Scaffold(
       primary: true,
       appBar: AppBar(
+
         flexibleSpace: SafeArea(
           child: Center(
               child: Row(

@@ -40,6 +40,7 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
     return Scaffold(
         primary: true,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           flexibleSpace: SafeArea(
             child: Center(
                 child: Row(

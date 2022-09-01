@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:untitled/manager/location_manager.dart';
 import 'package:untitled/manager/manager.dart';
 
+import '../manager/vendor_manager.dart';
+import '../model/vendor.dart';
+
 
 class RGoogleMap extends StatefulWidget {
   const RGoogleMap({Key? key}) : super(key: key);
@@ -22,6 +25,9 @@ class RGoogleMapState extends State<RGoogleMap> {
 
     LocationManager locationManager = Provider.of<LocationManager>(context, listen: false);
 
+    VendorRegistrationRequest _vendorRegistrationRequest =
+        Provider.of<VendorManager>(context, listen: false)
+            .vendorRegistrationRequest;
     return GoogleMap(
       zoomGesturesEnabled: true,
       myLocationEnabled: true,
@@ -30,6 +36,14 @@ class RGoogleMapState extends State<RGoogleMap> {
         zoom: 14.4746,
       ),
       mapType: MapType.normal,
+      markers: {
+        Marker(
+            position: LatLng(_vendorRegistrationRequest.latitude ?? startLocation.latitude,
+                _vendorRegistrationRequest.longitude ?? startLocation.longitude),
+            markerId: MarkerId('location'),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueMagenta)),
+      },
       onMapCreated: (controller) {
         setState(() {
           locationManager.setMapController(controller);

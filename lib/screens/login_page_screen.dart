@@ -159,6 +159,7 @@ class _LoginScreen extends State<LoginScreen> {
                 if ((phoneNumberController.text.isNotEmpty) && (phoneNumberController.text.length == 10)) {
                   log("logInManager.selectURL: ${logInManager.currentURLs![0]}");
                   getFireBaseToken().then((String? str) {
+                    log("deviceToken: $str");
                     PhoneVerificationService().sendOtp(int.parse(phoneNumberController.text), str, logInManager.currentURLs![0])                      .then((vendorOtpResponse) {
                       log("test");
                       Navigator.of(context).pushReplacement(

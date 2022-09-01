@@ -5,8 +5,8 @@ const String appName = "Run Wheelz";
 
 /* APP_URL */
 
-const String APP_URL = "http://10.0.2.2:8081";
-//const String APP_URL = "http://192.168.69.207:8081";
+//const String APP_URL = "http://10.0.2.2:8081";
+const String APP_URL = "http://192.168.69.207:8081";
 /* MENU_ITEMS*/
 const List<String> menuItems = ["Home", "Vendor Staff", "Vendor Services", "New Requests", "Requests History"];
 

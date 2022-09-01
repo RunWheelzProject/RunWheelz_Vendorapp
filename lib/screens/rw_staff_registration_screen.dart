@@ -52,7 +52,7 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
     List<String> roles = roleManager.roleNames.map((role) => role.roleName as String).toList();
     log("rolesNames: ${jsonEncode(roles)}");
     return Scaffold(
-      appBar: AppBar(title: const Text("Run Wheelz")),
+      appBar: AppBar(title: const Text("Run Wheelz"), automaticallyImplyLeading: false,),
       body: SingleChildScrollView(
           padding: const EdgeInsets.only(top: 34, bottom: 34),
           child: Column(children: [

@@ -16,6 +16,15 @@ class VendorMechanicManager extends ChangeNotifier {
  List<VendorMechanic> _vendorMechanicList = [];
  VendorMechanic _vendorMechanic = VendorMechanic();
  bool _isEnable = false;
+ String _curDropDownValue = "";
+
+
+String get curDropDownValue => _curDropDownValue;
+
+set curDropDownValue(String val) {
+ _curDropDownValue = val;
+ notifyListeners();
+}
 
  bool get isEnable => _isEnable;
  set isEnable(bool val ) {
@@ -37,6 +46,7 @@ class VendorMechanicManager extends ChangeNotifier {
   getMechanics().then((mechanics) {
    log("mechanic: ${jsonEncode(mechanics[0])}");
    _vendorMechanicList = mechanics;
+   _curDropDownValue = _vendorMechanicList[0].name!;
    notifyListeners();
   });
   notifyListeners();

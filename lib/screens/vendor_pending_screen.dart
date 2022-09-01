@@ -35,15 +35,7 @@ class VendorPendingScreen extends StatelessWidget {
         child: const Icon(Icons.arrow_back),
       ),
       appBar: AppBar(
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (BuildContext context) {
-                    return const VendorDataManagementPage(pageTitle: "Pending");
-                  })
-              );
-            }),
+        automaticallyImplyLeading: false,
         title: const Center(
           child: Text(
             "Pending Request",

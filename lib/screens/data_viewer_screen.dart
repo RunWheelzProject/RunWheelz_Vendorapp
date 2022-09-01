@@ -50,6 +50,7 @@ class VendorDataManagementPage extends StatelessWidget {
           child: const Icon(Icons.arrow_back),
         ),
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text("Vendor Dashboard"),
         ),
         body: SafeArea(

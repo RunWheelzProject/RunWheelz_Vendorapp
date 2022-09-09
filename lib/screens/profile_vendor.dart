@@ -56,7 +56,7 @@ class VendorProfile extends StatelessWidget {
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return const VendorManagementPage();
+                return VendorManagementPage();
               })
           )
         },

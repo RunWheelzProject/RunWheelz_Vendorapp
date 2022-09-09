@@ -4,6 +4,7 @@ class VendorMechanic {
   int? id;
   String? name;
   String? phoneNumber;
+  String? aadharNumber;
   VendorRegistration? vendorRegistration;
   bool? registrationStatus;
   String? deviceToken;
@@ -13,6 +14,7 @@ class VendorMechanic {
     this.id = 0,
     this.name = '',
     this.phoneNumber = "",
+    this.aadharNumber,
     this.vendorRegistration,
     this.registrationStatus = false,
     this.deviceToken = ""
@@ -22,6 +24,7 @@ class VendorMechanic {
     "id": id,
     "name": name,
     "phoneNumber": phoneNumber,
+    "aadharNumber": aadharNumber,
     "vendorRegistrationRequest": vendorRegistration,
     "registrationStatus": registrationStatus,
     "deviceToken": deviceToken
@@ -32,6 +35,7 @@ class VendorMechanic {
         id: json["id"],
         name: json["name"],
         phoneNumber: json["phoneNumber"],
+        aadharNumber: json[" aadharNumber"],
         vendorRegistration: json["vendorRegistrationRequest"],
         registrationStatus: json["registrationStatus"],
         deviceToken: json["deviceToken"]

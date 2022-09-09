@@ -66,42 +66,46 @@ class ServiceRequestArgs {
       });
 }
 
-class VendorRequestAcceptScreen extends StatelessWidget {
+class VendorRequestAcceptScreen extends StatefulWidget {
   static const routeName = '/vendor_accept_screen';
-
-  /*void getRequestData(BuildContext context) async {
-
-    final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
-    final ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
-    log("requestId: ${args.requestID}");
-
-    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/${args.requestID}"));
-    var responseJson = jsonDecode(response.body);
-    log("request: $responseJson");
-    serviceRequestManager.serviceRequestDTO = ServiceRequestDTO.fromJson(responseJson);
-  }*/
+  const VendorRequestAcceptScreen({Key? key}) : super(key: key);
 
 
-  List<String> mechanics = ['Select Mechanic', "Ravi"];
+  @override
+  _VendorRequestAcceptScreen createState() => _VendorRequestAcceptScreen();
+}
+
+class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
+  List<VendorMechanic> _vendorMechanics = [];
+  VendorMechanic _selectedMechanic = VendorMechanic();
+  String _dropDownMechanicValue = "";
+
+  @override
+  void initState() {
+    super.initState();
+    getMechanics().then((mechanics) {
+      setState(() => _vendorMechanics = mechanics);
+      _dropDownMechanicValue = _vendorMechanics[0].name ?? "";
+      _selectedMechanic = _vendorMechanics[0];
+    })
+    .catchError((error) => log("error"));
+  }
+
+  Future<List<VendorMechanic>> getMechanics() async {
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getallmechanics"));
+    var jsonList = jsonDecode(response.body) as List;
+    List<VendorMechanic> vendorMechanicList = [];
+
+    return jsonList.map((mechanic) => VendorMechanic.fromJson(mechanic)).toList();
+
+  }
 
   @override
   Widget build(BuildContext context) {
-
+/*
     VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
-    VendorMechanic vendorMechanic = vendorMechanicManager.vendorMechanicList[0];
+    VendorMechanic vendorMechanic = vendorMechanicManager.vendorMechanicList[0];*/
     final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
-    /*final args = ServiceRequestArgs(
-      id: 1,
-      serviceType: "Breakdown",
-      make: "TVS",
-      vehicleNumber: "787878",
-      latitude: 23.7890,
-      longitude: 89.0000,
-      acceptedByVendor: 3,
-      assignedToMechanic: 2,
-      status: "NONE",
-      comments: "TEST",
-    );*/
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -153,7 +157,7 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                     Text(args.serviceType ?? "")
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
@@ -169,7 +173,7 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                     Text(args.make ?? "")
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
@@ -185,39 +189,39 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                     Text(args.vehicleNumber ?? "")
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
-                  children: [
-                    const Text(
+                  children: const [
+                    Text(
                       "Latitude: ",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       width: 10,
                     ),
                     Text("127.11")
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
-                  children: [
-                    const Text(
+                  children: const [
+                    Text(
                       "Longitude: ",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       width: 10,
                     ),
                     Text("77.23")
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
@@ -272,17 +276,17 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                     const Text("Mechanic", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
                     const SizedBox(width: 20,),
                     DropdownButton<String>(
-                        value: vendorMechanicManager.curDropDownValue,
-                        items: vendorMechanicManager.vendorMechanicList.map<DropdownMenuItem<String>>((item) {
+                        value: _dropDownMechanicValue,
+                        items: _vendorMechanics.map<DropdownMenuItem<String>>((item) {
                           return DropdownMenuItem<String>(
                               value: item.name,
                               child: Text(item.name ?? "")
                           );
                         }).toList(),
                         onChanged: (val) {
-                          vendorMechanicManager.curDropDownValue = val!;
-                          vendorMechanic = vendorMechanicManager.vendorMechanicList.firstWhere((element) => element.name == val);
-                          log("vendoMechanicId: ${vendorMechanic.id}");
+                          _dropDownMechanicValue = val!;
+                           _selectedMechanic = _vendorMechanics.firstWhere((element) => element.name == val);
+                          log("vendoMechanicId: ${_selectedMechanic.id}");
                         }
                     ),
                   ],
@@ -294,7 +298,7 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
                         onPressed: () async {
-                          if (args.status == "ACCEPTED") {
+                          if (args.status == "VENDOR_ACCEPTED") {
                             showDialog<void>(
                               context: context,
                               barrierDismissible:
@@ -323,11 +327,12 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                             http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/${args.id}"));
                             var json = jsonDecode(response.body);
                             ServiceRequestDTO serviceRequestDTO = ServiceRequestDTO.fromJson(json);
-                            serviceRequestDTO.status = 'ACCEPTED';
+                            serviceRequestDTO.status = 'VENDOR_ACCEPTED';
                             serviceRequestDTO.acceptedByVendor = Provider.of<VendorManager>(context, listen: false).vendorRegistrationRequest.id;
-                            serviceRequestDTO.assignedToMechanic = vendorMechanic.id;
-                            log("vendoMechanicId: ${vendorMechanic.id}");
-                            log("vendoMechanicId: ${vendorMechanic.deviceToken}");
+                            serviceRequestDTO.assignedToMechanic = _selectedMechanic.id;
+                            log("vendoMechanicId: ${_selectedMechanic.id}");
+                            log("vendoMechanicId: ${_selectedMechanic.deviceToken}");
+                            log("ServiceRequestDTO: ${jsonEncode(serviceRequestDTO)}");
                             Map<String, String> headers = {
                               'Content-type': 'application/json',
                               'Accept': 'application/json',
@@ -337,13 +342,13 @@ class VendorRequestAcceptScreen extends StatelessWidget {
                                 body: jsonEncode(serviceRequestDTO),
                                 headers: headers
                             );
-                            log("url: ${res.APP_URL}/api/vendorstaff/sendNotification?deviceToken=${vendorMechanic.deviceToken}&requestId=${serviceRequestDTO.id}}");
+                            log("url: ${res.APP_URL}/api/vendorstaff/sendNotification?deviceToken=${_selectedMechanic.deviceToken}&requestId=${serviceRequestDTO.id}}");
                             response =
-                            await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/sendNotification?deviceToken=${vendorMechanic.deviceToken}&requestId=${serviceRequestDTO.id}"));
+                            await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/sendNotification?deviceToken=${_selectedMechanic.deviceToken}&requestId=${serviceRequestDTO.id}"));
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                     builder: (BuildContext context) {
-                              return VendorDashBoard();
+                              return const VendorDashBoard();
                             }));
                           }
                         },

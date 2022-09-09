@@ -16,11 +16,71 @@ import 'package:searchable_listview/searchable_listview.dart';
 
 import '../manager/vendor_manager.dart';
 import '../services/vendor_registration.dart';
+import 'package:http/http.dart' as http;
 
-class VendorManagementPage extends StatelessWidget {
+import '../model/vendor.dart';
+import '../resources/resources.dart' as res;
 
-  const VendorManagementPage({Key? key}) : super(key: key);
 
+
+class VendorManagementPage extends StatefulWidget {
+
+  @override
+  VendorManagementPageState createState() => VendorManagementPageState();
+}
+class VendorManagementPageState extends State<VendorManagementPage> {
+  List<VendorRegistrationRequest> _vendorRegistrationRequest = [];
+  List<VendorRegistrationRequest> _registered = [];
+  List<VendorRegistrationRequest> _notRegistered = [];
+  List<VendorRegistrationRequest> _initRequests = [];
+  List<VendorRegistrationRequest> _filteredList = [];
+  bool _isRegistered = true;
+  bool _isNotRegisterd = false;
+  bool _isInitRequests = false;
+
+
+  Future<List<VendorRegistrationRequest>> getVendorInitialRegisterList() async {
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendor/registrationrequest"));
+      var jsonResponse = jsonDecode(response.body) as List;
+      return jsonResponse.map((json) => VendorRegistrationRequest.fromJson(json)).toList();
+  }
+
+  Future<List<VendorRegistrationRequest>> getAllStaff() async {
+    final Uri _getAllStaff = Uri.parse("${res.APP_URL}/api/vendor/getallvendors");
+    http.Response response = await http.get(_getAllStaff);
+
+    var jsonResponse = jsonDecode(response.body);
+    List<VendorRegistrationRequest> list = [];
+    for (var item in jsonResponse) {
+      list.add(VendorRegistrationRequest.fromJson(item));
+    }
+    return list;
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getAllStaff().then((mechanics) {
+      _vendorRegistrationRequest = mechanics;
+      for (var staff in _vendorRegistrationRequest) {
+        if (staff.registrationStatus == true) {
+          _registered.add(staff);
+        }
+      }
+      for (var staff in _vendorRegistrationRequest) {
+        if (staff.registrationStatus == false) {
+          _notRegistered.add(staff);
+        }
+      }
+      setState(() => {});
+    }).catchError((error) => log("error: $error"));
+
+    getVendorInitialRegisterList().then((mechanics) {
+      _initRequests = mechanics;
+    }).catchError((error) => log("error: $error"));
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +99,13 @@ class VendorManagementPage extends StatelessWidget {
           },
           child: const Icon(Icons.arrow_back),
         ),
-        /*appBar: AppBar(
+        appBar: AppBar(
           title: const Text("Management"),
-        ),*/
+          automaticallyImplyLeading: false,
+        ),
         body: SafeArea(
-            child: SizedBox(
+            child: Container(
+                padding: const EdgeInsets.all(10),
                 width: double.infinity,
                 child: Column(children: [
                   const SizedBox(height: 40,),
@@ -63,50 +125,80 @@ class VendorManagementPage extends StatelessWidget {
                   Container(
                       padding: const EdgeInsets.all(10),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    const Text("Registered", textAlign: TextAlign.center,),
                                     Checkbox(
-                                        value: vendorManager.isRegistered,
+                                        value: _isRegistered,
                                         onChanged: (val) {
                                           if (val != null) {
                                             if (val) {
-                                              vendorManager.isRegistered = true;
-                                              vendorManager.getRegisteredList();
+                                              setState(() {
+                                                _isNotRegisterd = false;
+                                                _isRegistered = true;
+                                                _isInitRequests = false;
+                                              });
+                                              setState(() => {
+                                                _filteredList = _registered
+                                              });
                                             }
                                           }
                                         }),
+                                    const Text("Registered", textAlign: TextAlign.center,),
+
                                   ],
                                 ),
                                 Row(
                                   children: [
-                                    const Text("Not Registered"),
                                     Checkbox(
-                                        value: !vendorManager.isRegistered,
+                                        value: _isNotRegisterd,
                                         onChanged: (val) {
                                           if (val != null) {
                                             if (val) {
-                                              vendorManager.isRegistered = false;
-                                              VendorRegistrationService().getVendorsNotRegistered()
-                                              .then((vendors) {
-
+                                              setState(() {
+                                                _isNotRegisterd = true;
+                                                _isRegistered = false;
+                                                _isInitRequests = false;
                                               });
-                                              //vendorManager.getNotRegisteredList();
-
+                                              setState(() => {
+                                                _filteredList = _notRegistered
+                                              });
                                             }
                                           }
                                         }),
+                                    const Text("Not Registered"),
+
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                        value: _isInitRequests,
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            if (val) {
+                                              setState(() {
+                                                _isNotRegisterd = false;
+                                                _isRegistered = false;
+                                                _isInitRequests = true;
+                                              });
+                                              setState(() => {
+                                                _filteredList = _initRequests
+                                              });
+                                            }
+                                          }
+                                        }),
+                                    const Text("Initial Requests"),
+
                                   ],
                                 ),
                               ]
                           )
-
                         ],
                       )
                   ),
@@ -114,13 +206,13 @@ class VendorManagementPage extends StatelessWidget {
                   const Text('Vendor List', style: TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
                   Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(15),
+                        padding: const EdgeInsets.all(5),
                         child: SearchableList<VendorRegistrationRequest>(
-                          initialList: vendorManager.filteredList,
+                          initialList: _filteredList,
                           builder: (VendorRegistrationRequest vendor) => Item(
                             vendorRegistrationRequest: vendor,
                           ),
-                          filter: (value) => vendorManager.filteredList
+                          filter: (value) => _filteredList
                               .where((element) =>
                           element.phoneNumber?.contains(value) as bool)
                               .toList(),
@@ -152,12 +244,26 @@ class VendorManagementPage extends StatelessWidget {
     );
   }
 }
+class Item extends StatefulWidget {
 
-class Item extends StatelessWidget {
   final VendorRegistrationRequest vendorRegistrationRequest;
-  final AssetImage image = const AssetImage("images/logo.jpg");
-  const Item({Key? key, required this.vendorRegistrationRequest}) : super(key: key);
+  bool assignable;
 
+  Item({Key? key, required this.vendorRegistrationRequest, this.assignable = false}) : super(key: key);
+  @override
+  ItemState createState() => ItemState();
+}
+
+class ItemState extends State<Item> {
+  String _dropDownExecutiveValue = "Select";
+  final AssetImage image = const AssetImage("images/logo.jpg");
+
+  List<String> executives = [
+    "Select",
+    "Ravi",
+    "Hari",
+    "Raghav"
+  ];
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -205,7 +311,7 @@ class Item extends StatelessWidget {
                         width: 10,
                       ),
                       Text(
-                        vendorRegistrationRequest.ownerName ?? "No Name",
+                        widget.vendorRegistrationRequest.ownerName ?? "No Name",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -229,7 +335,7 @@ class Item extends StatelessWidget {
                         const SizedBox(
                           width: 5,
                         ),
-                        Text(vendorRegistrationRequest.city ?? "not found",
+                        Text(widget.vendorRegistrationRequest.city ?? "not found",
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,
@@ -242,7 +348,7 @@ class Item extends StatelessWidget {
                         const SizedBox(
                           width: 5,
                         ),
-                        Text(vendorRegistrationRequest.phoneNumber ?? "00000 00000",
+                        Text(widget.vendorRegistrationRequest.phoneNumber ?? "00000 00000",
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,
@@ -252,6 +358,29 @@ class Item extends StatelessWidget {
                   ],
                 )
               ],
+            ),
+
+            SizedBox(height: 30,),
+            if (widget.assignable)
+            Row(
+                children: [
+                  DropdownButton<String>(
+                      value: _dropDownExecutiveValue,
+                      items: executives.map<DropdownMenuItem<String>>((item) {
+                        return DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(item ?? "")
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        _dropDownExecutiveValue = val!;
+                      }
+                  ),
+                  SizedBox(width: 40,),
+                  ElevatedButton(onPressed: () {},
+                      child: const Text("Assign")
+                  )
+                ]
             )
           ],
         ));

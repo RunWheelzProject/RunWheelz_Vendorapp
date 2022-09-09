@@ -1,21 +1,37 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 import 'package:untitled/components/dashboard_box.dart';
+import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/profile_vendor.dart';
 import 'package:untitled/screens/vendor_dashboard_profile.dart';
+import 'package:untitled/screens/vendor_inprogrees_screen.dart';
 import 'package:untitled/screens/vendor_mechanic_accept_screen.dart';
 import 'package:untitled/screens/vendor_pending_screen.dart';
 import 'package:untitled/screens/vendor_request_accept.screen.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/menu.dart';
+import '../manager/vendor_manager.dart';
+import '../model/customer.dart';
+import '../model/servie_request.dart';
+import '../model/vendor_mechanic.dart';
 import '../resources/resources.dart' as res;
+import 'live_track_map.dart';
+
+import '../resources/resources.dart' as res;
+import 'package:http/http.dart' as http;
 
 typedef CallBack = void Function();
 
 class VendorMechanicDashBoard extends StatefulWidget {
-  const VendorMechanicDashBoard({Key? key}) : super(key: key);
+  String? requestId;
+  VendorMechanicDashBoard({Key? key, required this.requestId})
+      : super(key: key);
 
   @override
   VendorMechanicDashBoardState createState() => VendorMechanicDashBoardState();
@@ -25,14 +41,34 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
   TextEditingController phoneNumberController = TextEditingController();
   final bool _validate = false;
   final String _error = "";
+  List<ServiceRequestDTO> serviceRequests = [];
 
+  Future<List<ServiceRequestDTO>> getNewRequests() async {
+    VendorMechanicManager vendorMechanicManager =
+        Provider.of<VendorMechanicManager>(context, listen: false);
+    log("id: ${vendorMechanicManager.vendorMechanic.id}");
+    http.Response response = await http.get(Uri.parse(
+        "${res.APP_URL}/api/servicerequest/by_mechanic/${vendorMechanicManager.vendorMechanic.id}"));
+    var jsonList = jsonDecode(response.body) as List;
+    var jsonResponse = jsonDecode(response.body);
+    List<ServiceRequestDTO> list = [];
+    for (var item in jsonResponse) {
+      list.add(ServiceRequestDTO.fromJson(item));
+    }
+    return list;
+    //return jsonList.map((request) => { ServiceRequestDTO.fromJson(request)}).cast<ServiceRequestDTO>().toList();
+  }
 
-
-  List<NewRequests> requests = [
-    NewRequests(requestID: "1234", serviceType: "Puncture"),
-    NewRequests(requestID: "1235", serviceType: "General"),
-    NewRequests(requestID: "1236", serviceType: "Washing")
-  ];
+  @override
+  void initState() {
+    super.initState();
+    getNewRequests().then((requests) {
+      requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
+      setState(() => serviceRequests = requests);
+    }).catchError((error) => log("error: $error"));
+    //log("${jsonEncode(requestCounts)}");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,76 +80,83 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
           flexibleSpace: SafeArea(
             child: Center(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text("Run Wheelz",
-                        style: TextStyle(color: Colors.white, fontSize: 23)),
-                    addHorizontalSpace(70),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (BuildContext context) {
-                                return VendorDashboardProfile();
-                              })
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.account_circle_rounded,
-                          color: Colors.white,
-                        )),
-                    addHorizontalSpace(20),
-                  ],
-                )),
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text("Run Wheelz",
+                    style: TextStyle(color: Colors.white, fontSize: 23)),
+                addHorizontalSpace(70),
+                IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                        return VendorDashboardProfile();
+                      }));
+                    },
+                    icon: const Icon(
+                      Icons.account_circle_rounded,
+                      color: Colors.white,
+                    )),
+                addHorizontalSpace(20),
+              ],
+            )),
           ),
         ),
         body: SafeArea(
             child: SizedBox(
                 width: double.infinity,
                 child: Column(children: [
-                  const SizedBox(height: 80,),
-                  const Text("Mechanic Assigned Tasks", style: TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
+                  const SizedBox(
+                    height: 80,
+                  ),
+                  const Text(
+                    "Mechanic Assigned Tasks",
+                    style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold),
+                  ),
                   Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: SearchableList<NewRequests>(
-                          initialList: requests,
-                          builder: (NewRequests newRequest) => Item(newRequests: newRequest,),
-                          filter: (value) => requests
-                              .where((element) => element.requestID.contains(value))
-                              .toList(),
-                          onItemSelected: (NewRequests item) {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorMechanicRequestAcceptScreen();
-                                  })
-                              );
-                          },
-                          inputDecoration: InputDecoration(
-                            labelText: "Search ",
-                            fillColor: Colors.white,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.blue,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
+                    padding: const EdgeInsets.all(15),
+                    child: SearchableList<ServiceRequestDTO>(
+                      initialList: serviceRequests,
+                      builder: (ServiceRequestDTO newRequest) => Item(
+                        serviceRequestDTO: newRequest,
+                      ),
+                      filter: (value) => serviceRequests
+                          .where((element) =>
+                              element.id.toString().contains(value))
+                          .toList(),
+                      onItemSelected: (ServiceRequestDTO item) {
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (BuildContext context) {
+                          return VendorInprogressScreen(
+                            serviceRequestDTO: item,
+                            isFromMechanic: true,
+                          );
+                        }));
+                      },
+                      inputDecoration: InputDecoration(
+                        labelText: "Search ",
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: Colors.blue,
+                            width: 1.0,
                           ),
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                      ))
-                ]
-                )
-            )
-        )
-    );
+                      ),
+                    ),
+                  ))
+                ]))));
   }
 }
 
-
 class Item extends StatelessWidget {
-  NewRequests newRequests;
-  Item({Key? key, required this.newRequests}) : super(key: key);
+  ServiceRequestDTO? serviceRequestDTO;
+  Item({Key? key, this.serviceRequestDTO}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -149,17 +192,23 @@ class Item extends StatelessWidget {
             ),
             Row(
               children: [
-               const Text("Service: "),
-                const SizedBox(width: 10,),
-                Text(newRequests.serviceType)
+                Text("Service: "),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(serviceRequestDTO?.serviceType ?? "")
               ],
             ),
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
               children: [
-                const Text("Request ID: "),
-                const SizedBox(width: 10,),
-                Text(newRequests.requestID)
+                Text("Request ID: "),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(serviceRequestDTO?.id.toString() ?? "0000")
               ],
             )
           ],

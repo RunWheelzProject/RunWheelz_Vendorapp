@@ -71,7 +71,7 @@ class Profile extends StatelessWidget {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  return isStaff ? const StaffManagementPage() : const VendorManagementPage();
+                  return isStaff ? const StaffManagementPage() : VendorManagementPage();
                 })
             )
           },

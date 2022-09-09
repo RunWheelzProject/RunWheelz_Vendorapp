@@ -26,7 +26,10 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
 
+import 'live_track_map.dart';
+
 class VendorMechanicRequestAcceptScreen extends StatefulWidget {
+  static const routeName = '/mechanic_accept_screen';
   const VendorMechanicRequestAcceptScreen({Key? key}) : super(key: key);
 
   @override
@@ -37,7 +40,7 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
 
   final loc.Location location = loc.Location();
   StreamSubscription<loc.LocationData>? _locationSubscription;
-  List<String> stauts = ["completed", "open"];
+  List<String> stauts = ["started", "reached"];
 
 
   @override
@@ -48,19 +51,16 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
     location.enableBackgroundMode(enable: true);
   }
 
-
-
   _getLocation() async {
     final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
     try {
       final loc.LocationData _locationResult = await location.getLocation();
-      await FirebaseFirestore.instance.collection('location').doc(args.customerArgs?.id.toString()).set({
+      await FirebaseFirestore.instance.collection('location').doc(args.assignedToMechanic.toString()).set({
         'latitude': _locationResult.latitude,
         'longitude': _locationResult.longitude,
-        'name': 'john'
       }, SetOptions(merge: true));
     } catch (e) {
-      print(e);
+      //log(e);
     }
   }
 
@@ -73,8 +73,9 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
         _locationSubscription = null;
       });
     }).listen((loc.LocationData currentlocation) async {
+      log("lat1: ${currentlocation.latitude}, long1: ${currentlocation.longitude}");
       await FirebaseFirestore.instance.collection('location')
-          .doc(args.customerArgs?.id.toString()).set({
+          .doc("2").set({
         'latitude': currentlocation.latitude,
         'longitude': currentlocation.longitude
       }, SetOptions(merge: true));
@@ -108,7 +109,7 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-            return const VendorMechanicDashBoard();
+            return VendorMechanicDashBoard(requestId: args.id.toString(),);
           }))
         },
         child: const Icon(Icons.arrow_back),
@@ -117,7 +118,7 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
         automaticallyImplyLeading: false,
         title: const Center(
           child: Text(
-            "Submit Request",
+            "New Request",
             style: TextStyle(
               fontWeight: FontWeight.w900,
             ),
@@ -216,61 +217,33 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
                     Text(args.customerArgs?.phoneNumber ?? "")
                   ],
                 ),
-              ])),
-          Container(
-              height: 180,
-              margin: const EdgeInsets.only(
-                  left: 20, right: 20, top: 20, bottom: 5),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.white,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Text(
-                        "Mechanic: ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      DropdownButton<String>(
-                          value: stauts[0],
-                          items: stauts.map<DropdownMenuItem<String>>((item) {
-                            return DropdownMenuItem<String>(
-                                value: item, child: Text(item));
-                          }).toList(),
-                          onChanged: (val) => {}),
-                    ],
-                  ),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                      child: Text("comment: ",
-                      textAlign: TextAlign.start,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  SizedBox(height: 7,),
-                  const SizedBox(
-                      height: 60,
-                      child: TextField(
-                        keyboardType: TextInputType.multiline,
-                        maxLines: null,
-                      ))
-                ],
-              )
+              ])
           ),
-          SizedBox(height: 30,),
-          ElevatedButton(
-              onPressed: () => {
-                _listenLocation()
-              },
-              child: const Text("Submit")
+          const SizedBox(height: 30,),
+          Row(
+            children: [
+              ElevatedButton(
+                  onPressed: () {
+                    _listenLocation();
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return VendorMechanicDashBoard(requestId: args.id.toString(),);
+                        })
+                    );
+                  },
+                  child: const Text("Accept")
+              ),/*
+              IconButton(
+                icon: const Icon(Icons.directions, color: Colors.white,),
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          LocationTrackingMap(args)));
+                },
+              )*/
+            ],
           )
+
         ],
       ),
     );

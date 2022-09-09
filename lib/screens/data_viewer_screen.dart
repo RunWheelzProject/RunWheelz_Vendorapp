@@ -16,6 +16,8 @@ import 'package:untitled/screens/vendor_request_accept.screen.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 
+import '../model/servie_request.dart';
+
 // dummy
 
 class NewRequests {
@@ -26,11 +28,14 @@ class NewRequests {
 
 class VendorDataManagementPage extends StatelessWidget {
   final String pageTitle;
-  const VendorDataManagementPage({Key? key, required this.pageTitle}) : super(key: key);
+  List<ServiceRequestDTO>? serviceRequestList;
+  VendorDataManagementPage({Key? key, required this.pageTitle, this.serviceRequestList}) : super(key: key);
+
 
 
   @override
   Widget build(BuildContext context) {
+    List<ServiceRequestDTO> serviceRequestDTOList = serviceRequestList ?? [];
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
     StaffManager staffManager = Provider.of<StaffManager>(context);
@@ -66,38 +71,20 @@ class VendorDataManagementPage extends StatelessWidget {
                   Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(15),
-                        child: SearchableList<NewRequests>(
-                          initialList: requests,
-                          builder: (NewRequests staff) => Item(
-                          ),
-                          filter: (value) => requests
-                              .where((element) => element.requestID.contains(value))
+                        child: SearchableList<ServiceRequestDTO>(
+                          initialList: serviceRequestDTOList,
+                          builder: (ServiceRequestDTO serviceRequest) => Item(serviceRequestDTO: serviceRequest,),
+                          filter: (value) => serviceRequestDTOList.where((element) =>
+                              element.id?.toString().contains(value) as bool
+                          )
                               .toList(),
-                          onItemSelected: (NewRequests item) {
-                            //profileManager.staffDTO = staff;
-                            if (pageTitle == "New Requests") {
+                          onItemSelected: (ServiceRequestDTO item) {
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorRequestAcceptScreen();
+                                    return VendorInprogressScreen(serviceRequestDTO: item,);
                                   })
                               );
-                            }
-                            if (pageTitle == "In Progress") {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorInprogressScreen();
-                                  })
-                              );
-                            }
-                            if (pageTitle == "Pending Requests") {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorPendingScreen();
-                                  })
-                              );
-                            }
-
-                          },
+                            },
                           inputDecoration: InputDecoration(
                             labelText: "Search $pageTitle",
                             fillColor: Colors.white,
@@ -120,7 +107,8 @@ class VendorDataManagementPage extends StatelessWidget {
 }
 
 class Item extends StatelessWidget {
-  const Item({Key? key}) : super(key: key);
+  ServiceRequestDTO? serviceRequestDTO;
+  Item({Key? key, this.serviceRequestDTO}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -155,18 +143,18 @@ class Item extends StatelessWidget {
               height: 10,
             ),
                 Row(
-                  children: const [
+                  children: [
                     Text("Service: "),
                     SizedBox(width: 10,),
-                    Text("Puncture")
+                    Text(serviceRequestDTO?.serviceType ?? "")
                   ],
                 ),
                 const SizedBox(height: 10,),
                 Row(
-                  children: const [
+                  children: [
                     Text("Request ID: "),
                     SizedBox(width: 10,),
-                    Text("1231")
+                    Text(serviceRequestDTO?.id.toString() ?? "0000")
                   ],
                 )
           ],

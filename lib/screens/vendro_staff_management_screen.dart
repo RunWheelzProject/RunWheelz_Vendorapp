@@ -13,17 +13,45 @@ import 'package:untitled/screens/vendor_dashboard.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 
-class VendorStaffManagementPage extends StatelessWidget {
+import '../model/vendor_mechanic.dart';
+import '../resources/resources.dart' as res;
+import 'package:http/http.dart' as http;
 
+class VendorStaffManagementPage extends StatefulWidget {
   const VendorStaffManagementPage({Key? key}) : super(key: key);
 
+ 
+  @override
+  VendorStaffManagementPageState createState() => VendorStaffManagementPageState();
+}
+
+class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
+  List<VendorMechanic> _vendorMechanic = [];
+
+  Future<List<VendorMechanic>> getAllMechanics() async {
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getallmechanics"));
+    var jsonResponse = jsonDecode(response.body);
+    log("${jsonEncode(jsonResponse)}");
+    List<VendorMechanic> list = [];
+    for (var item in jsonResponse) {
+      list.add(VendorMechanic.fromJson(item));
+    }
+    return list;
+
+  }
 
   @override
+  void initState() {
+    super.initState();
+    getAllMechanics().then((mechanics) {
+     setState(() => _vendorMechanic = mechanics);
+    }).catchError((error) => log("error: $error"));
+  }
+  
+  
+  @override
   Widget build(BuildContext context) {
-    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
-    StaffManager staffManager = Provider.of<StaffManager>(context);
-    logInManager.setCurrentURLs("staffRegistration");
 
     return Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -50,6 +78,7 @@ class VendorStaffManagementPage extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child:ElevatedButton(
                           onPressed: () {
+                            logInManager.setCurrentURLs("staffRegistration");
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return const LoginScreen();
                             })
@@ -66,39 +95,7 @@ class VendorStaffManagementPage extends StatelessWidget {
                         children: [
                           Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                /*Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    const Text("Registered", textAlign: TextAlign.center,),
-                                    Checkbox(
-                                        value: staffManager.isRegistered,
-                                        onChanged: (val) {
-                                          if (val != null) {
-                                            if (val) {
-                                              staffManager.isRegistered = true;
-                                              staffManager.getRegisteredList();
-                                            }
-                                          }
-                                        }),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    const Text("Not Registered"),
-                                    Checkbox(
-                                        value: !staffManager.isRegistered,
-                                        onChanged: (val) {
-                                          if (val != null) {
-                                            if (val) {
-                                              staffManager.isRegistered = false;
-                                              staffManager.getNotRegisteredList();
-
-                                            }
-                                          }
-                                        }),
-                                  ],
-                                )*/
+                              children: const [
                               ]
                           )
 
@@ -110,17 +107,16 @@ class VendorStaffManagementPage extends StatelessWidget {
                   Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(15),
-                        child: SearchableList<StaffDTO>(
-                          initialList: staffManager.filteredList,
-                          builder: (StaffDTO staff) => Item(
-                            staffDTO: staff,
+                        child: SearchableList<VendorMechanic>(
+                          initialList: _vendorMechanic,
+                          builder: (VendorMechanic mechanic) => Item(
+                            vendorMechanic: mechanic,
                           ),
-                          filter: (value) => staffManager.filteredList
-                              .where((element) =>
+                          filter: (value) => _vendorMechanic.where((element) =>
                           element.phoneNumber?.contains(value) as bool)
                               .toList(),
-                          onItemSelected: (StaffDTO staff) {
-                            profileManager.staffDTO = staff;
+                          onItemSelected: (VendorMechanic vendorMechanic) {
+                            //profileManager.staffDTO = staff;
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
                                   return Profile(isStaff: true);
@@ -149,9 +145,9 @@ class VendorStaffManagementPage extends StatelessWidget {
 }
 
 class Item extends StatelessWidget {
-  final StaffDTO staffDTO;
+  final VendorMechanic vendorMechanic;
   final AssetImage image = const AssetImage("images/logo.jpg");
-  const Item({Key? key, required this.staffDTO}) : super(key: key);
+  const Item({Key? key, required this.vendorMechanic}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +196,7 @@ class Item extends StatelessWidget {
                         width: 10,
                       ),
                       Text(
-                        staffDTO.name ?? "No Name",
+                        vendorMechanic.name ?? "No Name",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -224,24 +220,12 @@ class Item extends StatelessWidget {
                         const SizedBox(
                           width: 5,
                         ),
-                        Text(staffDTO.city ?? "not found",
+                        Text(vendorMechanic.phoneNumber ?? "00000 00000",
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,
-                                color: Colors.black45)),
-                        const SizedBox(
-                          width: 15,
-                        ),
-                        const Icon(Icons.phone_android,
-                            color: Colors.blue, size: 15),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Text(staffDTO.phoneNumber ?? "00000 00000",
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                                color: Colors.black45))
+                                color: Colors.black45)
+                        )
                       ],
                     )
                   ],

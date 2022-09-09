@@ -61,7 +61,7 @@ class Menu extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (BuildContext context) {
-                      return const VendorDataManagementPage(pageTitle: "New Requests");
+                      return VendorDataManagementPage(pageTitle: "New Requests");
                     })
                 );
               },
@@ -71,7 +71,7 @@ class Menu extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (BuildContext context) {
-                      return const VendorDataManagementPage(pageTitle: "New Requests");
+                      return VendorDataManagementPage(pageTitle: "New Requests");
                     })
                 );
               },

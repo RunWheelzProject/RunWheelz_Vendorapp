@@ -25,4 +25,15 @@ class Customer {
     "jwt": jwt
   };
 
+  factory Customer.fromJson( Map<String, dynamic> json) {
+    return Customer(
+      id: json["id"],
+      name: json["name"],
+      phoneNumber: json["phoneNumber"],
+      registrationStatus: json["registrationStatus"],
+      role: json["role"],
+      jwt: json["jwt"]
+    );
+  }
+
 }

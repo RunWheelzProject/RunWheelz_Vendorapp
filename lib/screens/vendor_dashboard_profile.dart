@@ -14,7 +14,9 @@ import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/services/vendor_registration.dart';
 
 import '../manager/profile_manager.dart';
+import '../manager/vendor_mechanic_manager.dart';
 import '../model/staff.dart';
+import '../model/vendor_mechanic.dart';
 import '../services/staff_service.dart';
 
 
@@ -43,12 +45,11 @@ class VendorDashboardProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final VendorManager vendorManager = Provider.of<VendorManager>(context);
-    final VendorRegistrationRequest vendor = vendorManager.vendorRegistrationRequest;
-    _nameController.text = vendor.ownerName ?? "not exists";
-    _phoneController.text = vendor.phoneNumber ?? "not exists";
-    _aadhaarController.text = vendor.aadharNumber ?? "not exists";
-    _addressController.text = vendor.addressLine ?? "not exists";
+    final VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
+    final VendorMechanic mechanic = vendorMechanicManager.vendorMechanic;
+    _nameController.text = mechanic.name ?? "not exists";
+    _phoneController.text = mechanic.phoneNumber ?? "not exists";
+    _aadhaarController.text = mechanic.aadharNumber ?? "not exists";
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -85,19 +86,19 @@ class VendorDashboardProfile extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: () {
-                  if (vendorManager.isEnable) {
-                    vendorManager.isEnable = false;
-                    VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest);
+                  /*if (vendorMechanicManager.isEnable) {
+                    vendorMechanicManager.isEnable = false;
+                    VendorRegistrationService().updateVendorInfo(vendorMechanicManager.vendorMechanic);
                     Future<VendorRegistrationRequest> future =
-                    VendorRegistrationService().getVendorById(vendor.id as int);
+                    VendorRegistrationService().getVendorById(mechanic.id as int);
                     future.then((VendorRegistrationRequest vendor) => vendorManager.vendorRegistrationRequest = vendor)
                         .catchError((error) { log("error: $error"); });
                   } else {
                     vendorManager.isEnable = true;
-                  }
+                  }*/
                 },
                 icon: Icon(
-                  vendorManager.isEnable ? Icons.save : Icons.edit,
+                  vendorMechanicManager.isEnable ? Icons.save : Icons.edit,
                   color: Colors.purple,
                 ),
               ),
@@ -107,7 +108,7 @@ class VendorDashboardProfile extends StatelessWidget {
                       builder: (BuildContext context) => AlertDialog(
                           title: const Text("Delete"),
                           content: Text(
-                              "Are you sure deleting Vendor: -  '${vendor.ownerName}' -  ?",
+                              "Are you sure deleting Vendor: -  '${mechanic.name}' -  ?",
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black87)),
                           actions: <Widget>[
@@ -148,14 +149,14 @@ class VendorDashboardProfile extends StatelessWidget {
                   IntrinsicWidth(
                     child: TextField(
                       controller: _nameController,
-                      enabled: vendorManager.isEnable,
-                      decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                      onChanged: (val) => vendorManager.vendorRegistrationRequest.ownerName = val,
+                      enabled: vendorMechanicManager.isEnable,
+                      decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                      onChanged: (val) => vendorMechanicManager.vendorMechanic.name = val,
                     ),
                   ),
                 ],
               ),
-              const Text("Vendor", style: const TextStyle(fontSize: 16))
+              const Text("Mechanic", style: const TextStyle(fontSize: 16))
             ],
           ),
           const SizedBox(height: 80,),
@@ -166,9 +167,9 @@ class VendorDashboardProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _phoneController,
-                  enabled: vendorManager.isEnable,
-                  decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => vendorManager.vendorRegistrationRequest.phoneNumber = val,
+                  enabled: vendorMechanicManager.isEnable,
+                  decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorMechanicManager.vendorMechanic.phoneNumber = val,
                 ),
               )
             ],
@@ -181,15 +182,15 @@ class VendorDashboardProfile extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: _aadhaarController,
-                  enabled: vendorManager.isEnable,
-                  decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => vendorManager.vendorRegistrationRequest.aadharNumber = val,
+                  enabled: vendorMechanicManager.isEnable,
+                  decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorMechanicManager.vendorMechanic.phoneNumber = val,
                 ),
               )
             ],
           ),
           const SizedBox(height: 20,),
-          Column(
+          /*Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text("Address", style: TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
@@ -202,7 +203,7 @@ class VendorDashboardProfile extends StatelessWidget {
                 ),
               )
             ],
-          ),
+          )*/
         ],
       ),
     );

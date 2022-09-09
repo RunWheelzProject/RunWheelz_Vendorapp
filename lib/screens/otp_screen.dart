@@ -268,7 +268,7 @@ class _OTPState extends State<OtpScreen> {
           vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return const VendorMechanicDashBoard();
+                return VendorMechanicDashBoard(requestId: "",);
               }));
         }
         if (response.statusCode == 201 &&

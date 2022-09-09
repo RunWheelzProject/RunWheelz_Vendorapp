@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:core';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -17,9 +18,15 @@ class VendorMechanicManager extends ChangeNotifier {
  VendorMechanic _vendorMechanic = VendorMechanic();
  bool _isEnable = false;
  String _curDropDownValue = "";
+ String _requestId = "";
 
+ String get curDropDownValue => _curDropDownValue;
+ String get requestId => _requestId;
 
-String get curDropDownValue => _curDropDownValue;
+ set requestId(String val) {
+  _requestId = val;
+  notifyListeners();
+ }
 
 set curDropDownValue(String val) {
  _curDropDownValue = val;

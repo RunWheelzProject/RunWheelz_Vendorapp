@@ -96,7 +96,7 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                             ),
                             addHorizontalSpace(20),
                             RWCheckBox(
-                              name: "M",
+                              name: "F",
                               isText: true,
                               value: _isFemale,
                               onChanged: (value) => _isFemale = value!,

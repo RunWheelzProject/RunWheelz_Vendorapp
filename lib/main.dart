@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/screens/login_page_screen.dart';
+import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/splashscreen.dart';
 import 'package:untitled/screens/test_screen.dart';
@@ -34,6 +35,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'model/customer.dart';
 import 'model/servie_request.dart';
 import 'model/vendor_mechanic.dart';
 
@@ -50,24 +52,41 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   log("Handling a background message: ${message.messageId}");
   if (message.notification != null ) {
-    String val = message.notification?.body ?? "1";
-    int id = int.parse(val);
-    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
-    var json = jsonDecode(response.body);
-    log("request: $json");
+    var data = message.data;
+    _handleMessage(data);
+  }
+}
 
+
+void _handleMessage(data) async {
+  int id = int.parse(data["id"] ?? "");
+
+  http.Response response = await http.get(
+      Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
+  var serviceJson = jsonDecode(response.body);
+  log("customerJson: ${serviceJson["requestedCustomer"]}");
+  response = await http.get(Uri.parse(
+      "${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
+  var customerJson = jsonDecode(response.body);
+
+  log("customerJson: $customerJson");
+
+  if (data["screen"] == "vendor_accept") {
     navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
         arguments: ServiceRequestArgs(
-          id: json["id"],
-          serviceType: json["serviceType"],
-          make: json["make"],
-          vehicleNumber: json["vehicleNumber"],
-          latitude: json["latitude"],
-          longitude: json["longitude"],
-          acceptedByVendor: json["acceptedByVendor"],
-          assignedToMechanic: json["assignedToMechanic"],
-          status: json["status"],
-          comments: json["comments"],
+            id: serviceJson["id"],
+            serviceType: serviceJson["serviceType"],
+            make: serviceJson["make"],
+            vehicleNumber: serviceJson["vehicleNumber"],
+            latitude: serviceJson["latitude"],
+            longitude: serviceJson["longitude"],
+            acceptedByVendor: serviceJson["acceptedByVendor"],
+            assignedToMechanic: serviceJson["assignedToMechanic"],
+            status: serviceJson["status"],
+            comments: serviceJson["comments"],
+            customerArgs: CustomerArgs(id: customerJson["id"],
+                name: customerJson["name"],
+                phoneNumber: customerJson["phoneNumber"])
         )
     );
   }
@@ -93,69 +112,8 @@ class RunWheelz extends StatefulWidget {
   RunWheelzState createState() => RunWheelzState();
 }
 
-void _handleMessage(String data) async {
-  int id = int.parse(data);
-  log("requestId: $id");
-
-  http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
-  var json = jsonDecode(response.body);
-  log("request: $json");
-
-  navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
-      arguments: ServiceRequestArgs(
-        id: json["id"],
-        serviceType: json["serviceType"],
-        make: json["make"],
-        vehicleNumber: json["vehicleNumber"],
-        latitude: json["latitude"],
-        longitude: json["longitude"],
-        acceptedByVendor: json["acceptedByVendor"],
-        assignedToMechanic: json["assignedToMechanic"],
-        status: json["status"],
-        comments: json["comments"],
-      )
-  );
-}
-
 class RunWheelzState extends State<RunWheelz> {
 
-
-  /*Future<void> setupInteractedMessage() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
-    RemoteMessage? initialMessage =
-    await FirebaseMessaging.instance.getInitialMessage();
-
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
-    if (initialMessage != null) {
-      _handleMessage(initialMessage);
-    }
-
-    // Also handle any interaction when the app is in the background via a
-    // Stream listener
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-  }
-
-  void _handleMessage(RemoteMessage message) async {
-    if (message.notification != null) {
-
-      final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
-      final ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
-      log("requestId: ${args.requestID}");
-
-      http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/${args.requestID}"));
-      var responseJson = jsonDecode(response.body);
-      log("request: $responseJson");
-      serviceRequestManager.serviceRequestDTO = ServiceRequestDTO.fromJson(responseJson);
-
-      Navigator.pushNamed(context, '/phone_verification',
-        arguments: ServiceRequestArgs(requestID: int.parse(message.notification?.body ?? "")),
-      );
-
-    }
-  }
-*/
   @override
   void dispose() {
     super.dispose();
@@ -258,7 +216,6 @@ class RunWheelzState extends State<RunWheelz> {
 
   Future<dynamic> onSelectNotification(payload) async {
     Map<String, dynamic> action = jsonDecode(payload);
-    log("clicked on notification");
     _handleMessage(action);
   }
 
@@ -270,18 +227,20 @@ class RunWheelzState extends State<RunWheelz> {
   }
 
   void _handleMessage(data) async {
-    log("id: ${data["id"]}");
-    int id = int.parse(data["id"]);
-    log("requestId: $id");
+    int id = int.parse(data["id"] ?? "");
 
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
     var serviceJson = jsonDecode(response.body);
-
+    log("customerJson: ${serviceJson["requestedCustomer"]}");
     response = await http.get(Uri.parse("${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
     var customerJson = jsonDecode(response.body);
 
     log("customerJson: $customerJson");
 
+   /* ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
+    serviceRequestManager.serviceRequestDTO = ServiceRequestDTO.fromJson(serviceJson);
+    serviceRequestManager.serviceRequestDTO.customerDTO = Customer.fromJson(customerJson);
+*/
     if (data["screen"] == "vendor_accept") {
       navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
           arguments: ServiceRequestArgs(
@@ -338,9 +297,7 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<ProfileManager>(create: (context) => ProfileManager()),
         ChangeNotifierProvider<VendorMechanicManager>(create: (context) => VendorMechanicManager()),
         ChangeNotifierProvider<ServiceRequestManager>(create: (context) => ServiceRequestManager()),
-        //LiveTrackerManager
         ChangeNotifierProvider<LiveTrackerManager>(create: (context) => LiveTrackerManager())
-
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -353,37 +310,10 @@ class RunWheelzState extends State<RunWheelz> {
         routes: {
           '/': (context) => SplashScreen(),
           '/phone_verification': (context) => const LoginScreen(),
-          VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen(),
-          '/mechanic_accept_screen': (context) => VendorMechanicRequestAcceptScreen()
+          VendorRequestAcceptScreen.routeName: (context) => const VendorRequestAcceptScreen(),
+          VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()
         },
       ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-        appBar: AppBar(),
-        body: Center(
-            child: Container(
-                color: Colors.white,
-                width: 350,
-                height: 300,
-                padding: const EdgeInsets.all(30),
-                child: OTPEntryBox(
-                  numOfFields: 6,
-                  onFieldTextChanged: (val) => log("fieldvalue: $val"),
-                  onCompleted: (val) => {
-                    log("_completedOTP: $val")
-                  },
-                )
-            )
-        )
     );
   }
 }

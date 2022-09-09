@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'customer.dart';
+
 class ServiceRequestDTO {
   int? id;
   String? serviceType;
@@ -9,10 +11,11 @@ class ServiceRequestDTO {
   double? longitude;
   int? acceptedByVendor;
   int? assignedToMechanic;
+  int? requestedCustomer;
   String? status;
   String? comments;
-  /*CustomerDTO? customerDTO;
-  VendorDTO? vendorDTO;
+  Customer? customerDTO;
+  /*VendorDTO? vendorDTO;
   VendorMechanicDTO? vendorMechanicDTO;*/
 
   ServiceRequestDTO({
@@ -24,8 +27,10 @@ class ServiceRequestDTO {
     this.longitude,
     this.acceptedByVendor,
     this.assignedToMechanic,
+    this.requestedCustomer,
     this.status,
-    this.comments
+    this.comments,
+    this.customerDTO
   });
 
   Map toJson() => {
@@ -37,8 +42,10 @@ class ServiceRequestDTO {
     "latitude": latitude,
     "acceptedByVendor": acceptedByVendor,
     "assignedToMechanic": assignedToMechanic,
+    "requestedCustomer": requestedCustomer,
     "status": status,
     "comments": comments,
+    "customerDTO": customerDTO
   };
 
   factory ServiceRequestDTO.fromJson(Map<String, dynamic> json) {
@@ -51,8 +58,10 @@ class ServiceRequestDTO {
       longitude: json["longitude"],
       acceptedByVendor: json["acceptedByVendor"],
       assignedToMechanic: json["assignedToMechanic"],
+      requestedCustomer: json["requestedCustomer"],
       status: json["status"],
       comments: json["comments"],
+      customerDTO: json["customerDTO"]
     );
   }
 }

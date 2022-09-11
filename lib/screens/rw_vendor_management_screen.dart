@@ -39,8 +39,9 @@ class VendorManagementPageState extends State<VendorManagementPage> {
   bool _isInitRequests = false;
 
 
+
   Future<List<VendorRegistrationRequest>> getVendorInitialRegisterList() async {
-    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendor/registrationrequest"));
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendor/getallvendorregistrationrequests"));
       var jsonResponse = jsonDecode(response.body) as List;
       return jsonResponse.map((json) => VendorRegistrationRequest.fromJson(json)).toList();
   }
@@ -57,6 +58,9 @@ class VendorManagementPageState extends State<VendorManagementPage> {
     return list;
 
   }
+
+
+
 
   @override
   void initState() {
@@ -76,9 +80,12 @@ class VendorManagementPageState extends State<VendorManagementPage> {
       setState(() => {});
     }).catchError((error) => log("error: $error"));
 
-    getVendorInitialRegisterList().then((mechanics) {
-      _initRequests = mechanics;
+    getVendorInitialRegisterList().then((requests) {
+      requests = requests.where((element) => element.status != "Completed").toList();
+      _initRequests = requests;
     }).catchError((error) => log("error: $error"));
+
+    setState(() => _filteredList = _registered);
 
   }
 
@@ -209,9 +216,10 @@ class VendorManagementPageState extends State<VendorManagementPage> {
                         padding: const EdgeInsets.all(5),
                         child: SearchableList<VendorRegistrationRequest>(
                           initialList: _filteredList,
-                          builder: (VendorRegistrationRequest vendor) => Item(
-                            vendorRegistrationRequest: vendor,
-                          ),
+                          builder: (VendorRegistrationRequest vendor) {
+                            bool assign = _isNotRegisterd || _isInitRequests ? true : false;
+                            return Item(vendorRegistrationRequest: vendor, assignable: assign,);
+                          },
                           filter: (value) => _filteredList
                               .where((element) =>
                           element.phoneNumber?.contains(value) as bool)
@@ -257,13 +265,53 @@ class Item extends StatefulWidget {
 class ItemState extends State<Item> {
   String _dropDownExecutiveValue = "Select";
   final AssetImage image = const AssetImage("images/logo.jpg");
+  List<StaffDTO> _staffList = [];
+  StaffDTO? _selectedStaff;
 
+  final Uri vendorRegistrationRequestURL = Uri.parse("${res.APP_URL}/api/vendor/editvrr");
+
+  Future<http.Response> vendorRegistrationRequest(VendorRegistrationRequest vendorRegistrationRequest) async {
+    String body = jsonEncode(vendorRegistrationRequest);
+    log("vendorRegistrationRequest: $body");
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+    http.Response response = await http.put(vendorRegistrationRequestURL, body: body, headers: headers);
+    return response;
+  }
+
+  Future<List<StaffDTO>> getAllStaff() async {
+    final Uri _getAllStaff = Uri.parse("${res.APP_URL}/api/staff/getAllStaff");
+    http.Response response = await http.get(_getAllStaff);
+
+    var jsonResponse = jsonDecode(response.body);
+    List<StaffDTO> list = [];
+    for (var item in jsonResponse) {
+      list.add(StaffDTO.fromJson(item));
+    }
+    return list;
+
+  }
+  
   List<String> executives = [
     "Select",
     "Ravi",
     "Hari",
     "Raghav"
   ];
+  
+  @override 
+  void initState() {
+    super.initState();
+    getAllStaff().then((staff) {
+
+      setState(() {
+      _staffList = staff;
+          _dropDownExecutiveValue = _staffList[0].name!;
+      });
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -366,18 +414,63 @@ class ItemState extends State<Item> {
                 children: [
                   DropdownButton<String>(
                       value: _dropDownExecutiveValue,
-                      items: executives.map<DropdownMenuItem<String>>((item) {
+                      items: _staffList.map<DropdownMenuItem<String>>((item) {
                         return DropdownMenuItem<String>(
-                            value: item,
-                            child: Text(item ?? "")
+                            value: item.name,
+                            child: Text(item.name ?? "")
                         );
                       }).toList(),
                       onChanged: (val) {
-                        _dropDownExecutiveValue = val!;
+                        setState(() => _dropDownExecutiveValue = val!);
+                        _selectedStaff = _staffList.firstWhere((element) => element.name == val);
+                        log("${_selectedStaff?.name}");
                       }
                   ),
-                  SizedBox(width: 40,),
-                  ElevatedButton(onPressed: () {},
+                  const SizedBox(width: 40,),
+                  ElevatedButton(
+                      onPressed: () async {
+                        StaffDTO? staff = _selectedStaff ?? _staffList[0];
+                        widget.vendorRegistrationRequest.executive = staff.id.toString();
+                        //widget.vendorRegistrationRequest.status = "Completed";
+
+                        log("request: ${jsonEncode(widget.vendorRegistrationRequest)}");
+                        // pending update executive
+
+                        vendorRegistrationRequest(widget.vendorRegistrationRequest)
+                            .then((response) {
+                          var body = jsonDecode(response.body);
+                          log("body: ${jsonEncode(body)}");
+                        }).catchError((error) {
+                          log("ServerError: $error");
+                        });
+
+                        log("${staff?.name ?? ""}");
+                        await http.get(Uri.parse("${res.APP_URL}/api/staff/sendNotification?deviceToken=${staff.deviceToken}&requestId=${widget.vendorRegistrationRequest.id}"));
+                        showDialog<void>(
+                          context: context,
+                          barrierDismissible: false, // user must tap button!
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Message'),
+                              content: SingleChildScrollView(
+                                child: ListBody(
+                                  children: <Widget>[
+                                    Text('SentNotification to ${staff.name}'),
+                                  ],
+                                ),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Done'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        },
                       child: const Text("Assign")
                   )
                 ]

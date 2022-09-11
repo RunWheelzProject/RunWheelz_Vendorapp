@@ -8,7 +8,7 @@ class VendorMechanic {
   VendorRegistration? vendorRegistration;
   bool? registrationStatus;
   String? deviceToken;
-
+  String? status;
 
   VendorMechanic({
     this.id = 0,
@@ -17,7 +17,8 @@ class VendorMechanic {
     this.aadharNumber,
     this.vendorRegistration,
     this.registrationStatus = false,
-    this.deviceToken = ""
+    this.deviceToken = "",
+    this.status = ""
   });
 
   Map toJson() => {
@@ -27,7 +28,8 @@ class VendorMechanic {
     "aadharNumber": aadharNumber,
     "vendorRegistrationRequest": vendorRegistration,
     "registrationStatus": registrationStatus,
-    "deviceToken": deviceToken
+    "deviceToken": deviceToken,
+    "status": status
   };
 
   factory VendorMechanic.fromJson(Map<String, dynamic> json) {
@@ -38,7 +40,8 @@ class VendorMechanic {
         aadharNumber: json[" aadharNumber"],
         vendorRegistration: json["vendorRegistrationRequest"],
         registrationStatus: json["registrationStatus"],
-        deviceToken: json["deviceToken"]
+        deviceToken: json["deviceToken"],
+        status: json["status"]
     );
   }
 }

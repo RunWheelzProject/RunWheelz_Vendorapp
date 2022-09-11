@@ -18,6 +18,8 @@ class VendorRegistrationRequest {
   String? country;
   RoleDTO? role;
   bool? registrationStatus;
+  String? executive;
+  String? status;
 
   VendorRegistrationRequest({this.ownerName = '',
     this.phoneNumber = "",
@@ -35,7 +37,9 @@ class VendorRegistrationRequest {
     this.zipcode = "",
     this.country = "",
     this.role,
-    this.registrationStatus = false
+    this.registrationStatus = false,
+    this.executive = "",
+    this.status = ""
 
   });
 
@@ -56,7 +60,9 @@ class VendorRegistrationRequest {
     "zipcode": zipcode,
     "country": country,
     "role": role,
-    "registrationStatus": registrationStatus
+    "registrationStatus": registrationStatus,
+    "executive": executive,
+    "status": status
   };
 
   factory VendorRegistrationRequest.fromJson(Map<String, dynamic> json) {
@@ -76,7 +82,9 @@ class VendorRegistrationRequest {
       zipcode: json["zipcode"],
       country: json["country"],
       role: RoleDTO.fromJson(json["roleId"]),
-      registrationStatus: json["registrationStatus"]
+      registrationStatus: json["registrationStatus"],
+      executive: json["executive"],
+      status: json["status"]
     );
   }
 

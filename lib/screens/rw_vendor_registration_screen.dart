@@ -130,6 +130,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 ])),*/
                         addVerticalSpace(25),
                         TextFormField(
+                          initialValue: vendorManager.vendorRegistrationRequest.ownerName,
                           decoration: InputDecoration(
                             labelText: "Owner Name",
                             prefixIcon: const Icon(Icons.person,
@@ -164,8 +165,46 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                             return null;
                           },
                         ),
+                        addVerticalSpace(25),
+                        TextFormField(
+                          initialValue: vendorManager.vendorRegistrationRequest.phoneNumber,
+                          decoration: InputDecoration(
+                            labelText: "PhoneNumber",
+                            prefixIcon: const Icon(Icons.person,
+                                color: Colors.deepPurple),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                borderSide: const BorderSide(
+                                  color: Colors.purple,
+                                  width: 0,
+                                )),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                borderSide: const BorderSide(
+                                  color: Colors.purple,
+                                  width: 0,
+                                )),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                borderSide: const BorderSide(
+                                  color: Colors.purple,
+                                  width: 0,
+                                )),
+                          ),
+                          onChanged: (value) => {
+                            vendorManager.vendorRegistrationRequest.ownerName =
+                                value
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'this field required';
+                            }
+                            return null;
+                          },
+                        ),
                         addVerticalSpace(20),
                         TextFormField(
+                          initialValue: vendorManager.vendorRegistrationRequest.garageName,
                           decoration: InputDecoration(
                             labelText: "Garage Name",
                             prefixIcon: const Icon(Icons.home,
@@ -499,7 +538,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 onPressed: () {
                                         if (_formKey.currentState!.validate()) {
                                           vendorManager.vendorRegistrationRequest.registrationStatus = true;
-                                          RoleDTO role = RoleDTO(id: 2, roleName: "VENDOR");
+                                          RoleDTO role = RoleDTO(id: 4, roleName: "VENDOR");
                                           vendorManager.vendorRegistrationRequest.role = role;
                                           log("vendor1: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
                                           VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest)
@@ -527,8 +566,9 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
     );
   }
 
-  Widget textFormField(String label, Icon icon, dynamic val) {
+  Widget textFormField(String label, Icon icon, dynamic val, String? initValue) {
     return TextFormField(
+      initialValue: initValue,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: icon,

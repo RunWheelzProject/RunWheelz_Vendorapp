@@ -87,7 +87,7 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                           return null;
                         },
                       ),
-                      /*addVerticalSpace(30),
+                      addVerticalSpace(30),
                       TextFormField(
                             decoration: const InputDecoration(
                               labelText: 'Phone Number',
@@ -106,7 +106,7 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                               ),
                             ),
                             onChanged: (value) => {
-                              vendorManager.vendorRegistrationRequest.phoneNumber = value
+                              vendorManager.vendorRegistrationRequest.phoneNumber = "91$value"
                             },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -122,7 +122,8 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                           ),
                       const SizedBox(
                         height: 30,
-                      ),*/
+                      ),
+                      addVerticalSpace(30),
                   TextFormField(
                           decoration: const InputDecoration(
                             labelText: 'Garage Name',

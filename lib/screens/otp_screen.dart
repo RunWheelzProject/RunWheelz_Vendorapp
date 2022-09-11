@@ -247,8 +247,9 @@ class _OTPState extends State<OtpScreen> {
       log("phoneVerification: $phoneVerification");
       PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1]).then((http.Response response) {
         var responseJson = jsonDecode(response.body);
-        log("staff: ${jsonEncode(responseJson)}");
-        if (response.statusCode == 404) {
+
+        if (response.statusCode == 201 && responseJson["id"] != null) {
+          log("staff: ${jsonEncode(responseJson)}");
           vendorManager.vendorRegistrationRequest.phoneNumber = responseJson["phoneNumber"];
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {

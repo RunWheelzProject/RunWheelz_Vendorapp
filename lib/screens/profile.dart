@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,20 +11,35 @@ import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/services/vendor_registration.dart';
+import 'package:path/path.dart';
 
 import '../manager/profile_manager.dart';
 import '../model/staff.dart';
 import '../services/staff_service.dart';
 
+import 'package:http/http.dart' as http;
 
-class Profile extends StatelessWidget {
+import '../model/vendor.dart';
+import '../resources/resources.dart' as res;
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
+
+
+class Profile extends StatefulWidget {
   final bool isStaff;
   final bool isVendor;
+
+  Profile({Key? key, this.isStaff = false, this.isVendor = false}) : super(key: key);
+  @override
+  ProfileState createState() => ProfileState();
+}
+class ProfileState extends State<Profile> {
+
 
 
   bool circular = false;
   //PickedFile? _imageFile = null;
-  XFile? _imageFile;
+  File? _imageFile;
 
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _nameController = TextEditingController();
@@ -39,7 +55,6 @@ class Profile extends StatelessWidget {
       fillColor: Colors.white
   );
 
-  Profile({Key? key, this.isStaff = false, this.isVendor = false}) : super(key: key);
 
 
   @override
@@ -48,7 +63,7 @@ class Profile extends StatelessWidget {
     late final StaffDTO staffDTO;
     late final VendorRegistrationRequest vendor;
 
-    if (isStaff) {
+    if (widget.isStaff) {
       staffDTO = profileManager.staffDTO;
       log("staffDTO2: ${jsonEncode(staffDTO)}");
       _nameController.text = staffDTO.name ?? "not exits";
@@ -56,7 +71,7 @@ class Profile extends StatelessWidget {
       _aadhaarController.text = staffDTO.aadharNumber ?? "not exits";
       _addressController.text = staffDTO.addressLine ?? "not exits";
     }
-      if (isVendor) {
+      if (widget.isVendor) {
         vendor = profileManager.vendorRegistrationRequest;
         _nameController.text = vendor.ownerName ?? "not exists";
         _phoneController.text = vendor.phoneNumber ?? "not exists";
@@ -71,7 +86,7 @@ class Profile extends StatelessWidget {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  return isStaff ? const StaffManagementPage() : VendorManagementPage();
+                  return widget.isStaff ? const StaffManagementPage() : VendorManagementPage();
                 })
             )
           },
@@ -97,7 +112,7 @@ class Profile extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: () {
-                    if (isStaff) {
+                    if (widget.isStaff) {
                       if (profileManager.isEnable) {
                         profileManager.isEnable = false;
                         StaffService().updateStaffInfo(profileManager.staffDTO);
@@ -108,7 +123,7 @@ class Profile extends StatelessWidget {
                         profileManager.isEnable = true;
                       }
                     }
-                    if (isVendor) {
+                    if (widget.isVendor) {
                       if (profileManager.isEnable) {
                         profileManager.isEnable = false;
                         VendorRegistrationService().updateVendorInfo(profileManager.vendorRegistrationRequest);
@@ -180,7 +195,7 @@ class Profile extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(isVendor ? "Vendor" : "Staff", style: const TextStyle(fontSize: 16))
+                Text(widget.isVendor ? "Vendor" : "Staff", style: const TextStyle(fontSize: 16))
               ],
             ),
             const SizedBox(height: 80,),
@@ -284,9 +299,12 @@ class Profile extends StatelessWidget {
 
       child: Stack(children: <Widget>[
 
-        const CircleAvatar(
+        CircleAvatar(
           radius: 60.0,
-          backgroundImage: AssetImage("images/logo.png")
+          backgroundImage: _imageFile == null
+              ? const AssetImage("images/logo.jpg")
+          as ImageProvider
+              : FileImage(File(_imageFile!.path))
           //backgroundImage: AssetImage("assets/profile_default_image.png")
         ),
         Positioned(
@@ -312,6 +330,7 @@ class Profile extends StatelessWidget {
   }
 
   Widget bottomSheet(BuildContext context, ImagePicker _picker) {
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     return Container(
       height: 100.0,
       width: MediaQuery
@@ -338,6 +357,26 @@ class Profile extends StatelessWidget {
               icon: const Icon(Icons.camera),
               onPressed: () {
                 takePhoto(ImageSource.camera, _picker);
+
+                String dir = path.dirname(_imageFile?.path as String);
+                String newPath = path.join(dir, profileManager.staffDTO.id.toString());
+                log("path: ${newPath}");
+                _imageFile?.rename(newPath).then((file) {
+                  log("path: ${file?.path}");
+
+                  log("_imagePath: ${_imageFile?.path}");
+                  var request = http.MultipartRequest("POST", Uri.parse("${res.APP_URL}/api/vendor/image-upload"));
+                  request.files.add(http.MultipartFile(
+                      'image',
+                      file.readAsBytes().asStream(),
+                      file.lengthSync(),
+                      filename: basename(file.path), contentType: MediaType('image', 'jpeg')
+                  ),);
+                  request.send().then((response) {
+                    if (response.statusCode == 200) log("Uploaded!");
+                  });
+
+                });
               },
               label: const Text("Camera"),
             ),
@@ -359,9 +398,10 @@ class Profile extends StatelessWidget {
   Future<File?> takePhoto(ImageSource source, ImagePicker _picker) async {
     final XFile? image = await _picker.pickImage(source: source);
     final File file = File(image!.path);
-    /*setState(() {
-      _imageFile = image;
-    });*/
+    setState(() {
+      log("image updated");
+      _imageFile = File(image.path);
+    });
     return file;
   }
 

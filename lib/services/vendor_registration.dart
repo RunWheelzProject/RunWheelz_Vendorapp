@@ -8,7 +8,7 @@ import '../model/vendor.dart';
 import '../resources/resources.dart' as res;
 class VendorRegistrationService {
 
-  final Uri vendorRegistrationRequestURL = Uri.parse("${res.APP_URL}/api/vendor/registrationrequest");
+  final Uri vendorRegistrationRequestURL = Uri.parse("${res.APP_URL}/api/vendor/editvrr");
   final Uri updateVendorInfoURL = Uri.parse("${res.APP_URL}/api/vendor/editvendor");
   final Uri _getAllVendor = Uri.parse("${res.APP_URL}/api/vendor/getallvendors");
   final Uri _getVendorsNotRegistered = Uri.parse("${res.APP_URL}/api/vendor/getallvendorregistrationrequests");
@@ -46,7 +46,7 @@ class VendorRegistrationService {
       'Content-type': 'application/json',
       'Accept': 'application/json',
     };
-    http.Response response = await http.post(vendorRegistrationRequestURL, body: body, headers: headers);
+    http.Response response = await http.put(vendorRegistrationRequestURL, body: body, headers: headers);
     return response;
   }
 

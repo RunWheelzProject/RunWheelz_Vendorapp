@@ -26,6 +26,7 @@ import './theme/theme_manager.dart';
 import './theme/themes.dart';
 import 'manager/live_tracker_manager.dart';
 import 'manager/profile_manager.dart';
+import 'manager/roles_manager.dart';
 import 'manager/staff_manager.dart';
 import 'manager/vendor_mechanic_manager.dart';
 import 'package:http/http.dart' as http;
@@ -173,6 +174,9 @@ class RunWheelzState extends State<RunWheelz> {
 
       if (remoteNotification != null && android != null ) {
         String action = jsonEncode(message.data);
+
+        log('Got a message whilst in the foreground!');
+        log('Message data: ${message.data}, ${message.notification}');
         flutterLocalNotificationsPlugin?.show(
             remoteNotification.hashCode,
             remoteNotification.title,
@@ -288,7 +292,7 @@ class RunWheelzState extends State<RunWheelz> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        //ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
+        ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
         ChangeNotifierProvider<StaffManager>(create: (context) => StaffManager()),
         ChangeNotifierProvider<LocationManager>(create: (context) => LocationManager()),
         ChangeNotifierProvider<ApplicationManager>(create: (context) => ApplicationManager()),

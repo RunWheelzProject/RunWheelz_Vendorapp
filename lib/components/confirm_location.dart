@@ -73,15 +73,11 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                         .vendorRegistrationRequest(vendorManager.vendorRegistrationRequest)
                         .then((response) {
                       var body = jsonDecode(response.body);
-                      String? error =
-                      FutureManager.goToNextScreen(
-                          context,
-                          response,
-                          201,
-                          VendorRegistrationInfoDisplay(
-                            id: body["id"],
-                          ));
-                      log("ServerError: $error");
+
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                            return VendorRegistrationInfoDisplay(id: body["id"]);
+                          }));
                     }).catchError((error) {
                       log("ServerError: $error");
                     });

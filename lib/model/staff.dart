@@ -17,6 +17,7 @@ class StaffDTO {
   RoleDTO? role;
   String? jwt;
   bool? registrationStatus;
+  String? deviceToken;
 
   StaffDTO({
     this.id = 0,
@@ -32,6 +33,7 @@ class StaffDTO {
     this.role,
     this.jwt,
     this.registrationStatus = false,
+    this.deviceToken
   });
 
   Map toJson() => {
@@ -47,7 +49,8 @@ class StaffDTO {
       "country": country,
       "role": role,
       "jwt": jwt,
-      "registrationStatus": registrationStatus
+      "registrationStatus": registrationStatus,
+      "deviceToken": deviceToken
   };
 
   factory StaffDTO.fromJson(Map<String, dynamic> json) {
@@ -63,7 +66,8 @@ class StaffDTO {
         zipcode: json["zipcode"],
         role: RoleDTO.fromJson(json["role"]),
         jwt: json["jwt"],
-        registrationStatus: json["registrationStatus"]
+        registrationStatus: json["registrationStatus"],
+        deviceToken: json["deviceToken"]
     );
   }
 

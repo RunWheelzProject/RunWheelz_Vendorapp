@@ -9,7 +9,6 @@ import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/profile_vendor.dart';
-import 'package:untitled/screens/vendor_dashboard_profile.dart';
 import 'package:untitled/screens/vendor_inprogrees_screen.dart';
 import 'package:untitled/screens/vendor_mechanic_accept_screen.dart';
 import 'package:untitled/screens/vendor_pending_screen.dart';
@@ -90,7 +89,7 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (BuildContext context) {
-                        return VendorDashboardProfile();
+                            return VendorDashboardProfile();
                       }));
                     },
                     icon: const Icon(
@@ -133,7 +132,7 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
                             MaterialPageRoute(builder: (BuildContext context) {
                           return VendorInprogressScreen(
                             serviceRequestDTO: item,
-                            isFromMechanic: true,
+                            isFromMechanic: true, pageTitle: '',
                           );
                         }));
                       },

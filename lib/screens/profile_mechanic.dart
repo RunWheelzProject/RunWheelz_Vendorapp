@@ -12,6 +12,7 @@ import 'package:untitled/screens/rw_staff_management_screen.dart';
 import '../manager/profile_manager.dart';
 import '../model/staff.dart';
 import '../services/staff_service.dart';
+import 'login_page_screen.dart';
 
 
 class MechanicProfile extends StatelessWidget {
@@ -139,6 +140,19 @@ class MechanicProfile extends StatelessWidget {
                 icon: const Icon(
                   Icons.delete,
                   color: Colors.purple,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (BuildContext context) {
+                        return const LoginScreen();
+                      })
+                  );
+                },
+                icon: const Icon(
+                  Icons.logout,
+                  color: Colors.red,
                 ),
               ),
             ],

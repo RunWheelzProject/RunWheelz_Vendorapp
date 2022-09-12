@@ -37,11 +37,10 @@ class VendorDataManagementPage extends StatelessWidget {
   Widget build(BuildContext context) {
     List<ServiceRequestDTO> serviceRequestDTOList = serviceRequestList ?? [];
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
-    LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
+ /*   LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
     StaffManager staffManager = Provider.of<StaffManager>(context);
-    logInManager.setCurrentURLs("staffRegistration");
+    logInManager.setCurrentURLs("staffRegistration");*/
 
-    List<NewRequests> requests = [NewRequests(requestID: "1234", serviceType: "Puncture")];
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.purple,
@@ -81,7 +80,8 @@ class VendorDataManagementPage extends StatelessWidget {
                           onItemSelected: (ServiceRequestDTO item) {
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorInprogressScreen(serviceRequestDTO: item,);
+                                    return VendorInprogressScreen(serviceRequestDTO: item,
+                                    pageTitle: pageTitle,);
                                   })
                               );
                             },

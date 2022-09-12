@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:profile/profile.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
@@ -119,7 +120,7 @@ class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
                             //profileManager.staffDTO = staff;
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
-                                  return Profile(isStaff: true);
+                                  return VendorDashboardProfile(isStaff: true,);
                                 })
                             );
                           },

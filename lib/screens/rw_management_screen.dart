@@ -94,7 +94,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (BuildContext context) {
-                                return Profile(isStaff: true,);
+                                return VendorDashboardProfile(isStaff: true,);
                               })
                           );
                         },

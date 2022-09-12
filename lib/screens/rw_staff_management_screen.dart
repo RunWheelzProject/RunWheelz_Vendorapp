@@ -164,7 +164,7 @@ class StaffManagementPageState extends State<StaffManagementPage> {
                           profileManager.staffDTO = staff;
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (BuildContext context) {
-                                return Profile(isStaff: true);
+                                return VendorDashboardProfile(isStaff: true);
                               })
                           );
                          },

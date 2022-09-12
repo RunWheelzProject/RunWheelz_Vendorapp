@@ -28,11 +28,12 @@ import '../services/staff_service.dart';
 import 'data_viewer_screen.dart';
 
 class VendorInprogressScreen extends StatefulWidget {
+  final String pageTitle;
   ServiceRequestDTO? serviceRequestDTO;
   bool isFromMechanic;
 
   VendorInprogressScreen(
-      {Key? key, this.serviceRequestDTO, this.isFromMechanic = false})
+      {Key? key, this.serviceRequestDTO, this.isFromMechanic = false, required this.pageTitle})
       : super(key: key);
 
   @override
@@ -44,6 +45,9 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
   Customer? _customer;
   String _dropDownMechanicValue = 'Select';
   LatLng? _mechanicLatLng;
+  List<String> _statusUpdateList = [];
+
+
   Future<List<ServiceRequestDTO>> getNewRequests() async {
     VendorManager vendorManager =
         Provider.of<VendorManager>(context, listen: false);
@@ -78,6 +82,19 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
   void initState() {
     super.initState();
 
+    if (widget.pageTitle == "In Progress") {
+      setState(() => _statusUpdateList = ['Select', 'VENDOR_PENDING', 'VENDOR_COMPLETED']);
+    }
+
+    if (widget.pageTitle == "New Requests") {
+      setState(() => _statusUpdateList = ['Select', 'VENDOR_INPROGRESS', 'VENDOR_PENDING', 'VENDOR_COMPLETED']);
+    }
+
+    if (widget.pageTitle == "Pending Requests") {
+      setState(() => _statusUpdateList = ['Select','VENDOR_COMPLETED']);
+    }
+
+
     getMechanicById(widget.serviceRequestDTO?.assignedToMechanic)
         .then((mechanic) {
       setState(() => _vendorMechanic = mechanic);
@@ -87,6 +104,8 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
         .then((customer) {
       setState(() => _customer = customer);
     }).catchError((error) => log("$error"));
+
+    log("${jsonEncode(widget.serviceRequestDTO)}");
   }
 
   @override
@@ -431,19 +450,74 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                     children: [
                       DropdownButton<String>(
                           value: _dropDownMechanicValue,
-                          items: ['Select', 'VENDOR_COMPLETED']
+                          items: _statusUpdateList
                               .map<DropdownMenuItem<String>>((item) {
                             return DropdownMenuItem<String>(
                                 value: item, child: Text(item ?? ""));
                           }).toList(),
                           onChanged: (val) {
-                            _dropDownMechanicValue = val!;
+                            setState(() => _dropDownMechanicValue = val!);
                           }),
                       const SizedBox(
                         width: 15,
                       ),
                       ElevatedButton(
-                          onPressed: () => {}, child: const Text("Update")),
+                          onPressed: () async {
+                            widget.serviceRequestDTO?.status = _dropDownMechanicValue;
+                            Map<String, String> headers = {
+                              'Content-type': 'application/json',
+                              'Accept': 'application/json',
+                            };
+                            http.Response response = await http.put(
+                            Uri.parse("${res.APP_URL}/api/servicerequest/update"),
+                            body: jsonEncode(widget.serviceRequestDTO),
+                            headers: headers
+                            );
+                            if (response.statusCode == 200) {
+                              showDialog<void>(
+                                context: context,
+                                barrierDismissible:
+                                false, // user must tap button!
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Updated'),
+                                    content: Text(
+                                        "Status updated to ${_dropDownMechanicValue}"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('Done'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            } else {
+                              showDialog<void>(
+                                context: context,
+                                barrierDismissible:
+                                false, // user must tap button!
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Not Updated'),
+                                    content: Text(
+                                        "Could not approved error status: ${response.statusCode}"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('Done'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                          child: const Text("Update")),
                     ],
                   )
                 ],

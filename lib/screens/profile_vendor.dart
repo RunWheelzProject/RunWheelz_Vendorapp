@@ -15,13 +15,34 @@ import 'package:untitled/services/vendor_registration.dart';
 import '../manager/profile_manager.dart';
 import '../model/staff.dart';
 import '../services/staff_service.dart';
+import 'login_page_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
+import '../manager/profile_manager.dart';
+import '../model/staff.dart';
+import '../services/staff_service.dart';
+
+import 'package:http/http.dart' as http;
+
+import '../model/vendor.dart';
+import '../resources/resources.dart' as res;
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
 
 
-class VendorProfile extends StatelessWidget {
+class VendorProfile extends StatefulWidget {
+  const VendorProfile({Key? key}) : super(key: key);
+
+
+  @override
+  VendorStateProfile createState() => VendorStateProfile();
+}
+
+class VendorStateProfile extends State<VendorProfile> {
 
   bool circular = false;
-  //PickedFile? _imageFile = null;
-  XFile? _imageFile;
+  File? _imageFile;
 
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _nameController = TextEditingController();
@@ -37,7 +58,6 @@ class VendorProfile extends StatelessWidget {
       fillColor: Colors.white
   );
 
-  VendorProfile({Key? key}) : super(key: key);
 
 
   @override
@@ -129,6 +149,19 @@ class VendorProfile extends StatelessWidget {
                 icon: const Icon(
                   Icons.delete,
                   color: Colors.purple,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (BuildContext context) {
+                        return const LoginScreen();
+                      })
+                  );
+                },
+                icon: const Icon(
+                  Icons.logout,
+                  color: Colors.red,
                 ),
               ),
             ],
@@ -259,15 +292,18 @@ class VendorProfile extends StatelessWidget {
 
       child: Stack(children: <Widget>[
 
-        const CircleAvatar(
+        CircleAvatar(
             radius: 60.0,
-            backgroundImage: AssetImage("images/logo.png")
+            backgroundImage: _imageFile == null
+                ? const AssetImage("images/logo.jpg")
+            as ImageProvider
+                : FileImage(File(_imageFile!.path))
           //backgroundImage: AssetImage("assets/profile_default_image.png")
         ),
         Positioned(
           top: 96.0,
           //bottom:1.0,
-          right:1,
+          right: 1,
           child: InkWell(
             onTap: () {
               showModalBottomSheet(
@@ -287,6 +323,7 @@ class VendorProfile extends StatelessWidget {
   }
 
   Widget bottomSheet(BuildContext context, ImagePicker _picker) {
+    final ProfileManager profileManager = Provider.of<ProfileManager>(context);
     return Container(
       height: 100.0,
       width: MediaQuery
@@ -313,6 +350,22 @@ class VendorProfile extends StatelessWidget {
               icon: const Icon(Icons.camera),
               onPressed: () {
                 takePhoto(ImageSource.camera, _picker);
+
+                String dir = path.dirname(_imageFile?.path as String);
+                String newPath = path.join(dir,  profileManager.vendorRegistrationRequest.id.toString());
+                _imageFile?.rename(newPath).then((file) {
+                  var request = http.MultipartRequest("POST", Uri.parse("${res.APP_URL}/api/vendor/image-upload"));
+                  request.files.add(http.MultipartFile(
+                      'image',
+                      file.readAsBytes().asStream(),
+                      file.lengthSync(),
+                      filename: path.basename(file.path), contentType: MediaType('image', 'jpeg')
+                  ),);
+                  request.send().then((response) {
+                    if (response.statusCode == 200) log("Uploaded!");
+                  });
+
+                });
               },
               label: const Text("Camera"),
             ),
@@ -320,6 +373,26 @@ class VendorProfile extends StatelessWidget {
               icon: const Icon(Icons.image),
               onPressed: () {
                 takePhoto(ImageSource.gallery, _picker);
+
+                String dir = path.dirname(_imageFile?.path as String);
+                String newPath = path.join(dir, profileManager.staffDTO.id.toString());
+                log("path: ${newPath}");
+                _imageFile?.rename(newPath).then((file) {
+                  log("path: ${file?.path}");
+
+                  log("_imagePath: ${_imageFile?.path}");
+                  var request = http.MultipartRequest("POST", Uri.parse("${res.APP_URL}/api/vendor/image-upload"));
+                  request.files.add(http.MultipartFile(
+                      'image',
+                      file.readAsBytes().asStream(),
+                      file.lengthSync(),
+                      filename: path.basename(file.path), contentType: MediaType('image', 'jpeg')
+                  ),);
+                  request.send().then((response) {
+                    if (response.statusCode == 200) log("Uploaded!");
+                  });
+
+                });
               },
               label: const Text("Gallery"),
             ),
@@ -334,9 +407,10 @@ class VendorProfile extends StatelessWidget {
   Future<File?> takePhoto(ImageSource source, ImagePicker _picker) async {
     final XFile? image = await _picker.pickImage(source: source);
     final File file = File(image!.path);
-    /*setState(() {
-      _imageFile = image;
-    });*/
+    setState(() {
+      log("image updated");
+      _imageFile = File(image.path);
+    });
     return file;
   }
 

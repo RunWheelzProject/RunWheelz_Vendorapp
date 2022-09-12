@@ -4,12 +4,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/dashboard_box.dart';
-import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/model/servie_request.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/profile.dart';
-import 'package:untitled/screens/profile_vendor.dart';
-import 'package:untitled/screens/vendor_dashboard_profile.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/menu.dart';
 import '../manager/profile_manager.dart';
@@ -18,8 +15,6 @@ import '../resources/resources.dart' as res;
 
 import 'package:http/http.dart' as http;
 
-import '../model/vendor.dart';
-import '../resources/resources.dart' as res;
 
 typedef CallBack = void Function();
 
@@ -32,7 +27,11 @@ class VendorDashBoard extends StatefulWidget {
 
 class VendorDashBoardState extends State<VendorDashBoard> {
   TextEditingController phoneNumberController = TextEditingController();
-  Map<String, int> requestCounts = {};
+  Map<String, int> requestCounts = {
+    "VENDOR_ACCEPTED": 0,
+    "VENDOR_INPROGRESS": 0,
+    "VENDOR_PENDING": 0
+  };
 
   final bool _validate = false;
   final String _error = "";
@@ -40,13 +39,13 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   @override
   void initState() {
     super.initState();
-    countRequests();
+    setState(() => countRequests());
+    log("counts: ${requestCounts}");
     //log("${jsonEncode(requestCounts)}");
   }
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
     VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
-    log("id: ${vendorManager.vendorRegistrationRequest.id}");
     http.Response response = await
       http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${vendorManager.vendorRegistrationRequest.id}"));
     var jsonList = jsonDecode(response.body) as List;
@@ -64,12 +63,8 @@ class VendorDashBoardState extends State<VendorDashBoard> {
       for (var element in requests) {
         if (element.status != null) {
           String status = element.status as String;
-          if (!requestCounts.containsKey(status) && status.contains("VENDOR")) {
-            log("Status: $status");
-            requestCounts[status] = 1;
-          } else {
-            log("Status: $status");
-            requestCounts[status] = (requestCounts[status] ?? 0 + 1);
+          if (status.contains("VENDOR")) {
+            requestCounts[status] = (requestCounts[status]! + 1);
           }
         }
       }
@@ -77,21 +72,11 @@ class VendorDashBoardState extends State<VendorDashBoard> {
     }).catchError((error) => log("error: $error"));
   }
 
-  void buttonHandler(String title, String status) {
-    getNewRequests().then((requests) {
-      requests = requests.where((element) => element.status == status).toList();
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: title, serviceRequestList: requests);
-          })
-      );
-    }).catchError((error) => log("error: $error"));
-
-  }
 
   void goToRequests() {
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
+      log("accepted: ${jsonEncode(requests)}");
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return VendorDataManagementPage(pageTitle: "New Requests", serviceRequestList: requests);
@@ -155,7 +140,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (BuildContext context) {
-                            return VendorDashboardProfile();
+                            return VendorDashboardProfile(isVendor: true);
                           })
                       );
                     },
@@ -208,7 +193,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
                               size: 34,
                             ),
                             title: "New Requests",
-                            count: (requestCounts["VENDOR_ACCEPTED"].toString())! ?? "0"
+                            count: (requestCounts["VENDOR_ACCEPTED"].toString()) ?? "0"
                         ),
                         DashBoardBox(
                             callBack: goToInProgress,
@@ -218,7 +203,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
                               size: 34,
                             ),
                             title: "In Progress",
-                            count: (requestCounts["VENDOR_INPROGRESS"].toString())! ?? "0"),
+                            count: (requestCounts["VENDOR_INPROGRESS"].toString()) ?? "0"),
                       ],
                     ),
                     addVerticalSpace(40),
@@ -233,7 +218,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
                               size: 34
                             ),
                             title: "Pending Requests",
-                            count: (requestCounts["VENDOR_PENDING"].toString())! ?? "0"),
+                            count: (requestCounts["VENDOR_PENDING"].toString()) ?? "0"),
                         DashBoardBox(
                             callBack: goToRaisedRequests,
                             icon: const Icon(

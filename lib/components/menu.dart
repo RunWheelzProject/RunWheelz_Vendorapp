@@ -32,11 +32,8 @@ class Menu extends StatelessWidget {
     return Drawer(
         child: ListView(
           children: [
-            DrawerHeader(
-              child: Text(_header),
-            ),
             ListTile(
-              title: const Text('Home'),
+              title: const Text('Home', style: TextStyle(color: Colors.red, fontSize: 16),),
               onTap: () {
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (BuildContext context) {
@@ -46,7 +43,7 @@ class Menu extends StatelessWidget {
               },
             ),
             ListTile(
-              title: const Text('Vendor Staff'),
+              title: const Text('Vendor Staff', style: TextStyle(color: Colors.red, fontSize: 16),),
               onTap: () {
                 logInManager.setCurrentURLs("mechanicRegistration");
                 Navigator.of(context).pushReplacement(
@@ -57,17 +54,17 @@ class Menu extends StatelessWidget {
               },
             ),
             ListTile(
-              title: const Text('New Requests'),
+              title: const Text('New Requests', style: TextStyle(color: Colors.red, fontSize: 16),),
               onTap: () {
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (BuildContext context) {
-                      return VendorDataManagementPage(pageTitle: "New Requests");
+                      return VendorDataManagementPage(pageTitle: "New Requests", );
                     })
                 );
               },
             ),
             ListTile(
-              title: const Text('Raise Request'),
+              title: const Text('Raise Request', style: TextStyle(color: Colors.red, fontSize: 16),),
               onTap: () {
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (BuildContext context) {

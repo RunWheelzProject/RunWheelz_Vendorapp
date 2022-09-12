@@ -41,7 +41,7 @@ set curDropDownValue(String val) {
 
  Future<List<VendorMechanic>> getMechanics() async {
   ///api/vendorstaff/getallmechanics
-  http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getallmechanics"));
+  http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getAllVendorMechanic"));
   var jsonList = jsonDecode(response.body) as List;
   List<VendorMechanic> vendorMechanicList = [];
 
@@ -51,9 +51,11 @@ set curDropDownValue(String val) {
 
  VendorMechanicManager() {
   getMechanics().then((mechanics) {
-   log("mechanic: ${jsonEncode(mechanics[0])}");
-   _vendorMechanicList = mechanics;
-   _curDropDownValue = _vendorMechanicList[0].name!;
+   //log("mechanic: ${jsonEncode(mechanics[0])}");
+   if(mechanics.isNotEmpty) {
+    _vendorMechanicList = mechanics;
+    _curDropDownValue = _vendorMechanicList[0].name!;
+   }
    notifyListeners();
   });
   notifyListeners();

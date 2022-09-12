@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
+import 'package:profile/profile.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:untitled/manager/manager.dart';
+import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/model/staff.dart';
@@ -160,7 +162,7 @@ class _OTPState extends State<OtpScreen> {
           Text(
             _msgValue,
             style: _msgStyle,
-            overflow: TextOverflow.visible,
+            overflow: TextOverflow.ellipsis,
           ),
           addVerticalSpace(30),
           Row(
@@ -231,6 +233,7 @@ class _OTPState extends State<OtpScreen> {
     LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
     VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
     StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context, listen: false);
 
     if (!_isVerifyDisabled) {
@@ -257,9 +260,9 @@ class _OTPState extends State<OtpScreen> {
           }));
         }
         if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
-
-          vendorManager.vendorRegistrationRequest =
+          profileManager.vendorRegistrationRequest =
               VendorRegistrationRequest.fromJson(responseJson["vendorDTO"]);
+          log("profileManager: ${profileManager.vendorRegistrationRequest}");
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
             return const VendorDashBoard();
@@ -274,7 +277,7 @@ class _OTPState extends State<OtpScreen> {
         }
         if (response.statusCode == 201 &&
             responseJson["runwheelzStaffDTO"] != null) {
-          staffManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+          profileManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
             return const RunWheelManagementPage();
@@ -315,6 +318,10 @@ class _OTPState extends State<OtpScreen> {
         var messageMap = responseJson as Map;
         if (messageMap.containsKey("message")) {
           log("ServerError: ${messageMap["message"]}");
+          setState(() {
+            _msgValue = messageMap["message"];
+            _msgStyle = const TextStyle(color: Colors.red);
+          });
         }
       }).catchError((error) {
         log("ServerError: $error");

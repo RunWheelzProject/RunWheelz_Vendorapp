@@ -470,10 +470,10 @@ class ProfileData {
   String addressLine;
 
   ProfileData({
-    required this.name,
-    required this.phoneNumber,
-    required this.aadharNumber,
-    required this.addressLine
+    this.name = "",
+    this.phoneNumber = "",
+    this.aadharNumber = "",
+    this.addressLine = ""
   });
 
 }
@@ -489,7 +489,7 @@ class VendorDashboardProfile extends StatefulWidget {
 }
 
 class VendorDashboardProfileState extends State<VendorDashboardProfile> {
-  ProfileData? profileData;
+  ProfileData profileData = ProfileData();
   bool circular = false;
   File? _imageFile;
   File? _imageURL;
@@ -532,10 +532,17 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
     }).catchError((error) => log("GetImageError: $error"));
 
     if (widget.isStaff) {
-      profileData?.name = profileManager.staffDTO.name ?? "not exists";
-      profileData?.phoneNumber = profileManager.staffDTO.phoneNumber  ?? "not exists";
-      profileData?.aadharNumber = profileManager.staffDTO.aadharNumber ?? "not exists";
-      profileData?.addressLine = profileManager.staffDTO.addressLine ?? "not exists";
+      log("manager: ${jsonEncode(profileManager.staffDTO)}");
+      setState(() {
+        _nameController.text = profileManager.staffDTO.name ?? "not exists";
+        _phoneController.text = profileManager.staffDTO.phoneNumber ?? "not exists";
+        _aadhaarController.text = profileManager.staffDTO.aadharNumber ?? "not exists";
+        _addressController.text = profileManager.staffDTO.addressLine ?? "not exists";
+        profileData.name = profileManager.staffDTO.name ?? "";
+        profileData.phoneNumber = profileManager.staffDTO.phoneNumber ?? "";
+        profileData.aadharNumber = profileManager.staffDTO.aadharNumber ?? "";
+        profileData.addressLine = profileManager.staffDTO.addressLine ?? "";
+      });
     }
 
     if (widget.isVendor) {
@@ -544,6 +551,10 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
         _phoneController.text = profileManager.vendorRegistrationRequest.phoneNumber  ?? "not exists";
         _aadhaarController.text = profileManager.vendorRegistrationRequest.aadharNumber ?? "not exists";
         _addressController.text = profileManager.vendorRegistrationRequest.addressLine ?? "not exists";
+        profileData.name = profileManager.vendorRegistrationRequest.ownerName?? "";
+        profileData.phoneNumber = profileManager.vendorRegistrationRequest.phoneNumber ?? "";
+        profileData.aadharNumber = profileManager.vendorRegistrationRequest.aadharNumber ?? "";
+        profileData.addressLine = profileManager.vendorRegistrationRequest.addressLine ?? "";
       });
     }
   }
@@ -692,13 +703,13 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                       enabled: profileManager.isEnable,
                       decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
                       onChanged: (val) {
-                        setState(() => profileData?.name = val);
+                        profileData?.name = val;
                       }
                     ),
                   ),
                 ],
               ),
-              const Text("Vendor", style: TextStyle(fontSize: 16))
+              Text(widget.isStaff ? "Staff" : "Vendor", style: const TextStyle(fontSize: 16))
             ],
           ),
           const SizedBox(height: 80,),
@@ -866,10 +877,10 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
 
 
   Future<File?> takePhoto(ImageSource source, ImagePicker _picker) async {
-    final VendorManager vendorManager = Provider.of<VendorManager>(context);
+    final ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     final XFile? image = await _picker.pickImage(source: source);
     String dir = path.dirname(image?.path as String);
-    String newPath = path.join(dir, vendorManager.vendorRegistrationRequest.id.toString());
+    String newPath = path.join(dir, profileManager.vendorRegistrationRequest.id.toString());
     final File file = File(image!.path);
     file.rename(newPath).then((f) {
       setState(() {

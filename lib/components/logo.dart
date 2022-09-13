@@ -11,9 +11,9 @@ class Logo extends StatelessWidget {
     return Column(children: [
       Text("Run Wheelz",
           textAlign: TextAlign.center, style: textTheme.headline2),
-      Text(
+      const Text(
         "Vendor App",
-        style: textTheme.headline5,
+        style: TextStyle(color: Colors.purple, fontSize: 24),
       )
     ]);
   }

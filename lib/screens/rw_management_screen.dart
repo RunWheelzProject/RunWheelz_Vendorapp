@@ -74,9 +74,9 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
 
   @override
   Widget build(BuildContext context) {
-    StaffManager staffManager = Provider.of<StaffManager>(context);
+    /*StaffManager staffManager = Provider.of<StaffManager>(context);
     ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    profileManager.staffDTO = staffManager.staffDTO;
+    profileManager.staffDTO = staffManager.staffDTO;*/
 
     return Scaffold(
         primary: true,

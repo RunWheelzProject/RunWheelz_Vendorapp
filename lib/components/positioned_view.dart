@@ -58,7 +58,7 @@ class PositionedView extends StatelessWidget {
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: 600, //MediaQuery.of(context).size.height - AppBar().preferredSize.height,
-                padding: const EdgeInsets.only(top: 25),
+                padding: const EdgeInsets.only(top: 35),
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: Column(children: [
                   Logo(),
@@ -66,8 +66,8 @@ class PositionedView extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
                       child: isSlider == false ? null : ImageSlideshow(
-                        width: double.infinity,
-                        height: 180,
+                        width: MediaQuery.of(context).size.width,
+                        height: 220,
                         initialPage: 0,
                         indicatorColor: Colors.blue,
                         indicatorBackgroundColor: Colors.grey,
@@ -93,7 +93,7 @@ class PositionedView extends StatelessWidget {
             ],
           )),
           Positioned(
-              top: isSlider ? 340 : top,
+              top: isSlider ? 400 : top,
               left: 20,
               right: 20,
               child: positionChildWidget)

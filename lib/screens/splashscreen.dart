@@ -24,7 +24,7 @@ class SplashScreen extends StatelessWidget{
    TextTheme textTheme = Theme.of(context).textTheme;
 
     Timer(
-        const Duration(seconds: 3), () async {
+        const Duration(seconds: 5), () async {
               Provider.of<LogInManager>(context, listen: false).setCurrentURLs("userLogIn");
               Navigator.pushNamed(context, '/phone_verification');
         }

@@ -9,13 +9,11 @@ import '../resources/resources.dart' as res;
 
 class StaffService {
 
-  // final Uri _getStaff = Uri.parse("${res.APP_URL}/api/staff/");
   final Uri _getAllStaff = Uri.parse("${res.APP_URL}/api/staff/getAllStaff");
-  final Uri updateStaffInfoURL = Uri.parse("${res.APP_URL}/api/staff/editVendor");
+  final Uri updateStaffInfoURL = Uri.parse("${res.APP_URL}/api/staff/editStaff");
 
   Future<List<StaffDTO>> getAllStaff() async {
     http.Response response = await http.get(_getAllStaff);
-
     var jsonResponse = jsonDecode(response.body);
     List<StaffDTO> list = [];
     for (var item in jsonResponse) {

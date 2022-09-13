@@ -87,7 +87,8 @@ class _OTPState extends State<OtpScreen> {
 
   @override
   void initState() {
-    VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
+    VendorManager vendorManager =
+        Provider.of<VendorManager>(context, listen: false);
     _determinePosition().then((position) {
       log("position: ${position.longitude}, ${position.latitude}");
       vendorManager.vendorRegistrationRequest.latitude = position.latitude;
@@ -107,13 +108,14 @@ class _OTPState extends State<OtpScreen> {
     LogInManager logInManager = Provider.of<LogInManager>(context);
     VendorManager vendorManager = Provider.of<VendorManager>(context);
     StaffManager staffManager = Provider.of<StaffManager>(context);
-    VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
+    VendorMechanicManager vendorMechanicManager =
+        Provider.of<VendorMechanicManager>(context);
 
     return Container(
         height: 400,
         padding: const EdgeInsets.only(top: 30, left: 30, right: 30),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(5.0),
             color: Colors.white,
             boxShadow: const [
               BoxShadow(
@@ -197,7 +199,9 @@ class _OTPState extends State<OtpScreen> {
                                           .vendorOtpResponse.phoneNumber
                                           .substring(2);
                                       log("logInManager.selectURL: ${logInManager.currentURLs![0]}");
-                                      PhoneVerificationService().sendOtp(int.parse(phoneNumber), "", logInManager.currentURLs![0])
+                                      PhoneVerificationService()
+                                          .sendOtp(int.parse(phoneNumber), "",
+                                              logInManager.currentURLs![0])
                                           .then((vendorOtpResponse) {
                                         setState(() => {isResendOTP = true});
                                         setState(() {
@@ -230,11 +234,16 @@ class _OTPState extends State<OtpScreen> {
   }
 
   void verifyOtp() {
-    LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
-    VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
-    StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
-    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
-    VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context, listen: false);
+    LogInManager logInManager =
+        Provider.of<LogInManager>(context, listen: false);
+    VendorManager vendorManager =
+        Provider.of<VendorManager>(context, listen: false);
+    StaffManager staffManager =
+        Provider.of<StaffManager>(context, listen: false);
+    ProfileManager profileManager =
+        Provider.of<ProfileManager>(context, listen: false);
+    VendorMechanicManager vendorMechanicManager =
+        Provider.of<VendorMechanicManager>(context, listen: false);
 
     if (!_isVerifyDisabled) {
       return;
@@ -248,12 +257,14 @@ class _OTPState extends State<OtpScreen> {
           otp: _currentVerificationCode));
       log("isResendOTP: $isResendOTP");
       log("phoneVerification: $phoneVerification");
-      PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1]).then((http.Response response) {
+      PhoneVerificationService()
+          .verifyOtp(phoneVerification, logInManager.currentURLs![1])
+          .then((http.Response response) {
         var responseJson = jsonDecode(response.body);
 
         if (response.statusCode == 201 && responseJson["id"] != null) {
-          log("staff: ${jsonEncode(responseJson)}");
-          vendorManager.vendorRegistrationRequest.phoneNumber = responseJson["phoneNumber"];
+          vendorManager.vendorRegistrationRequest.phoneNumber =
+              responseJson["phoneNumber"];
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
             return const VendorRegistrationV1();
@@ -262,33 +273,38 @@ class _OTPState extends State<OtpScreen> {
         if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
           profileManager.vendorRegistrationRequest =
               VendorRegistrationRequest.fromJson(responseJson["vendorDTO"]);
-          log("profileManager: ${profileManager.vendorRegistrationRequest}");
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
             return const VendorDashBoard();
           }));
         }
-        if (response.statusCode == 201 && responseJson["vendorStaffDTO"] != null) {
-          vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
+        if (response.statusCode == 201 &&
+            responseJson["vendorStaffDTO"] != null) {
+          vendorMechanicManager.vendorMechanic =
+              VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
+
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return VendorMechanicDashBoard(requestId: "",);
-              }));
+            return VendorMechanicDashBoard(
+              requestId: "",
+            );
+          }));
         }
         if (response.statusCode == 201 &&
             responseJson["runwheelzStaffDTO"] != null) {
-          profileManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+          profileManager.staffDTO =
+              StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+          log("manager: ${jsonEncode(profileManager.staffDTO)}");
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
             return const RunWheelManagementPage();
           }));
+
+
         }
-        log("currentUrls: ${logInManager.currentURLs![1]}, ${logInManager.currentURLs![0]}");
         if (response.statusCode == 201 &&
             logInManager.currentURLs![1].contains("vendor")) {
-          log("vendor");
           var jsonResponse = jsonDecode(response.body);
-          log("jsonRespone: ${jsonEncode(jsonResponse)}");
           vendorManager.vendorRegistrationRequest =
               VendorRegistrationRequest.fromJson(jsonResponse);
           Navigator.of(context).pushReplacement(
@@ -301,7 +317,7 @@ class _OTPState extends State<OtpScreen> {
         }
         if (response.statusCode == 201 &&
             logInManager.currentURLs![1].contains("staff")) {
-          log("staff");
+
           var jsonResponse = jsonDecode(response.body);
           log("JsonResponse: $jsonResponse");
           staffManager.staffDTO = StaffDTO.fromJson(jsonResponse);

@@ -45,9 +45,9 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   }
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
-    VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     http.Response response = await
-      http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${vendorManager.vendorRegistrationRequest.id}"));
+      http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${profileManager.vendorRegistrationRequest.id}"));
     var jsonList = jsonDecode(response.body) as List;
     var jsonResponse = jsonDecode(response.body);
     List<ServiceRequestDTO> list = [];
@@ -168,7 +168,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
                   margin: const EdgeInsets.only(top: 60, left: 20, right: 20),
                   padding: const EdgeInsets.only(top: 40),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30.0),
+                      borderRadius: BorderRadius.circular(5.0),
                       color: Colors.white,
                       boxShadow: const [
                         BoxShadow(

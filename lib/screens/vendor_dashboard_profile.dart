@@ -305,7 +305,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
   }
 
   Widget bottomSheet(BuildContext context, ImagePicker _picker) {
-    final VendorManager vendorManager = Provider.of<VendorManager>(context);
+    final ProfileManager profileManager = Provider.of<ProfileManager>(context);
     return Container(
       height: 100.0,
       width: MediaQuery
@@ -350,26 +350,18 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
             TextButton.icon(
               icon: const Icon(Icons.image),
               onPressed: () {
-                takePhoto(ImageSource.gallery, _picker);
-
-                String dir = path.dirname(_imageFile?.path as String);
-                String newPath = path.join(dir, vendorManager.vendorRegistrationRequest.id.toString());
-                log("path: ${newPath}");
-                _imageFile?.rename(newPath).then((file) {
-                  log("path: ${file?.path}");
-
-                  log("_imagePath: ${_imageFile?.path}");
+                takePhoto(ImageSource.gallery, _picker).then((t) {
+                  File file = t as File;
                   var request = http.MultipartRequest("POST", Uri.parse("${res.APP_URL}/api/vendor/image-upload"));
                   request.files.add(http.MultipartFile(
                       'image',
                       file.readAsBytes().asStream(),
                       file.lengthSync(),
-                      filename: path.basename(file.path), contentType: MediaType('image', 'jpeg')
+                      filename: path.basename(file.path), contentType: MediaType('image', 'jpg')
                   ),);
                   request.send().then((response) {
                     if (response.statusCode == 200) log("Uploaded!");
                   });
-
                 });
               },
               label: const Text("Gallery"),

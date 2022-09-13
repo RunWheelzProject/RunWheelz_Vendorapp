@@ -1,3 +1,4 @@
+import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 
 class VendorMechanic {
@@ -5,7 +6,7 @@ class VendorMechanic {
   String? name;
   String? phoneNumber;
   String? aadharNumber;
-  VendorRegistration? vendorRegistration;
+  VendorRegistrationRequest? vendor;
   bool? registrationStatus;
   String? deviceToken;
   String? status;
@@ -15,7 +16,7 @@ class VendorMechanic {
     this.name = '',
     this.phoneNumber = "",
     this.aadharNumber,
-    this.vendorRegistration,
+    this.vendor,
     this.registrationStatus = false,
     this.deviceToken = "",
     this.status = ""
@@ -26,7 +27,7 @@ class VendorMechanic {
     "name": name,
     "phoneNumber": phoneNumber,
     "aadharNumber": aadharNumber,
-    "vendorRegistrationRequest": vendorRegistration,
+    "vendor": vendor,
     "registrationStatus": registrationStatus,
     "deviceToken": deviceToken,
     "status": status
@@ -38,7 +39,7 @@ class VendorMechanic {
         name: json["name"],
         phoneNumber: json["phoneNumber"],
         aadharNumber: json[" aadharNumber"],
-        vendorRegistration: json["vendorRegistrationRequest"],
+        vendor: json["vendor"],
         registrationStatus: json["registrationStatus"],
         deviceToken: json["deviceToken"],
         status: json["status"]

@@ -23,6 +23,7 @@ import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/screens/vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
+import 'package:untitled/screens/vendor_staff_add_screen.dart';
 
 import '../components/future_manager.dart';
 import '../components/logo.dart';
@@ -314,6 +315,22 @@ class _OTPState extends State<OtpScreen> {
                   create: (context) => RoleManager()),
             ], child: const RWVendorRegistration());
           }));
+        }
+        if (response.statusCode == 201 &&
+            logInManager.currentURLs![1].contains("mechanic")) {
+
+          var jsonResponse = jsonDecode(response.body);
+          log("JsonResponse: $jsonResponse");
+          vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(jsonResponse);
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+                return MultiProvider(providers: [
+                  ChangeNotifierProvider<RoleManager>(
+                      create: (context) => RoleManager()),
+                ], child: const VendorStaffRegistration());
+              }));
+
+          // RWStaffRegistration
         }
         if (response.statusCode == 201 &&
             logInManager.currentURLs![1].contains("staff")) {

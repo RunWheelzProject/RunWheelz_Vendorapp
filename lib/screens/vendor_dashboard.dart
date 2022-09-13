@@ -165,17 +165,12 @@ class VendorDashBoardState extends State<VendorDashBoard> {
             child: SingleChildScrollView(
                 child: Container(
                   height: 500,
-                  margin: const EdgeInsets.only(top: 60, left: 20, right: 20),
+                  margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
                   padding: const EdgeInsets.only(top: 40),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5.0),
                       color: Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                            color: Colors.black12,
-                            spreadRadius: 10,
-                            blurRadius: 30),
-                      ]),
+                      ),
                   child: Column(children: <Widget>[
                     Text(
                       "Vendor Dashboard",

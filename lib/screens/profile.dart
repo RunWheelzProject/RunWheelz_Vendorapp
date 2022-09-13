@@ -589,7 +589,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
 
         children: <Widget>[
           Row(

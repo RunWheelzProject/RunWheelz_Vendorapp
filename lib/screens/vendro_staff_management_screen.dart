@@ -79,7 +79,7 @@ class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
                       alignment: Alignment.centerLeft,
                       child:ElevatedButton(
                           onPressed: () {
-                            logInManager.setCurrentURLs("staffRegistration");
+                            logInManager.setCurrentURLs("mechanicRegistration");
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return const LoginScreen();
                             })

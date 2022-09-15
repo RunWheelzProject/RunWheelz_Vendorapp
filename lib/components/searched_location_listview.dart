@@ -10,10 +10,15 @@ import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/model/places_search.dart';
 import 'package:untitled/utils/add_space.dart';
 
+import '../manager/service_request_manager.dart';
+import '../model/servie_request.dart';
+
 class SearchedLocationListView extends StatefulWidget {
   final Image image;
+  bool isVendor;
+  bool isCustomer;
 
-  const SearchedLocationListView({Key? key,
+  SearchedLocationListView({Key? key, this.isVendor = false, this.isCustomer = false,
     this.image = const Image(image: AssetImage('images/location_marker'))
   }): super(key: key);
 
@@ -29,6 +34,7 @@ class SearchedLocationListViewState extends State<SearchedLocationListView> {
 
     LocationManager locationManager = Provider.of<LocationManager>(context);
     VendorManager vendorManager = Provider.of<VendorManager>(context);
+    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context);
 
     return ListView.builder(
         itemCount: locationManager.searchedLocations.length,
@@ -54,15 +60,22 @@ class SearchedLocationListViewState extends State<SearchedLocationListView> {
 
                 final detail = await plist.getDetailsByPlaceId(locationManager.searchedLocations[position].placeId);
                 final geometry = detail.result.geometry!;
-                vendorManager.vendorDTO.latitude = geometry.location.lat;
-                vendorManager.vendorDTO.longitude = geometry.location.lng;
-                LatLng newLocation = LatLng(vendorManager.vendorDTO.latitude as double,
-                    vendorManager.vendorDTO.longitude as double);
-                List<Placemark> placeMarks = await placemarkFromCoordinates(
-                    vendorManager.vendorDTO.latitude as double, vendorManager.vendorDTO.longitude as double);
+                if (widget.isVendor) {
+                  vendorManager.vendorDTO.latitude = geometry.location.lat;
+                  vendorManager.vendorDTO.longitude = geometry.location.lng;
+                  locationManager.clearSearchedLocations();
+                }
+                if (widget.isCustomer) {
+                  serviceRequestManager.serviceRequestDTO.latitude = geometry.location.lat;
+                  serviceRequestManager.serviceRequestDTO.longitude = geometry.location.lng;
+                  locationManager.clearSearchedLocations();
+                }
+                LatLng newLocation = LatLng(geometry.location.lat, geometry.location.lng);
+                List<Placemark> placeMarks = await placemarkFromCoordinates(geometry.location.lat, geometry.location.lng);
                 locationManager.setCurrentLocation = '${placeMarks[0].locality}, ${placeMarks[0].subLocality}';
-                locationManager.mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: newLocation, zoom: 14)));
-                locationManager.clearSearchedLocations();
+                locationManager.mapController?.animateCamera(
+                    CameraUpdate.newCameraPosition(
+                        CameraPosition(target: newLocation, zoom: 14)));
               },
           );
         });

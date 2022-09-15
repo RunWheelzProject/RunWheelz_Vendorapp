@@ -14,9 +14,6 @@ class ServiceRequestDTO {
   int? requestedCustomer;
   String? status;
   String? comments;
-  CustomerDTO? customerDTO;
-  /*VendorDTO? vendorDTO;
-  VendorMechanicDTO? vendorMechanicDTO;*/
 
   ServiceRequestDTO({
     this.id,
@@ -30,7 +27,6 @@ class ServiceRequestDTO {
     this.requestedCustomer,
     this.status,
     this.comments,
-    this.customerDTO
   });
 
   Map toJson() => {
@@ -45,7 +41,6 @@ class ServiceRequestDTO {
     "requestedCustomer": requestedCustomer,
     "status": status,
     "comments": comments,
-    "customerDTO": customerDTO
   };
 
   factory ServiceRequestDTO.fromJson(Map<String, dynamic> json) {
@@ -61,7 +56,6 @@ class ServiceRequestDTO {
       requestedCustomer: json["requestedCustomer"],
       status: json["status"],
       comments: json["comments"],
-      customerDTO: json["customerDTO"]
     );
   }
 }

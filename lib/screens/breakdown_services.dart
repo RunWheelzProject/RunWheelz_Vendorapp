@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/dashboard_box.dart';
+import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/model/servie_request.dart';
 import 'package:untitled/screens/customer_registration_screen.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
@@ -17,6 +18,7 @@ import '../resources/resources.dart' as res;
 
 import 'package:http/http.dart' as http;
 
+import 'customer_board.dart';
 import 'google_map_location_screen.dart';
 
 
@@ -33,9 +35,20 @@ class BreakDownServicesState extends State<BreakDownServices> {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
+    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context);
     return Scaffold(
         primary: true,
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.purple,
+          onPressed: () => {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return const CustomerDashBoard();
+                })
+            )
+          },
+          child: const Icon(Icons.arrow_back),
+        ),
         appBar: AppBar(
           flexibleSpace: SafeArea(
             child: Center(
@@ -99,20 +112,20 @@ class BreakDownServicesState extends State<BreakDownServices> {
                             addVerticalSpace(50),
                             RWDropDown(
                                 value: 'Select Services',
-                                onChanged: (String) => {},
+                                onChanged: (String? val) => serviceRequestManager.serviceRequestDTO.serviceType = val,
                                 items: const ['Select Services', 'Puncture', 'ElectricalWorks', 'Denting']
                             ),
                             addVerticalSpace(20),
                             RWDropDown(
                                 value: 'Select Vehicle Type',
-                                onChanged: (String) => {},
+                                onChanged: (String? val) => serviceRequestManager.serviceRequestDTO.make = val,
                                 items: const ['Select Vehicle Type', 'Honda', 'TVS', 'Suzuki']
                             ),
                             addVerticalSpace(20),
                             RWTextFormField(
                                 label: "Vehicle Number",
                                 icon: const Icon(Icons.numbers),
-                                onSaved: (String) => {}
+                                onSaved: (String? val ) => serviceRequestManager.serviceRequestDTO.vehicleNumber = val
                             ),
                             addVerticalSpace(70),
                             ElevatedButton(
@@ -121,7 +134,7 @@ class BreakDownServicesState extends State<BreakDownServices> {
                                 MaterialPageRoute(
                                     builder: (BuildContext context) {
                                       //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                      return const GoogleMapLocationPickerV1();
+                                      return GoogleMapLocationPickerV1(isCustomer: true,);
                                     })
                                 )
                                 },

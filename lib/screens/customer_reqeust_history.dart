@@ -5,11 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/dashboard_box.dart';
 import 'package:untitled/model/servie_request.dart';
-import 'package:untitled/screens/breakdown_services.dart';
-import 'package:untitled/screens/customer_favorite_mechnic.dart';
-import 'package:untitled/screens/customer_reqeust_history.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
-import 'package:untitled/screens/general_services_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/menu.dart';
@@ -19,17 +15,19 @@ import '../resources/resources.dart' as res;
 
 import 'package:http/http.dart' as http;
 
+import 'customer_board.dart';
+
 
 typedef CallBack = void Function();
 
-class CustomerDashBoard extends StatefulWidget {
-  const CustomerDashBoard({Key? key}) : super(key: key);
+class CustomerRequestHistory extends StatefulWidget {
+  const CustomerRequestHistory({Key? key}) : super(key: key);
 
   @override
-  CustomerDashBoardState createState() => CustomerDashBoardState();
+  VendorDashBoardState createState() => VendorDashBoardState();
 }
 
-class CustomerDashBoardState extends State<CustomerDashBoard> {
+class VendorDashBoardState extends State<CustomerRequestHistory> {
   TextEditingController phoneNumberController = TextEditingController();
   Map<String, int> requestCounts = {
     "VENDOR_ACCEPTED": 0,
@@ -78,19 +76,28 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
 
 
   void goToRequests() {
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (BuildContext context) {
-          return const GeneralServices();
-        })
-    );
+    getNewRequests().then((requests) {
+      requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
+      log("accepted: ${jsonEncode(requests)}");
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (BuildContext context) {
+            return VendorDataManagementPage(pageTitle: "New Requests", serviceRequestList: requests);
+          })
+      );
+    }).catchError((error) => log("error: $error"));
+
   }
 
   void goToInProgress() {
+
+    getNewRequests().then((requests) {
+      requests = requests.where((element) => element.status == 'VENDOR_INPROGRESS').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return const BreakDownServices();
+            return VendorDataManagementPage(pageTitle: "In Progress", serviceRequestList: requests);
           })
       );
+    }).catchError((error) => log("error: $error"));
   }
   void goToPendingRequests() {
 
@@ -121,6 +128,17 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
         primary: true,
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.purple,
+          onPressed: () => {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return const CustomerDashBoard();
+                })
+            )
+          },
+          child: const Icon(Icons.arrow_back),
+        ),
         appBar: AppBar(
           flexibleSpace: SafeArea(
             child: Center(
@@ -155,42 +173,7 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
         ),
         drawer: Padding(
             padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),
-            child: Drawer(
-                child: ListView(
-                  children: [
-                    ListTile(
-                      title: const Text('Home', style: TextStyle(color: Colors.red, fontSize: 16),),
-                      onTap: () {
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return const CustomerDashBoard();
-                            })
-                        );
-                      },
-                    ),
-                    ListTile(
-                      title: const Text('Request History', style: TextStyle(color: Colors.red, fontSize: 16),),
-                      onTap: () {
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return const CustomerRequestHistory();
-                            })
-                        );
-                      },
-                    ),
-                    ListTile(
-                      title: const Text('My Mechanics', style: TextStyle(color: Colors.red, fontSize: 16),),
-                      onTap: () {
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return CustomerFavoriteMechanic();
-                            })
-                        );
-                      },
-                    ),
-                  ],
-                )
-            )),
+            child: Menu.menuData("menu", res.menuItems)),
         body: SafeArea(
             child: SingleChildScrollView(
                 child: Container(
@@ -202,117 +185,63 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
                       color: Colors.white,
                     ),
                     child: Column(children: <Widget>[
-                      const Text(
-                        "Customer Dashboard",
-                        style: TextStyle(
-                            color: Colors.deepPurple,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 21
-                        )
+                      Text(
+                        "Request History",
+                        style: textTheme.headline4,
                       ),
                       addVerticalSpace(50),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          CustomerDashBoardBox(
+                          DashBoardBox(
                               callBack: goToRequests,
                               icon: const Icon(
                                 Icons.notifications_active_outlined,
                                 color: Colors.purple,
                                 size: 34,
                               ),
-                              title: "General Services",
+                              title: "New Requests",
+                              count: (requestCounts["VENDOR_ACCEPTED"].toString()) ?? "0"
                           ),
-                          CustomerDashBoardBox(
+                          DashBoardBox(
                               callBack: goToInProgress,
                               icon: const Icon(
                                 Icons.file_download,
                                 color: Colors.purple,
                                 size: 34,
                               ),
-                              title: "BreakDown",
-                          ),
+                              title: "In Progress",
+                              count: (requestCounts["VENDOR_INPROGRESS"].toString()) ?? "0"),
                         ],
                       ),
                       addVerticalSpace(40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          CustomerDashBoardBox(
+                          DashBoardBox(
                               callBack: goToPendingRequests,
                               icon: const Icon(
                                   Icons.pending_actions_rounded,
                                   color: Colors.purple,
                                   size: 34
                               ),
-                              title: "Towing",
-                          ),
-                          CustomerDashBoardBox(
+                              title: "Pending Requests",
+                              count: (requestCounts["VENDOR_PENDING"].toString()) ?? "0"),
+                          DashBoardBox(
                               callBack: goToRaisedRequests,
                               icon: const Icon(
                                 Icons.new_label_outlined,
                                 color: Colors.purple,
                                 size: 34,
                               ),
-                              title: "After Marketing",
+                              title: "Raise Request",
+                              count: "34"
                           ),
                         ],
                       )
                     ])
                 )
             )
-        )
-    );
-  }
-}
-
-
-typedef OnClick = void Function();
-
-class CustomerDashBoardBox extends StatefulWidget {
-  final OnClick callBack;
-  final Icon icon;
-  final String title;
-  const CustomerDashBoardBox({Key? key, required this.callBack, required this.icon, required this.title}) : super(key: key);
-
-  @override
-  CustomerDashBoardBoxState createState() => CustomerDashBoardBoxState();
-}
-
-class CustomerDashBoardBoxState extends State<CustomerDashBoardBox> {
-
-
-  @override
-  Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
-    return InkWell(
-        onTap: widget.callBack,
-        child: Container(
-          width: 140,
-          height: 140,
-          decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.grey[100] as Color),
-              borderRadius: BorderRadius.circular(5),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                )
-              ]),
-          alignment: Alignment.center,
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                widget.icon,
-                addVerticalSpace(20),
-                Text(
-                  widget.title,
-                  style: const TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold),
-                ),
-              ]),
         )
     );
   }

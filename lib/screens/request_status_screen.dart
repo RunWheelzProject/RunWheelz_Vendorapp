@@ -23,64 +23,28 @@ class VendorMechanicTrakcer {
   int id = 0;
 }
 
-class RequestDeatils extends StatefulWidget {
-  const RequestDeatils({Key? key}) : super(key: key);
+class RequestStatusDetails extends StatefulWidget {
+  const RequestStatusDetails({Key? key}) : super(key: key);
   @override
-  State<StatefulWidget> createState() => Book();
+  RequestStatusDetailsState createState() => RequestStatusDetailsState();
 }
 
-class Book extends State<RequestDeatils> {
-  bool _added = false;
+class RequestStatusDetailsState extends State<RequestStatusDetails> {
   bool isStopped = false;
   var _vendorAndMechanic;
-  LatLng? _mechanicLatLng;
   VendorMechanicTrakcer vendorMechanicTrakcer = VendorMechanicTrakcer();
   Timer? _timer;
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-    return await Geolocator.getCurrentPosition();
-  }
-
-  double calculateDistance(lat1, lon1, lat2, lon2){
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 - c((lat2 - lat1) * p)/2 +
-        c(lat1 * p) * c(lat2 * p) *
-            (1 - c((lon2 - lon1) * p))/2;
-    return 12742 * asin(sqrt(a));
-  }
 
   @override
   void initState(){
     super.initState();
-    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
 
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      //log("test: ${isStopped}");
       if (isStopped) {
         timer.cancel();
       }
       getMechanicDetails(vendorMechanicTrakcer);
-
     });
   }
 
@@ -127,8 +91,7 @@ class Book extends State<RequestDeatils> {
   }
 
   Widget requestDetails() {
-    ServiceRequestManager serviceRequestManager =
-    Provider.of<ServiceRequestManager>(context, listen: false);
+    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
     return Container(
         padding: const EdgeInsets.all(5),
         //margin: const EdgeInsets.all(5),
@@ -211,13 +174,8 @@ class Book extends State<RequestDeatils> {
         ));
   }
 
-  bool getVendorDetails() {
-    return true;
-  }
   Widget? vendorDetails() {
-
-    ServiceRequestManager serviceRequestManager =
-    Provider.of<ServiceRequestManager>(context, listen: false);
+    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
     if (_vendorAndMechanic != null) {
       var vendor = _vendorAndMechanic["vendor"] ?? "";
 
@@ -265,7 +223,7 @@ class Book extends State<RequestDeatils> {
                     width: 10,
                   ),
                   Text(vendor["garrageName"] ?? "",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white))
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white))
                 ],
               ),
               const SizedBox(

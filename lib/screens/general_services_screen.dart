@@ -17,6 +17,8 @@ import '../resources/resources.dart' as res;
 
 import 'package:http/http.dart' as http;
 
+import 'customer_board.dart';
+
 
 typedef CallBack = void Function();
 
@@ -65,6 +67,17 @@ class GeneralServicesState extends State<GeneralServices> {
                   ],
                 )),
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.purple,
+          onPressed: () => {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return const CustomerDashBoard();
+                })
+            )
+          },
+          child: const Icon(Icons.arrow_back),
         ),
         drawer: Padding(
             padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),

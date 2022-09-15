@@ -105,7 +105,7 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
                                           MaterialPageRoute(
                                               builder: (BuildContext context) {
                                         //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                        return const GoogleMapLocationPickerV1();
+                                        return GoogleMapLocationPickerV1(isCustomer: true);
                                       }));
                                     }
                                   }

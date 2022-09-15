@@ -116,7 +116,7 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                                                   MaterialPageRoute(
                                                       builder: (BuildContext context) {
                                                 //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                                return const GoogleMapLocationPickerV1();
+                                                return GoogleMapLocationPickerV1(isVendor: true,);
                                               }));
                                             }
                                           }

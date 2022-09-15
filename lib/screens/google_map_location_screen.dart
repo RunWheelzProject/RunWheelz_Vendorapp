@@ -9,19 +9,28 @@ import 'package:untitled/components/google_map.dart';
 import 'package:untitled/components/searched_location_listview.dart';
 import 'package:untitled/manager/location_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
+import 'package:untitled/model/servie_request.dart';
 import 'package:untitled/model/vendor.dart';
+import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import 'package:untitled/utils/add_space.dart';
 
+import '../manager/customer_managere.dart';
+import '../manager/service_request_manager.dart';
+import '../model/customer.dart';
+
 class GoogleMapLocationPickerV1 extends StatefulWidget {
-  const GoogleMapLocationPickerV1({Key? key}) : super(key: key);
+  bool isCustomer;
+  bool isVendor;
+  GoogleMapLocationPickerV1({Key? key, this.isCustomer = false, this.isVendor = false}) : super(key: key);
 
   @override
   GoogleMapLocationPickerState createState() => GoogleMapLocationPickerState();
 }
 
 class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
-  late VendorDTO _vendorRegistrationRequest;
+  VendorDTO? _vendorDTO;
+  ServiceRequestDTO? _serviceRequestDTO;
   late LocationManager _locationManager;
   final TextEditingController _locationController = TextEditingController();
   String location = "Search Location";
@@ -32,30 +41,34 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
   @override
   void initState() {
     super.initState();
-    _vendorRegistrationRequest =
-        Provider.of<VendorManager>(context, listen: false)
-            .vendorDTO;
-    _locationManager = Provider.of<LocationManager>(context, listen: false);
-    _determinePosition().then((Position position) async {
-      _latitude = position.latitude;
-      _longitude = position.longitude;
+      _vendorDTO = Provider.of<VendorManager>(context, listen: false).vendorDTO;
+      _serviceRequestDTO = Provider.of<ServiceRequestManager>(context, listen: false).serviceRequestDTO;
+      _locationManager = Provider.of<LocationManager>(context, listen: false);
+      _determinePosition().then((Position position) async {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
 
-      _vendorRegistrationRequest.longitude = _longitude;
-      _vendorRegistrationRequest.latitude = _latitude;
+        if (widget.isVendor) {
+          _vendorDTO?.longitude = _longitude;
+          _vendorDTO?.latitude = _latitude;
+        }
+        if (widget.isCustomer) {
+          _serviceRequestDTO?.longitude = _longitude;
+          _serviceRequestDTO?.latitude = _latitude;
+        }
 
-      LatLng newLocation = LatLng(_latitude, _longitude);
-      _locationManager.mapController?.animateCamera(
-          CameraUpdate.newCameraPosition(
-              CameraPosition(target: newLocation, zoom: 17)));
+        LatLng newLocation = LatLng(_latitude, _longitude);
+        _locationManager.mapController?.animateCamera(
+            CameraUpdate.newCameraPosition(
+                CameraPosition(target: newLocation, zoom: 17)));
+        // function to get actual location from latitude and longitude values
+        List<Placemark> placeMarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+        Placemark place = placeMarks[0];
 
-      // function to get actual location from latitude and longitude values
-      List<Placemark> placeMarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      Placemark place = placeMarks[0];
-
-      _locationManager.setCurrentLocation =
-          '${place.locality}, ${place.subLocality}';
-    }).catchError((onError) => log("GoogleMapError: $onError"));
+        _locationManager.setCurrentLocation =
+        '${place.locality}, ${place.subLocality}';
+      }).catchError((onError) => log("GoogleMapError: $onError"));
   }
 
   // function to get user phones latitude and longtiude values
@@ -95,9 +108,8 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
               return IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (BuildContext context) {
-                    return const VendorRegistrationV1();
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                    return widget.isVendor ? const VendorRegistrationV1() : const CustomerDashBoard();
                   }));
                 },
                 tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
@@ -157,7 +169,8 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
                       },
                     ),
                   ])),
-          Stack(children: [
+            Stack(
+              children: [
             Container(
                 height: MediaQuery.of(context).size.height,
                 decoration: const BoxDecoration(
@@ -173,8 +186,15 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
                   decoration: BoxDecoration(
                       color: Colors.grey.withOpacity(0.8),
                       backgroundBlendMode: BlendMode.darken),
-                  child: const SearchedLocationListView()),
-            const Positioned(top: 380, bottom: 0, child: ConfirmLocation())
+                  child: SearchedLocationListView(isCustomer: widget.isCustomer, isVendor: widget.isVendor)),
+            Positioned(
+                top: 380,
+                bottom: 0,
+                child: ConfirmLocation(
+                    isCustomer: widget.isCustomer,
+                    isVendor: widget.isVendor
+                )
+            )
           ]),
         ])
         )

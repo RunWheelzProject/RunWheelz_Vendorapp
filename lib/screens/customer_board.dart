@@ -203,7 +203,7 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
                     ),
                     child: Column(children: <Widget>[
                       const Text(
-                        "Customer Dashboard",
+                        "Customer Dashboards",
                         style: TextStyle(
                             color: Colors.deepPurple,
                             fontWeight: FontWeight.bold,

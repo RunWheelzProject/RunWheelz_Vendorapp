@@ -13,33 +13,33 @@ class VendorMechanicService {
   final Uri _getAllVendor = Uri.parse("${res.APP_URL}/api/vendor/getallvendors");
   final Uri _getVendorsNotRegistered = Uri.parse("${res.APP_URL}/api/vendor/getallvendorregistrationrequests");
 
-  Future<List<VendorRegistrationRequest>> getAllVendor() async {
+  Future<List<VendorDTO>> getAllVendor() async {
     http.Response response = await http.get(_getAllVendor);
 
     var jsonResponse = jsonDecode(response.body);
-    List<VendorRegistrationRequest> list = [];
+    List<VendorDTO> list = [];
     for (var item in jsonResponse) {
-      list.add(VendorRegistrationRequest.fromJson(item));
+      list.add(VendorDTO.fromJson(item));
     }
 
     return list;
 
   }
 
-  Future<List<VendorRegistrationRequest>> getVendorsNotRegistered() async {
+  Future<List<VendorDTO>> getVendorsNotRegistered() async {
     http.Response response = await http.get(_getVendorsNotRegistered);
     log("notRegistered: ${jsonEncode(response.body)}");
     var jsonResponse = jsonDecode(response.body);
-    List<VendorRegistrationRequest> list = [];
+    List<VendorDTO> list = [];
     for (var item in jsonResponse) {
-      list.add(VendorRegistrationRequest.fromJson(item));
+      list.add(VendorDTO.fromJson(item));
     }
 
     return list;
 
   }
 
-  Future<http.Response> vendorRegistrationRequest(VendorRegistrationRequest vendorRegistrationRequest) async {
+  Future<http.Response> vendorRegistrationRequest(VendorDTO vendorRegistrationRequest) async {
     String body = jsonEncode(vendorRegistrationRequest);
     log("vendorRegistrationRequest: $body");
     Map<String, String> headers = {
@@ -50,7 +50,7 @@ class VendorMechanicService {
     return response;
   }
 
-  Future<http.Response> updateVendorInfo(VendorRegistrationRequest vendorRegistrationRequest) async {
+  Future<http.Response> updateVendorInfo(VendorDTO vendorRegistrationRequest) async {
     String body = jsonEncode(vendorRegistrationRequest);
     log("vendorRegistrationRequest: $body");
     Map<String, String> headers = {
@@ -61,12 +61,12 @@ class VendorMechanicService {
     return response;
   }
 
-  Future<VendorRegistrationRequest> getVendorById(int id) async {
+  Future<VendorDTO> getVendorById(int id) async {
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendor/$id"));
     var jsonResponse = jsonDecode(response.body);
     if (response.statusCode == 200) {
 
-      VendorRegistrationRequest vendorRegistrationRequest = VendorRegistrationRequest.fromJson(jsonResponse);
+      VendorDTO vendorRegistrationRequest = VendorDTO.fromJson(jsonResponse);
       return vendorRegistrationRequest;
     }
 

@@ -54,12 +54,12 @@ class SearchedLocationListViewState extends State<SearchedLocationListView> {
 
                 final detail = await plist.getDetailsByPlaceId(locationManager.searchedLocations[position].placeId);
                 final geometry = detail.result.geometry!;
-                vendorManager.vendorRegistrationRequest.latitude = geometry.location.lat;
-                vendorManager.vendorRegistrationRequest.longitude = geometry.location.lng;
-                LatLng newLocation = LatLng(vendorManager.vendorRegistrationRequest.latitude as double,
-                    vendorManager.vendorRegistrationRequest.longitude as double);
+                vendorManager.vendorDTO.latitude = geometry.location.lat;
+                vendorManager.vendorDTO.longitude = geometry.location.lng;
+                LatLng newLocation = LatLng(vendorManager.vendorDTO.latitude as double,
+                    vendorManager.vendorDTO.longitude as double);
                 List<Placemark> placeMarks = await placemarkFromCoordinates(
-                    vendorManager.vendorRegistrationRequest.latitude as double, vendorManager.vendorRegistrationRequest.longitude as double);
+                    vendorManager.vendorDTO.latitude as double, vendorManager.vendorDTO.longitude as double);
                 locationManager.setCurrentLocation = '${placeMarks[0].locality}, ${placeMarks[0].subLocality}';
                 locationManager.mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: newLocation, zoom: 14)));
                 locationManager.clearSearchedLocations();

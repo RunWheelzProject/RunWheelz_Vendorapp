@@ -1,6 +1,6 @@
 import 'package:untitled/model/role.dart';
 
-class VendorRegistrationRequest {
+class VendorDTO {
   String? ownerName;
   String? phoneNumber;
   String? garageName;
@@ -18,10 +18,11 @@ class VendorRegistrationRequest {
   String? country;
   RoleDTO? role;
   bool? registrationStatus;
+  String? marketingAgent;
   String? executive;
   String? status;
 
-  VendorRegistrationRequest({this.ownerName = '',
+  VendorDTO({this.ownerName = '',
     this.phoneNumber = "",
     this.garageName = '',
     this.longitude = 0.0,
@@ -38,6 +39,7 @@ class VendorRegistrationRequest {
     this.country = "",
     this.role,
     this.registrationStatus = false,
+    this.marketingAgent,
     this.executive = "",
     this.status = ""
 
@@ -61,12 +63,13 @@ class VendorRegistrationRequest {
     "country": country,
     "role": role,
     "registrationStatus": registrationStatus,
+    "marketingAgent": marketingAgent,
     "executive": executive,
     "status": status
   };
 
-  factory VendorRegistrationRequest.fromJson(Map<String, dynamic> json) {
-    return VendorRegistrationRequest(
+  factory VendorDTO.fromJson(Map<String, dynamic> json) {
+    return VendorDTO(
       id: json["id"],
       ownerName: json["ownerName"],
       phoneNumber: json["phoneNumber"],
@@ -83,6 +86,7 @@ class VendorRegistrationRequest {
       country: json["country"],
       role: RoleDTO.fromJson(json["roleId"]),
       registrationStatus: json["registrationStatus"],
+      marketingAgent: json["marketingAgent"],
       executive: json["executive"],
       status: json["status"]
     );

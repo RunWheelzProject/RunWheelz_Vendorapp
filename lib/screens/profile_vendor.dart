@@ -13,6 +13,7 @@ import 'package:untitled/screens/vendor_assign_screen.dart';
 import 'package:untitled/services/vendor_registration.dart';
 
 import '../manager/profile_manager.dart';
+import '../manager/vendor_manager.dart';
 import '../model/staff.dart';
 import '../services/staff_service.dart';
 import 'login_page_screen.dart';
@@ -62,8 +63,8 @@ class VendorStateProfile extends State<VendorProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    final VendorRegistrationRequest vendor = profileManager.vendorRegistrationRequest;
+    final VendorManager vendorManager = Provider.of<VendorManager>(context);
+    final VendorDTO vendor = vendorManager.vendorDTO;
     _nameController.text = vendor.ownerName ?? "not exists";
     _phoneController.text = vendor.phoneNumber ?? "not exists";
     _aadhaarController.text = vendor.aadharNumber ?? "not exists";
@@ -104,19 +105,19 @@ class VendorStateProfile extends State<VendorProfile> {
 
               IconButton(
                 onPressed: () {
-                    if (profileManager.isEnable) {
-                      profileManager.isEnable = false;
-                      VendorRegistrationService().updateVendorInfo(profileManager.vendorRegistrationRequest);
-                      Future<VendorRegistrationRequest> future =
+                    if (vendorManager.isEnable) {
+                      vendorManager.isEnable = false;
+                      VendorRegistrationService().updateVendorInfo(vendorManager.vendorDTO);
+                      Future<VendorDTO> future =
                       VendorRegistrationService().getVendorById(vendor.id as int);
-                      future.then((VendorRegistrationRequest vendor) => profileManager.vendorRegistrationRequest = vendor)
+                      future.then((VendorDTO vendor) => vendorManager.vendorDTO = vendor)
                           .catchError((error) { log("error: $error"); });
                     } else {
-                      profileManager.isEnable = true;
+                      vendorManager.isEnable = true;
                     }
                 },
                 icon: Icon(
-                  profileManager.isEnable ? Icons.save : Icons.edit,
+                  vendorManager.isEnable ? Icons.save : Icons.edit,
                   color: Colors.purple,
                 ),
               ),
@@ -180,9 +181,9 @@ class VendorStateProfile extends State<VendorProfile> {
                   IntrinsicWidth(
                     child: TextField(
                       controller: _nameController,
-                      enabled: profileManager.isEnable,
-                      decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                      onChanged: (val) => profileManager.vendorRegistrationRequest.ownerName = val,
+                      enabled: vendorManager.isEnable,
+                      decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                      onChanged: (val) => vendorManager.vendorDTO.ownerName = val,
                     ),
                   ),
                 ],
@@ -198,9 +199,9 @@ class VendorStateProfile extends State<VendorProfile> {
               IntrinsicWidth(
                 child: TextField(
                   controller: _phoneController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.vendorRegistrationRequest.phoneNumber = val,
+                  enabled: vendorManager.isEnable,
+                  decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorDTO.phoneNumber = val,
                 ),
               )
             ],
@@ -213,9 +214,9 @@ class VendorStateProfile extends State<VendorProfile> {
               IntrinsicWidth(
                 child: TextField(
                   controller: _aadhaarController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.vendorRegistrationRequest.aadharNumber = val,
+                  enabled: vendorManager.isEnable,
+                  decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorDTO.aadharNumber = val,
                 ),
               )
             ],
@@ -228,9 +229,9 @@ class VendorStateProfile extends State<VendorProfile> {
               IntrinsicWidth(
                 child: TextField(
                   controller: _addressController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileManager.staffDTO.addressLine = val,
+                  enabled: vendorManager.isEnable,
+                  decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorManager.vendorDTO.addressLine = val,
                 ),
               )
             ],
@@ -240,52 +241,6 @@ class VendorStateProfile extends State<VendorProfile> {
       ),
     );
   }
-/*
-  Widget fieldName(String key, String? value, String title, BuildContext context, String? data) {
-    ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(key, style: const TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-        //Text(value ?? "not exists", style: const TextStyle(fontSize: 20)),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            IntrinsicWidth(
-              child: TextField(
-                controller: _name,
-                enabled: profileManager.isEnable,
-                decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                onChanged: (val) => data = val,
-              ),
-            ),
-          ],
-        ),
-        Text(title, style: const TextStyle(fontSize: 16))
-      ],
-    );
-  }
-
-  Widget fieldLeft(String key, String? value, BuildContext context) {
-    ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    TextEditingController controller = TextEditingController();
-    controller.text = value!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(key, style: const TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-        IntrinsicWidth(
-          child: TextField(
-            controller: controller,
-            enabled: profileManager.isEnable,
-            decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-            onChanged: (val) => data = val,
-          ),
-        )
-      ],
-    );
-  }*/
 
   Widget imageProfile(BuildContext context, ImagePicker _picker) {
     return Center(
@@ -352,7 +307,7 @@ class VendorStateProfile extends State<VendorProfile> {
                 takePhoto(ImageSource.camera, _picker);
 
                 String dir = path.dirname(_imageFile?.path as String);
-                String newPath = path.join(dir,  profileManager.vendorRegistrationRequest.id.toString());
+                String newPath = path.join(dir,  profileManager.vendorDTO.id.toString());
                 _imageFile?.rename(newPath).then((file) {
                   var request = http.MultipartRequest("POST", Uri.parse("${res.APP_URL}/api/vendor/image-upload"));
                   request.files.add(http.MultipartFile(

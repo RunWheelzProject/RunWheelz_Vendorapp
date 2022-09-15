@@ -79,7 +79,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
   @override
   void initState() {
     super.initState();
-    int id = Provider.of<ProfileManager>(context, listen: false).vendorRegistrationRequest.id as int;
+    int id = Provider.of<ProfileManager>(context, listen: false).vendorDTO.id as int;
     getImage(id).then((bytes) {
       setState(() => {
         _imageURL = MemoryFileSystem().file('test.jpg')..writeAsBytesSync(bytes)
@@ -89,7 +89,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
   @override
   Widget build(BuildContext context) {
     final VendorManager vendorManager = Provider.of<VendorManager>(context);
-    VendorRegistrationRequest vendor = vendorManager.vendorRegistrationRequest;
+    VendorDTO vendor = vendorManager.vendorDTO;
     _nameController.text = vendor.ownerName ?? "not exists";
     _phoneController.text = vendor.phoneNumber ?? "not exists";
     _aadhaarController.text = vendor.aadharNumber ?? "not exists";
@@ -134,10 +134,10 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                     if (vendorManager.isEnable) {
                       vendorManager.isEnable = false;
                       RoleDTO role = RoleDTO(id: 4, roleName: "VENDOR");
-                      vendorManager.vendorRegistrationRequest.role = role;
-                      VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest);
-                      Future<VendorRegistrationRequest> future = VendorRegistrationService().getVendorById(vendorManager.vendorRegistrationRequest.id as int);
-                      future.then((VendorRegistrationRequest staffDTO) => vendorManager.vendorRegistrationRequest = staffDTO)
+                      vendorManager.vendorDTO.role = role;
+                      VendorRegistrationService().updateVendorInfo(vendorManager.vendorDTO);
+                      Future<VendorDTO> future = VendorRegistrationService().getVendorById(vendorManager.vendorDTO.id as int);
+                      future.then((VendorDTO staffDTO) => vendorManager.vendorDTO = staffDTO)
                           .catchError((error) { log("error: $error"); });
                     } else {
                       vendorManager.isEnable = true;
@@ -210,7 +210,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                       controller: _nameController,
                       enabled: vendorManager.isEnable,
                       decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                      onChanged: (val) => vendorManager.vendorRegistrationRequest.ownerName = val,
+                      onChanged: (val) => vendorManager.vendorDTO.ownerName = val,
                     ),
                   ),
                 ],
@@ -228,7 +228,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                   controller: _phoneController,
                   enabled: vendorManager.isEnable,
                   decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => vendorManager.vendorRegistrationRequest.phoneNumber = val,
+                  onChanged: (val) => vendorManager.vendorDTO.phoneNumber = val,
                 ),
               )
             ],
@@ -243,7 +243,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                   controller: _aadhaarController,
                   enabled: vendorManager.isEnable,
                   decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => vendorManager.vendorRegistrationRequest.aadharNumber = val,
+                  onChanged: (val) => vendorManager.vendorDTO.aadharNumber = val,
                 ),
               )
             ],
@@ -258,7 +258,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                   controller: _addressController,
                   enabled: vendorManager.isEnable,
                   decoration: vendorManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => vendorManager.vendorRegistrationRequest.addressLine = val,
+                  onChanged: (val) => vendorManager.vendorDTO.addressLine = val,
                 ),
               )
             ],
@@ -378,7 +378,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
     final VendorManager vendorManager = Provider.of<VendorManager>(context);
     final XFile? image = await _picker.pickImage(source: source);
     String dir = path.dirname(image?.path as String);
-    String newPath = path.join(dir, vendorManager.vendorRegistrationRequest.id.toString());
+    String newPath = path.join(dir, vendorManager.vendorDTO.id.toString());
     final File file = File(image!.path);
     file.rename(newPath).then((f) {
       setState(() {

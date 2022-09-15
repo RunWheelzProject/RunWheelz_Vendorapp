@@ -14,7 +14,7 @@ class ServiceRequestDTO {
   int? requestedCustomer;
   String? status;
   String? comments;
-  Customer? customerDTO;
+  CustomerDTO? customerDTO;
   /*VendorDTO? vendorDTO;
   VendorMechanicDTO? vendorMechanicDTO;*/
 

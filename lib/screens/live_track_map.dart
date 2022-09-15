@@ -217,7 +217,7 @@ class _MyMapState extends State<LocationTrackingMap> {
   _addPolyLine() {
     PolylineId id = const PolylineId("poly");
     Polyline polyline = Polyline(
-        polylineId: id, color: Colors.red, points: polylineCoordinates);
+        polylineId: id, color: Colors.green, points: polylineCoordinates);
     polylines[id] = polyline;
     setState(() {});
   }

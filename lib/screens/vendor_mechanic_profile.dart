@@ -88,8 +88,8 @@ class VendorMechanicProfile extends StatelessWidget {
                   if (vendorMechanicManager.isEnable) {
                     vendorMechanicManager.isEnable = false;
                     //VendorRegistrationService().updateVendorInfo(vendorMechanicManager.vendorRegistrationRequest);
-                    Future<VendorRegistrationRequest> future = VendorRegistrationService().getVendorById(vendorMechanic.id as int);
-                    future.then((VendorRegistrationRequest vendor) => vendorMechanicManager.vendorMechanic = vendorMechanic)
+                    Future<VendorDTO> future = VendorRegistrationService().getVendorById(vendorMechanic.id as int);
+                    future.then((VendorDTO vendor) => vendorMechanicManager.vendorMechanic = vendorMechanic)
                         .catchError((error) { log("error: $error"); });
                   } else {
                     vendorMechanicManager.isEnable = true;

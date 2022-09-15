@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:searchable_listview/searchable_listview.dart';
+import 'package:untitled/manager/login_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/screens/profile.dart';
@@ -16,6 +17,7 @@ import 'package:http/http.dart' as http;
 
 import '../model/vendor.dart';
 import '../resources/resources.dart' as res;
+import '../utils/add_space.dart';
 import 'login_page_screen.dart';
 
 class MarketingAgentPage extends StatefulWidget {
@@ -27,25 +29,21 @@ class MarketingAgentPage extends StatefulWidget {
 }
 
 class MarketingAgentPageState extends State<MarketingAgentPage> {
-  List<VendorRegistrationRequest> _initRequests = [];
-
-
-
-
-  Future<List<VendorRegistrationRequest>> getVendorInitialRegisterList() async {
+  List<VendorDTO> _initRequests = [];
+  Future<List<VendorDTO>> getVendorInitialRegisterList() async {
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendor/getallvendorregistrationrequests"));
     var jsonResponse = jsonDecode(response.body) as List;
-    return jsonResponse.map((json) => VendorRegistrationRequest.fromJson(json)).toList();
+    return jsonResponse.map((json) => VendorDTO.fromJson(json)).toList();
   }
 
-  Future<List<VendorRegistrationRequest>> getAllStaff() async {
+  Future<List<VendorDTO>> getAllStaff() async {
     final Uri _getAllStaff = Uri.parse("${res.APP_URL}/api/vendor/getallvendors");
     http.Response response = await http.get(_getAllStaff);
 
     var jsonResponse = jsonDecode(response.body);
-    List<VendorRegistrationRequest> list = [];
+    List<VendorDTO> list = [];
     for (var item in jsonResponse) {
-      list.add(VendorRegistrationRequest.fromJson(item));
+      list.add(VendorDTO.fromJson(item));
     }
     return list;
 
@@ -71,7 +69,7 @@ class MarketingAgentPageState extends State<MarketingAgentPage> {
     VendorManager vendorManager = Provider.of<VendorManager>(context);
 
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
+        /*floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.purple,
           onPressed: () => {
             Navigator.of(context).pushReplacement(
@@ -81,10 +79,39 @@ class MarketingAgentPageState extends State<MarketingAgentPage> {
             )
           },
           child: const Icon(Icons.arrow_back),
-        ),
+        ),*/
         appBar: AppBar(
-          title: const Text("Management"),
           automaticallyImplyLeading: false,
+          flexibleSpace: SafeArea(
+            child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text("Marketing",
+                        style: TextStyle(color: Colors.white, fontSize: 23)),
+                    addHorizontalSpace(70),
+                    IconButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (BuildContext context) {
+                                return VendorDashboardProfile(isStaff: true,);
+                              })
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.account_circle_rounded,
+                          color: Colors.white,
+                        )),
+                    addHorizontalSpace(20),
+                    const Icon(
+                      Icons.notification_add_rounded,
+                      color: Colors.white,
+                    ),
+                    addHorizontalSpace(20),
+                  ],
+                )),
+          ),
         ),
         body: SafeArea(
             child: Container(
@@ -96,6 +123,8 @@ class MarketingAgentPageState extends State<MarketingAgentPage> {
                       alignment: Alignment.centerLeft,
                       child:ElevatedButton(
                           onPressed: () {
+                            LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
+                            logInManager.setCurrentURLs("vendorRegistration");
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return const LoginScreen();
                             })
@@ -109,17 +138,17 @@ class MarketingAgentPageState extends State<MarketingAgentPage> {
                   Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(5),
-                        child: SearchableList<VendorRegistrationRequest>(
+                        child: SearchableList<VendorDTO>(
                           initialList: _initRequests,
-                          builder: (VendorRegistrationRequest vendor) {
+                          builder: (VendorDTO vendor) {
                             return Item(vendorRegistrationRequest: vendor, assignable: true,);
                           },
                           filter: (value) => _initRequests
                               .where((element) =>
                           element.phoneNumber?.contains(value) as bool)
                               .toList(),
-                          onItemSelected: (VendorRegistrationRequest vendor) {
-                            profileManager.vendorRegistrationRequest = vendor;
+                          onItemSelected: (VendorDTO vendor) {
+                            profileManager.vendorDTO = vendor;
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
                                   return VendorProfile();
@@ -148,7 +177,7 @@ class MarketingAgentPageState extends State<MarketingAgentPage> {
 }
 class Item extends StatefulWidget {
 
-  final VendorRegistrationRequest vendorRegistrationRequest;
+  final VendorDTO vendorRegistrationRequest;
   bool assignable;
 
   Item({Key? key, required this.vendorRegistrationRequest, this.assignable = false}) : super(key: key);
@@ -157,14 +186,14 @@ class Item extends StatefulWidget {
 }
 
 class ItemState extends State<Item> {
-  String _dropDownExecutiveValue = "Select";
+
   final AssetImage image = const AssetImage("images/logo.jpg");
   List<StaffDTO> _staffList = [];
   StaffDTO? _selectedStaff;
 
   final Uri vendorRegistrationRequestURL = Uri.parse("${res.APP_URL}/api/vendor/editvrr");
 
-  Future<http.Response> vendorRegistrationRequest(VendorRegistrationRequest vendorRegistrationRequest) async {
+  Future<http.Response> vendorRegistrationRequest(VendorDTO vendorRegistrationRequest) async {
     String body = jsonEncode(vendorRegistrationRequest);
     log("vendorRegistrationRequest: $body");
     Map<String, String> headers = {
@@ -185,18 +214,21 @@ class ItemState extends State<Item> {
       list.add(StaffDTO.fromJson(item));
     }
     return list;
-
   }
 
   List<String> executives = ["Select Executive"];
+  String _dropDownExecutiveValue = "Select Executive";
 
   @override
   void initState() {
     super.initState();
     getAllStaff().then((staff) {
-      _staffList = staff;
+      log(jsonEncode(staff));
+      List<String> list = staff.where((staff) => staff.role?.id == 3).toList()
+          .map((staff) => staff.name ?? "").toList();
+      log("list: ${jsonEncode(list)}");
       setState(() {
-        _dropDownExecutiveValue = executives[0];
+        executives = [...executives, ...list];
       });
     });
   }
@@ -289,7 +321,7 @@ class ItemState extends State<Item> {
               ],
             ),
 
-            SizedBox(height: 30,),
+            const SizedBox(height: 30,),
             if (widget.assignable)
               Row(
                   children: [
@@ -312,6 +344,7 @@ class ItemState extends State<Item> {
                         onPressed: () async {
                           StaffDTO? staff = _selectedStaff ?? _staffList[0];
                           widget.vendorRegistrationRequest.executive = staff.id.toString();
+                          widget.vendorRegistrationRequest.marketingAgent = Provider.of<ProfileManager>(context, listen: false).staffDTO.id.toString();
                           //widget.vendorRegistrationRequest.status = "Completed";
 
                           log("request: ${jsonEncode(widget.vendorRegistrationRequest)}");

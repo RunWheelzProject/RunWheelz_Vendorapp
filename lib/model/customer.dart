@@ -1,13 +1,13 @@
 import './role.dart';
 
-class Customer {
+class CustomerDTO {
   int? id;
   String? name;
   String? phoneNumber;
   bool? registrationStatus;
   RoleDTO? role;
   String? jwt;
-  Customer({
+  CustomerDTO({
     this.id,
     this.name,
     this.phoneNumber,
@@ -25,13 +25,13 @@ class Customer {
     "jwt": jwt
   };
 
-  factory Customer.fromJson( Map<String, dynamic> json) {
-    return Customer(
+  factory CustomerDTO.fromJson( Map<String, dynamic> json) {
+    return CustomerDTO(
       id: json["id"],
       name: json["name"],
       phoneNumber: json["phoneNumber"],
       registrationStatus: json["registrationStatus"],
-      role: json["role"],
+      role: RoleDTO.fromJson(json["role"]),
       jwt: json["jwt"]
     );
   }

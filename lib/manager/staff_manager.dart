@@ -49,9 +49,9 @@ class StaffManager extends ChangeNotifier {
   List<StaffDTO> get filteredList => _filteredList;
   get staffDTO => _staffDTO;
   bool get isRegistered => _isRegistered;
-  bool get isEnabled => _isEnable;
+  bool get isEnable => _isEnable;
 
-  set isEnabled(bool val) => _isEnable;
+  set isEnable(bool val) => _isEnable;
   set isRegistered(bool val) => _isRegistered = val;
   set staffDTO(value) => _staffDTO = value;
 

@@ -68,9 +68,9 @@ class ConfirmLocationState extends State<ConfirmLocation> {
           Center(
               child: ElevatedButton(
                   onPressed: () {
-                    log("vendorRequest: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
+                    log("vendorRequest: ${jsonEncode(vendorManager.vendorDTO)}");
                     VendorRegistrationService()
-                        .vendorRegistrationRequest(vendorManager.vendorRegistrationRequest)
+                        .vendorRegistrationRequest(vendorManager.vendorDTO)
                         .then((response) {
                       var body = jsonDecode(response.body);
 

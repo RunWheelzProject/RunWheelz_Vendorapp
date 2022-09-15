@@ -14,7 +14,7 @@ class ApplicationManager extends ChangeNotifier {
   late double longitude;
   late String currentLocation;
   late List<PlaceSearchData> searchedLocations = [];
-  late VendorRegistrationRequest vendorRegistrationRequest = VendorRegistrationRequest();
+  late VendorDTO vendorRegistrationRequest = VendorDTO();
   late GoogleMapController? mapController;
 
 

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
+import 'package:untitled/screens/vendor_works.dart';
 import 'package:untitled/services/vendor_registration.dart';
 import '../manager/roles_manager.dart';
 import '../model/role.dart';
@@ -37,8 +38,8 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
     final VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
     _determinePosition().then((position) {
       log("position: ${position.longitude}, ${position.latitude}");
-      vendorManager.vendorRegistrationRequest.latitude = position.latitude;
-      vendorManager.vendorRegistrationRequest.longitude = position.longitude;
+      vendorManager.vendorDTO.latitude = position.latitude;
+      vendorManager.vendorDTO.longitude = position.longitude;
     }).catchError((error) => log("Error: $error"));
     super.initState();
   }
@@ -130,7 +131,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 ])),*/
                         addVerticalSpace(25),
                         TextFormField(
-                          initialValue: vendorManager.vendorRegistrationRequest.ownerName,
+                          initialValue: vendorManager.vendorDTO.ownerName,
                           decoration: InputDecoration(
                             labelText: "Owner Name",
                             prefixIcon: const Icon(Icons.person,
@@ -155,7 +156,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 )),
                           ),
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.ownerName =
+                            vendorManager.vendorDTO.ownerName =
                                 value
                           },
                           validator: (value) {
@@ -167,7 +168,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                         ),
                         addVerticalSpace(25),
                         TextFormField(
-                          initialValue: vendorManager.vendorRegistrationRequest.phoneNumber,
+                          initialValue: vendorManager.vendorDTO.phoneNumber,
                           decoration: InputDecoration(
                             labelText: "PhoneNumber",
                             prefixIcon: const Icon(Icons.person,
@@ -192,7 +193,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 )),
                           ),
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.ownerName =
+                            vendorManager.vendorDTO.ownerName =
                                 value
                           },
                           validator: (value) {
@@ -204,7 +205,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                         ),
                         addVerticalSpace(20),
                         TextFormField(
-                          initialValue: vendorManager.vendorRegistrationRequest.garageName,
+                          initialValue: vendorManager.vendorDTO.garageName,
                           decoration: InputDecoration(
                             labelText: "Garage Name",
                             prefixIcon: const Icon(Icons.home,
@@ -229,7 +230,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 )),
                           ),
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.garageName =
+                            vendorManager.vendorDTO.garageName =
                                 value
                           },
                           validator: (value) {
@@ -283,7 +284,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 )),
                           ),
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.aadharNumber = value
+                            vendorManager.vendorDTO.aadharNumber = value
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -326,7 +327,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                           ),
                           onChanged: (value) => {
                             vendorManager
-                                .vendorRegistrationRequest.addressLine = value
+                                .vendorDTO.addressLine = value
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -371,7 +372,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 )),
                           ),
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.city = value
+                            vendorManager.vendorDTO.city = value
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -396,7 +397,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   _dropDownStateVAlue = newValue!;
-                                  vendorManager.vendorRegistrationRequest.state = newValue;
+                                  vendorManager.vendorDTO.state = newValue;
                                 });
                               },
                               items: _inidianStates
@@ -476,7 +477,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                             FilteringTextInputFormatter.allow(RegExp('[0-9]'))
                           ],
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.zipcode =
+                            vendorManager.vendorDTO.zipcode =
                                 value
                           },
                           validator: (value) {
@@ -514,7 +515,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                 )),
                           ),
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.country =
+                            vendorManager.vendorDTO.country =
                                 value
                           },
                           validator: (value) {
@@ -537,17 +538,17 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                             child: ElevatedButton(
                                 onPressed: () {
                                         if (_formKey.currentState!.validate()) {
-                                          vendorManager.vendorRegistrationRequest.registrationStatus = true;
+                                          vendorManager.vendorDTO.registrationStatus = true;
                                           RoleDTO role = RoleDTO(id: 4, roleName: "VENDOR");
-                                          vendorManager.vendorRegistrationRequest.role = role;
-                                          log("vendor1: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                          VendorRegistrationService().updateVendorInfo(vendorManager.vendorRegistrationRequest)
+                                          vendorManager.vendorDTO.role = role;
+                                          log("vendor1: ${jsonEncode(vendorManager.vendorDTO)}");
+                                          VendorRegistrationService().updateVendorInfo(vendorManager.vendorDTO)
                                           .then((response) {
                                             log("status: ${response.statusCode}");
                                             if (response.statusCode == 200) {
                                               log("status: ${response.statusCode}");
                                               Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                                  return const RunWheelManagementPage();
+                                                  return const VendorWorks();
                                                 })
                                               );
                                             }

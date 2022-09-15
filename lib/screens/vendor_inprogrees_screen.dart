@@ -42,7 +42,7 @@ class VendorInprogressScreen extends StatefulWidget {
 
 class VendorInprogressScreenState extends State<VendorInprogressScreen> {
   VendorMechanic? _vendorMechanic;
-  Customer? _customer;
+  CustomerDTO? _customer;
   String _dropDownMechanicValue = 'Select';
   LatLng? _mechanicLatLng;
   List<String> _statusUpdateList = [];
@@ -52,7 +52,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
     VendorManager vendorManager =
         Provider.of<VendorManager>(context, listen: false);
     http.Response response = await http.get(Uri.parse(
-        "${res.APP_URL}/api/servicerequest/by_vendor/${vendorManager.vendorRegistrationRequest.id}"));
+        "${res.APP_URL}/api/servicerequest/by_vendor/${vendorManager.vendorDTO.id}"));
     var jsonList = jsonDecode(response.body) as List;
     var jsonResponse = jsonDecode(response.body);
     List<ServiceRequestDTO> list = [];
@@ -71,11 +71,11 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
     //return jsonList.map((request) => { ServiceRequestDTO.fromJson(request)}).cast<ServiceRequestDTO>().toList();
   }
 
-  Future<Customer> getCustomerById(int? id) async {
+  Future<CustomerDTO> getCustomerById(int? id) async {
     http.Response response =
         await http.get(Uri.parse("${res.APP_URL}/api/customer/$id"));
     var jsonResponse = jsonDecode(response.body);
-    return Customer.fromJson(jsonResponse);
+    return CustomerDTO.fromJson(jsonResponse);
   }
 
   @override
@@ -100,12 +100,12 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
       setState(() => _vendorMechanic = mechanic);
     }).catchError((error) => log("$error"));
 
-    getCustomerById(widget.serviceRequestDTO?.requestedCustomer)
-        .then((customer) {
+    getCustomerById(widget.serviceRequestDTO?.requestedCustomer).then((customer) {
+      log("customer: ${jsonEncode(customer)}");
       setState(() => _customer = customer);
     }).catchError((error) => log("$error"));
 
-    log("${jsonEncode(widget.serviceRequestDTO)}");
+    log(jsonEncode(widget.serviceRequestDTO));
   }
 
   @override

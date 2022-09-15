@@ -443,6 +443,7 @@ import 'package:untitled/screens/rw_staff_management_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/vendor_assign_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
+import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/services/vendor_registration.dart';
 
 import '../manager/profile_manager.dart';
@@ -481,8 +482,9 @@ class ProfileData {
 class VendorDashboardProfile extends StatefulWidget {
   bool isStaff;
   bool isVendor;
+  bool isMechanic;
 
-  VendorDashboardProfile({Key? key, this.isStaff = false, this.isVendor = false}) : super(key: key);
+  VendorDashboardProfile({Key? key, this.isStaff = false, this.isVendor = false, this.isMechanic = false}) : super(key: key);
 
   @override
   VendorDashboardProfileState createState() => VendorDashboardProfileState();
@@ -494,6 +496,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
   File? _imageFile;
   File? _imageURL;
   Image? image;
+  String title = "";
 
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _nameController = TextEditingController();
@@ -522,7 +525,12 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
   @override
   void initState() {
     super.initState();
-    int id = Provider.of<VendorManager>(context, listen: false).vendorRegistrationRequest.id as int;
+
+    if (widget.isMechanic) setState(() => title = "Mechanic");
+    if (widget.isStaff) setState(() => title = "Staff");
+    if (widget.isVendor) setState(() => title = "Vendor");
+
+    int id = Provider.of<VendorManager>(context, listen: false).vendorDTO.id as int;
     final ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
 
     getImage(id).then((bytes) {
@@ -547,16 +555,28 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
 
     if (widget.isVendor) {
       setState(() {
-        _nameController.text = profileManager.vendorRegistrationRequest.ownerName ?? "not exists";
-        _phoneController.text = profileManager.vendorRegistrationRequest.phoneNumber  ?? "not exists";
-        _aadhaarController.text = profileManager.vendorRegistrationRequest.aadharNumber ?? "not exists";
-        _addressController.text = profileManager.vendorRegistrationRequest.addressLine ?? "not exists";
-        profileData.name = profileManager.vendorRegistrationRequest.ownerName?? "";
-        profileData.phoneNumber = profileManager.vendorRegistrationRequest.phoneNumber ?? "";
-        profileData.aadharNumber = profileManager.vendorRegistrationRequest.aadharNumber ?? "";
-        profileData.addressLine = profileManager.vendorRegistrationRequest.addressLine ?? "";
+        _nameController.text = profileManager.vendorDTO.ownerName ?? "not exists";
+        _phoneController.text = profileManager.vendorDTO.phoneNumber  ?? "not exists";
+        _aadhaarController.text = profileManager.vendorDTO.aadharNumber ?? "not exists";
+        _addressController.text = profileManager.vendorDTO.addressLine ?? "not exists";
+        profileData.name = profileManager.vendorDTO.ownerName?? "";
+        profileData.phoneNumber = profileManager.vendorDTO.phoneNumber ?? "";
+        profileData.aadharNumber = profileManager.vendorDTO.aadharNumber ?? "";
+        profileData.addressLine = profileManager.vendorDTO.addressLine ?? "";
       });
     }
+
+    if (widget.isMechanic) {
+      setState(() {
+        _nameController.text = profileManager.vendorMechanic.name ?? "not exists";
+        _phoneController.text = profileManager.vendorMechanic.phoneNumber  ?? "not exists";
+        _aadhaarController.text = profileManager.vendorMechanic.aadharNumber ?? "not exists";
+        profileData.name = profileManager.vendorMechanic.name?? "";
+        profileData.phoneNumber = profileManager.vendorMechanic.phoneNumber ?? "";
+        profileData.aadharNumber = profileManager.vendorMechanic.aadharNumber ?? "";
+      });
+    }
+
   }
   @override
   Widget build(BuildContext context) {
@@ -570,7 +590,9 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return widget.isVendor ? const VendorDashBoard() : const RunWheelManagementPage();
+                if (widget.isStaff) return const VendorDashBoard();
+                if (widget.isVendor) return const RunWheelManagementPage();
+                return VendorMechanicDashBoard(requestId: '');
               })
           )
         },
@@ -603,21 +625,22 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                     if (profileManager.isEnable) {
                       profileManager.isEnable = false;
                       RoleDTO role = RoleDTO(id: 4, roleName: "VENDOR");
-                      profileManager.vendorRegistrationRequest.role = role;
-                      profileManager.vendorRegistrationRequest.ownerName = profileData?.name;
-                      profileManager.vendorRegistrationRequest.phoneNumber = profileData?.phoneNumber;
-                      profileManager.vendorRegistrationRequest.aadharNumber = profileData?.aadharNumber;
-                      profileManager.vendorRegistrationRequest.addressLine = profileData?.addressLine;
+                      profileManager.vendorDTO.role = role;
+                      profileManager.vendorDTO.ownerName = profileData?.name;
+                      profileManager.vendorDTO.phoneNumber = profileData?.phoneNumber;
+                      profileManager.vendorDTO.aadharNumber = profileData?.aadharNumber;
+                      profileManager.vendorDTO.addressLine = profileData?.addressLine;
 
-                      log("isVendor: ${jsonEncode(profileManager.vendorRegistrationRequest)}");
-                      VendorRegistrationService().updateVendorInfo(profileManager.vendorRegistrationRequest);
-                      Future<VendorRegistrationRequest> future = VendorRegistrationService().getVendorById(profileManager.vendorRegistrationRequest.id as int);
-                      future.then((VendorRegistrationRequest staffDTO) => profileManager.vendorRegistrationRequest = staffDTO)
+                      log("isVendor: ${jsonEncode(profileManager.vendorDTO)}");
+                      VendorRegistrationService().updateVendorInfo(profileManager.vendorDTO);
+                      Future<VendorDTO> future = VendorRegistrationService().getVendorById(profileManager.vendorDTO.id as int);
+                      future.then((VendorDTO staffDTO) => profileManager.vendorDTO = staffDTO)
                           .catchError((error) { log("error: $error"); });
                     } else {
                       profileManager.isEnable = true;
                     }
                   }
+
                   if (widget.isStaff) {
                     if (profileManager.isEnable) {
                       profileManager.isEnable = false;
@@ -709,7 +732,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                   ),
                 ],
               ),
-              Text(widget.isStaff ? "Staff" : "Vendor", style: const TextStyle(fontSize: 16))
+              Text(title, style: const TextStyle(fontSize: 16))
             ],
           ),
           const SizedBox(height: 80,),
@@ -847,7 +870,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                 takePhoto(ImageSource.gallery, _picker);
 
                 String dir = path.dirname(_imageFile?.path as String);
-                String newPath = path.join(dir, vendorManager.vendorRegistrationRequest.id.toString());
+                String newPath = path.join(dir, vendorManager.vendorDTO.id.toString());
                 log("path: ${newPath}");
                 _imageFile?.rename(newPath).then((file) {
                   log("path: ${file?.path}");
@@ -880,7 +903,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
     final ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     final XFile? image = await _picker.pickImage(source: source);
     String dir = path.dirname(image?.path as String);
-    String newPath = path.join(dir, profileManager.vendorRegistrationRequest.id.toString());
+    String newPath = path.join(dir, profileManager.vendorDTO.id.toString());
     final File file = File(image!.path);
     file.rename(newPath).then((f) {
       setState(() {

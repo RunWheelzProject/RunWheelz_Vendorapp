@@ -25,9 +25,9 @@ class RGoogleMapState extends State<RGoogleMap> {
 
     LocationManager locationManager = Provider.of<LocationManager>(context, listen: false);
 
-    VendorRegistrationRequest _vendorRegistrationRequest =
+    VendorDTO _vendorRegistrationRequest =
         Provider.of<VendorManager>(context, listen: false)
-            .vendorRegistrationRequest;
+            .vendorDTO;
     return GoogleMap(
       zoomGesturesEnabled: true,
       myLocationEnabled: true,
@@ -40,9 +40,9 @@ class RGoogleMapState extends State<RGoogleMap> {
         Marker(
             position: LatLng(_vendorRegistrationRequest.latitude ?? startLocation.latitude,
                 _vendorRegistrationRequest.longitude ?? startLocation.longitude),
-            markerId: MarkerId('location'),
+            markerId: const MarkerId('location'),
             icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueMagenta)),
+                BitmapDescriptor.hueRed)),
       },
       onMapCreated: (controller) {
         setState(() {

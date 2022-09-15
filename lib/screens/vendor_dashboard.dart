@@ -47,7 +47,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   Future<List<ServiceRequestDTO>> getNewRequests() async {
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     http.Response response = await
-      http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${profileManager.vendorRegistrationRequest.id}"));
+      http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${profileManager.vendorDTO.id}"));
     var jsonList = jsonDecode(response.body) as List;
     var jsonResponse = jsonDecode(response.body);
     List<ServiceRequestDTO> list = [];

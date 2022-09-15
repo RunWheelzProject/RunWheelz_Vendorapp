@@ -4,24 +4,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:searchable_listview/searchable_listview.dart';
-import 'package:untitled/components/dashboard_box.dart';
 import 'package:untitled/manager/vendor_mechanic_manager.dart';
-import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/profile.dart';
-import 'package:untitled/screens/profile_vendor.dart';
 import 'package:untitled/screens/vendor_inprogrees_screen.dart';
-import 'package:untitled/screens/vendor_mechanic_accept_screen.dart';
-import 'package:untitled/screens/vendor_pending_screen.dart';
-import 'package:untitled/screens/vendor_request_accept.screen.dart';
 import 'package:untitled/utils/add_space.dart';
-import '../components/menu.dart';
-import '../manager/vendor_manager.dart';
-import '../model/customer.dart';
-import '../model/servie_request.dart';
-import '../model/vendor_mechanic.dart';
-import '../resources/resources.dart' as res;
-import 'live_track_map.dart';
 
+import '../model/servie_request.dart';
 import '../resources/resources.dart' as res;
 import 'package:http/http.dart' as http;
 
@@ -89,7 +77,7 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (BuildContext context) {
-                            return VendorDashboardProfile();
+                            return VendorDashboardProfile(isMechanic: true,);
                       }));
                     },
                     icon: const Icon(

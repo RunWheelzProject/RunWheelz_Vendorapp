@@ -34,13 +34,13 @@ class VendorPendingScreen extends StatefulWidget {
 
 class VendorPendingScreenState extends State<VendorPendingScreen> {
   VendorMechanic? _vendorMechanic;
-  Customer? _customer;
+  CustomerDTO? _customer;
   String _dropDownMechanicValue = 'Select';
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
     VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
     http.Response response = await
-    http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${vendorManager.vendorRegistrationRequest.id}"));
+    http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${vendorManager.vendorDTO.id}"));
     var jsonList = jsonDecode(response.body) as List;
     var jsonResponse = jsonDecode(response.body);
     List<ServiceRequestDTO> list = [];
@@ -59,11 +59,11 @@ class VendorPendingScreenState extends State<VendorPendingScreen> {
     //return jsonList.map((request) => { ServiceRequestDTO.fromJson(request)}).cast<ServiceRequestDTO>().toList();
   }
 
-  Future<Customer> getCustomerById(int? id) async {
+  Future<CustomerDTO> getCustomerById(int? id) async {
     http.Response response = await
     http.get(Uri.parse("${res.APP_URL}/api/customer/$id"));
     var jsonResponse = jsonDecode(response.body);
-    return Customer.fromJson(jsonResponse);
+    return CustomerDTO.fromJson(jsonResponse);
   }
 
   @override

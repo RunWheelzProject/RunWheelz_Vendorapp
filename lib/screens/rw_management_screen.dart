@@ -35,15 +35,15 @@ class RunWheelManagementPage extends StatefulWidget {
 }
 
 class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
-  List<VendorRegistrationRequest> staffList = [];
+  List<VendorDTO> staffList = [];
 
 
-  Future<List<VendorRegistrationRequest>> getNewRequests() async {
+  Future<List<VendorDTO>> getNewRequests() async {
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendor/getallvendorregistrationrequests"));
     var jsonResponse = jsonDecode(response.body);
-    List<VendorRegistrationRequest> list = [];
+    List<VendorDTO> list = [];
     for (var item in jsonResponse) {
-      list.add(VendorRegistrationRequest.fromJson(item));
+      list.add(VendorDTO.fromJson(item));
     }
     return list;
     //return jsonList.map((request) => { ServiceRequestDTO.fromJson(request)}).cast<ServiceRequestDTO>().toList();
@@ -51,7 +51,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
 
 
   Future<StaffDTO> getStaffById(int? id) async {
-    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/staff//get_staff/${id}"));
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/staff//get_staff/$id"));
     var jsonList = jsonDecode(response.body) as List;
     var jsonResponse = jsonDecode(response.body);
     return StaffDTO.fromJson(jsonResponse);
@@ -62,9 +62,9 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
   void initState() {
     super.initState();
     getNewRequests().then((requests) {
-      StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
+      ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
       requests = requests.where((element) =>
-        element.executive == staffManager.staffDTO.id.toString() &&
+        element.executive == profileManager.staffDTO.id.toString() &&
         element.status != "Completed").toList();
       // requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       setState(() => staffList = requests);
@@ -131,9 +131,9 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                     IconButton(
                       onPressed: () {
                         getNewRequests().then((requests) {
-                          StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
+                          ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
                           requests = requests.where((element) =>
-                            element.executive == staffManager.staffDTO.id.toString() &&
+                            element.executive == profileManager.staffDTO.id.toString() &&
                             element.status != "Completed" ).toList();
                           // requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
                           setState(() => staffList = requests);
@@ -154,19 +154,19 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
                 Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(15),
-                      child: SearchableList<VendorRegistrationRequest>(
+                      child: SearchableList<VendorDTO>(
                         initialList: staffList,
-                        builder: (VendorRegistrationRequest newRequest) => Item(
+                        builder: (VendorDTO newRequest) => Item(
                           vendor: newRequest,
                         ),
                         filter: (value) => staffList
                             .where((element) =>
                             element.id.toString().contains(value))
                             .toList(),
-                        onItemSelected: (VendorRegistrationRequest item) {
+                        onItemSelected: (VendorDTO item) {
                             VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
-                            vendorManager.vendorRegistrationRequest = item;
-                            vendorManager.vendorRegistrationRequest.status = "Completed";
+                            vendorManager.vendorDTO = item;
+                            vendorManager.vendorDTO.status = "Completed";
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
                                   return const RWVendorRegistration();
@@ -261,7 +261,7 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
 }
 
 class Item extends StatelessWidget {
-  VendorRegistrationRequest? vendor;
+  VendorDTO? vendor;
   Item({Key? key, this.vendor}) : super(key: key);
 
   @override

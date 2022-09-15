@@ -160,7 +160,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                                     vendorMechanicManager.vendorMechanic.registrationStatus = true;
                                     vendorMechanicManager.vendorMechanic.name = _name;
                                     vendorMechanicManager.vendorMechanic.aadharNumber = _aadhaarCard;
-                                    vendorMechanicManager.vendorMechanic.vendor = Provider.of<ProfileManager>(context, listen: false).vendorRegistrationRequest;
+                                    vendorMechanicManager.vendorMechanic.vendor = Provider.of<ProfileManager>(context, listen: false).vendorDTO;
                                     log("vendor: ${jsonEncode(vendorMechanicManager.vendorMechanic)}");
 
                                     updateMechanic(vendorMechanicManager.vendorMechanic).then((response) {

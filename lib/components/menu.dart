@@ -6,6 +6,7 @@ import 'package:untitled/screens/vendro_staff_management_screen.dart';
 import '../colors/app_colors.dart';
 import '../manager/login_manager.dart';
 import '../resources/resources.dart' as res;
+import '../screens/vendor_works.dart';
 
 class Menu extends StatelessWidget {
   Menu({Key? key}): super(key: key);
@@ -43,6 +44,17 @@ class Menu extends StatelessWidget {
               },
             ),
             ListTile(
+              title: const Text('Vendor Works', style: TextStyle(color: Colors.red, fontSize: 16),),
+              onTap: () {
+                logInManager.setCurrentURLs("mechanicRegistration");
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (BuildContext context) {
+                      return const VendorWorks();
+                    })
+                );
+              },
+            ),
+            ListTile(
               title: const Text('Vendor Staff', style: TextStyle(color: Colors.red, fontSize: 16),),
               onTap: () {
                 logInManager.setCurrentURLs("mechanicRegistration");
@@ -54,7 +66,7 @@ class Menu extends StatelessWidget {
               },
             ),
             ListTile(
-              title: const Text('New Requests', style: TextStyle(color: Colors.red, fontSize: 16),),
+              title: const Text('Request History', style: TextStyle(color: Colors.red, fontSize: 16),),
               onTap: () {
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (BuildContext context) {
@@ -63,16 +75,7 @@ class Menu extends StatelessWidget {
                 );
               },
             ),
-            ListTile(
-              title: const Text('Raise Request', style: TextStyle(color: Colors.red, fontSize: 16),),
-              onTap: () {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (BuildContext context) {
-                      return VendorDataManagementPage(pageTitle: "New Requests");
-                    })
-                );
-              },
-            ),
+
           ],
         )
     );

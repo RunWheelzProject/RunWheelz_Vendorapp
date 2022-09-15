@@ -21,7 +21,7 @@ class GoogleMapLocationPickerV1 extends StatefulWidget {
 }
 
 class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
-  late VendorRegistrationRequest _vendorRegistrationRequest;
+  late VendorDTO _vendorRegistrationRequest;
   late LocationManager _locationManager;
   final TextEditingController _locationController = TextEditingController();
   String location = "Search Location";
@@ -34,7 +34,7 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
     super.initState();
     _vendorRegistrationRequest =
         Provider.of<VendorManager>(context, listen: false)
-            .vendorRegistrationRequest;
+            .vendorDTO;
     _locationManager = Provider.of<LocationManager>(context, listen: false);
     _determinePosition().then((Position position) async {
       _latitude = position.latitude;

@@ -12,7 +12,7 @@ class Logo extends StatelessWidget {
       Text("Run Wheelz",
           textAlign: TextAlign.center, style: textTheme.headline2),
       const Text(
-        "Vendor App",
+        "",
         style: TextStyle(color: Colors.purple, fontSize: 24),
       )
     ]);

@@ -18,13 +18,6 @@ import 'package:firebase_core/firebase_core.dart';
 import '../firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
-
-  log("Handling a background message: ${message.messageId}");
-}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -38,43 +31,15 @@ class _LoginScreen extends State<LoginScreen> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController countryCodeController = TextEditingController();
 
-
   Future<String?> getFireBaseToken() async {
     String? token = await FirebaseMessaging.instance.getToken();
     return token;
   }
 
-  void fireMessagingService() async {
-    /*http.Response execute = await http.get(Uri.parse("http://10.0.2.2:8081/api/admin/send_sms"));
 
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    //await FirebaseMessaging.instance.subscribeToTopic('test2');
-    String? token = await FirebaseMessaging.instance.getToken();
-    log("$token");
-
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      log('Got a message whilst in the foreground!');
-      log('Message data: ${message.data}');
-
-      if (message.notification != null) {
-        log('Message also contained a notification: ${message.notification?.title}');
-      }
-    });*/
-
-  }
 
   @override
   void initState() {
-
-    fireMessagingService();
 
     super.initState();
     countryCodeController = TextEditingController(text: '+91');
@@ -96,112 +61,116 @@ class _LoginScreen extends State<LoginScreen> {
         height: 300,
         //padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5.0),
-            color: Colors.white,
-            ),
+          borderRadius: BorderRadius.circular(5.0),
+          color: Colors.white,
+        ),
         child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
-        child: Column(
-            children: <Widget>[
-          const Text.rich(
-            TextSpan(
-              style: TextStyle(fontSize: 21, color: Colors.black87),
-              text: 'Enter Mobile Number',
-            ),
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            /*const SizedBox(
-                height: 38,
-                child: Text("+91",
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-            const SizedBox(
-              width: 10,
-            )*/
-            SizedBox(
-                height: 60,
-                width: 260,
-                child: TextField(
-                  controller: phoneNumberController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Mobile Number',
-                    prefixIcon: Icon(Icons.phone_android, color: Colors.purple)
-
-                  ),
-                  onChanged: (value) {
-                    if (value.length < 10) {
-                      setState(() => readToProceed = false);
-                    }
-                    if (value.length == 10) {
-                      setState(() => readToProceed = true);
-                    }
-                  },
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp('[0-9]')),
-                  ],
-                  maxLength: 10,
-                ))
-          ]),
-          const SizedBox(height: 30),
-          SizedBox(
-          width: 200,
-    child: ElevatedButton(
-              onPressed: readToProceed ? () async {
-                if ((phoneNumberController.text.isNotEmpty) && (phoneNumberController.text.length == 10)) {
-                  log("logInManager.selectURL: ${logInManager.currentURLs![0]}");
-                  getFireBaseToken().then((String? str) {
-                    log("deviceToken: $str");
-                    PhoneVerificationService().sendOtp(int.parse(phoneNumberController.text), str, logInManager.currentURLs![0])                      .then((vendorOtpResponse) {
-                      log("test");
-                      Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (BuildContext context) {
-                            return OtpScreen(vendorOtpResponse: vendorOtpResponse);
-                          })
-                      );
-                    }).catchError((onError) {
-                      showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => AlertDialog(
-                              title: const Text("OTPException"),
-                              content: Text(onError.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 18, color: Colors.black87)),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, 'OK'),
-                                  child: const Text('OK'),
-                                ),
-                              ]));
-                    });
-                  });
-
-                } else {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (_) => AlertDialog(
-                      title: const Text('Error'),
-                      content: const Text('Invalid phone number'),
-                      actions: <Widget>[
-                        ElevatedButton(
-                          child: const Text('OK'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
+            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
+            child: Column(children: <Widget>[
+              const Text.rich(
+                TextSpan(
+                  style: TextStyle(fontSize: 21, color: Colors.black87),
+                  text: 'Enter Mobile Number',
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                SizedBox(
+                    height: 60,
+                    width: 260,
+                    child: TextField(
+                      controller: phoneNumberController,
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Mobile Number',
+                          prefixIcon:
+                              Icon(Icons.phone_android, color: Colors.purple)),
+                      onChanged: (value) {
+                        if (value.length < 10) {
+                          setState(() => readToProceed = false);
+                        }
+                        if (value.length == 10) {
+                          setState(() => readToProceed = true);
+                        }
+                      },
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp('[0-9]')),
                       ],
-                    ),
-                  );
-                }
-              } : null,
-              child: const Text("Proceed")))
-        ])));
+                      maxLength: 10,
+                    ))
+              ]),
+              const SizedBox(height: 30),
+              SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                      onPressed: readToProceed
+                          ? () async {
+                              if ((phoneNumberController.text.isNotEmpty) &&
+                                  (phoneNumberController.text.length == 10)) {
+                                log("logInManager.selectURL: ${logInManager.currentURLs![0]}");
+                                getFireBaseToken().then((String? str) {
+                                  log("deviceToken: $str");
+                                  PhoneVerificationService()
+                                      .sendOtp(
+                                          int.parse(phoneNumberController.text),
+                                          str,
+                                          logInManager.currentURLs![0])
+                                      .then((vendorOtpResponse) {
+                                    log("test");
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) {
+                                      return OtpScreen(
+                                          vendorOtpResponse: vendorOtpResponse);
+                                    }));
+                                  }).catchError((onError) {
+                                    showDialog<String>(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            AlertDialog(
+                                                title:
+                                                    const Text("OTPException"),
+                                                content: Text(
+                                                    onError.toString(),
+                                                    style: const TextStyle(
+                                                        fontSize: 18,
+                                                        color: Colors.black87)),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(
+                                                            context, 'OK'),
+                                                    child: const Text('OK'),
+                                                  ),
+                                                ]));
+                                  });
+                                });
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (_) => AlertDialog(
+                                    title: const Text('Error'),
+                                    content: const Text('Invalid phone number'),
+                                    actions: <Widget>[
+                                      ElevatedButton(
+                                        child: const Text('OK'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }
+                          : null,
+                      child: const Text("Proceed")))
+            ])
+        )
+    );
   }
 }

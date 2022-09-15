@@ -73,9 +73,9 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
         _locationSubscription = null;
       });
     }).listen((loc.LocationData currentlocation) async {
-      log("lat1: ${currentlocation.latitude}, long1: ${currentlocation.longitude}");
+      log("mechanic: ${args.assignedToMechanic.toString()}, lat1: ${currentlocation.latitude}, long1: ${currentlocation.longitude}");
       await FirebaseFirestore.instance.collection('location')
-          .doc("2").set({
+          .doc(args.assignedToMechanic.toString()).set({
         'latitude': currentlocation.latitude,
         'longitude': currentlocation.longitude
       }, SetOptions(merge: true));

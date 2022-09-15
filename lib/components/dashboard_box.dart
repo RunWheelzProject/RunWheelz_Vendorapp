@@ -30,12 +30,12 @@ class DashBoardBoxState extends State<DashBoardBox> {
           decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: Colors.grey[100] as Color),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(5),
               boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
-                  spreadRadius: 7,
-                  blurRadius: 20,
+                  spreadRadius: 1,
+                  blurRadius: 5,
                 )
               ]),
           alignment: Alignment.center,

@@ -8,6 +8,7 @@ import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/model/staff.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
+import 'package:untitled/screens/profile_staff.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
@@ -63,7 +64,6 @@ class StaffManagementPageState extends State<StaffManagementPage> {
 
   @override
   Widget build(BuildContext context) {
-    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
     StaffManager staffManager = Provider.of<StaffManager>(context);
 
@@ -161,10 +161,10 @@ class StaffManagementPageState extends State<StaffManagementPage> {
                                 element.phoneNumber?.contains(value) as bool)
                             .toList(),
                         onItemSelected: (StaffDTO staff) {
-                          profileManager.staffDTO = staff;
+                          staffManager.staffDTO = staff;
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (BuildContext context) {
-                                return VendorDashboardProfile(isStaff: true);
+                                return const StaffProfile();
                               })
                           );
                          },

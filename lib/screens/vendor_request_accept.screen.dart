@@ -77,34 +77,40 @@ class VendorRequestAcceptScreen extends StatefulWidget {
 
 class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
   List<VendorMechanic> _vendorMechanics = [];
+  List<String> _mechanicDropDown = ['Select Mechanic'];
   VendorMechanic _selectedMechanic = VendorMechanic();
-  String _dropDownMechanicValue = "";
+  String _dropDownMechanicValue = "Select Mechanic";
 
   @override
   void initState() {
     super.initState();
     getMechanics().then((mechanics) {
-      setState(() => _vendorMechanics = mechanics);
-      _dropDownMechanicValue = _vendorMechanics[0].name ?? "";
-      _selectedMechanic = _vendorMechanics[0];
+      log(jsonEncode(mechanics));
+      List<String> list = mechanics.map((staff) => staff.name ?? "").toList();
+      setState(() {
+        _vendorMechanics = mechanics;
+        _selectedMechanic = _vendorMechanics[0];
+        _mechanicDropDown = [..._mechanicDropDown, ...list];
+      });
+
     })
     .catchError((error) => log("error"));
   }
 
   Future<List<VendorMechanic>> getMechanics() async {
-    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getallmechanics"));
-    var jsonList = jsonDecode(response.body) as List;
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getAllVendorMechanic"));
+    var jsonList = jsonDecode(response.body);
     List<VendorMechanic> vendorMechanicList = [];
-
-    return jsonList.map((mechanic) => VendorMechanic.fromJson(mechanic)).toList();
+    for (Map<String, dynamic> json in jsonList) {
+      vendorMechanicList.add(VendorMechanic.fromJson(json));
+    }
+    return vendorMechanicList;
+    //return jsonList.map((mechanic) => VendorMechanic.fromJson(mechanic)).toList();
 
   }
 
   @override
   Widget build(BuildContext context) {
-/*
-    VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
-    VendorMechanic vendorMechanic = vendorMechanicManager.vendorMechanicList[0];*/
     final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
 
     return Scaffold(
@@ -273,19 +279,18 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                 const SizedBox(height: 30,),
                 Row(
                   children: [
-                    const Text("Mechanic", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
-                    const SizedBox(width: 20,),
                     DropdownButton<String>(
                         value: _dropDownMechanicValue,
-                        items: _vendorMechanics.map<DropdownMenuItem<String>>((item) {
+                        items: _mechanicDropDown.map<DropdownMenuItem<String>>((item) {
                           return DropdownMenuItem<String>(
-                              value: item.name,
-                              child: Text(item.name ?? "")
+                              value: item,
+                              child: Text(item ?? "")
                           );
                         }).toList(),
                         onChanged: (val) {
-                          _dropDownMechanicValue = val!;
-                           _selectedMechanic = _vendorMechanics.firstWhere((element) => element.name == val);
+                          setState(() => _dropDownMechanicValue = val!);
+                           _selectedMechanic =
+                               _vendorMechanics.firstWhere((element) => element.name == val);
                           log("vendoMechanicId: ${_selectedMechanic.id}");
                         }
                     ),
@@ -328,7 +333,7 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                             var json = jsonDecode(response.body);
                             ServiceRequestDTO serviceRequestDTO = ServiceRequestDTO.fromJson(json);
                             serviceRequestDTO.status = 'VENDOR_ACCEPTED';
-                            serviceRequestDTO.acceptedByVendor = Provider.of<VendorManager>(context, listen: false).vendorRegistrationRequest.id;
+                            serviceRequestDTO.acceptedByVendor = Provider.of<ProfileManager>(context, listen: false).vendorDTO.id;
                             serviceRequestDTO.assignedToMechanic = _selectedMechanic.id;
                             log("vendoMechanicId: ${_selectedMechanic.id}");
                             log("vendoMechanicId: ${_selectedMechanic.deviceToken}");

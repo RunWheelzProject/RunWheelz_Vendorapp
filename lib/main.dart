@@ -5,8 +5,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:untitled/manager/service_request_manager.dart';
+import 'package:untitled/screens/breakdown_services.dart';
+import 'package:untitled/screens/customer_board.dart';
+import 'package:untitled/screens/customer_registration_screen.dart';
+import 'package:untitled/screens/general_services_screen.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
+import 'package:untitled/screens/rw_mgmt_marketing_agent_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/splashscreen.dart';
 import 'package:untitled/screens/test_screen.dart';
@@ -15,6 +20,7 @@ import 'package:untitled/screens/vendor_mechanic_accept_screen.dart';
 import 'package:untitled/screens/vendor_pending_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import 'package:untitled/screens/vendor_request_accept.screen.dart';
+import 'package:untitled/screens/vendor_works.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +30,7 @@ import 'package:untitled/manager/location_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import './theme/theme_manager.dart';
 import './theme/themes.dart';
+import 'manager/customer_managere.dart';
 import 'manager/live_tracker_manager.dart';
 import 'manager/profile_manager.dart';
 import 'manager/roles_manager.dart';
@@ -294,6 +301,7 @@ class RunWheelzState extends State<RunWheelz> {
       providers: [
         ChangeNotifierProvider<RoleManager>(create: (context) => RoleManager()),
         ChangeNotifierProvider<StaffManager>(create: (context) => StaffManager()),
+        ChangeNotifierProvider<CustomerManager>(create: (context) => CustomerManager()),
         ChangeNotifierProvider<LocationManager>(create: (context) => LocationManager()),
         ChangeNotifierProvider<ApplicationManager>(create: (context) => ApplicationManager()),
         ChangeNotifierProvider<VendorManager>(create: (context) => VendorManager()),
@@ -312,7 +320,7 @@ class RunWheelzState extends State<RunWheelz> {
         //home: const SplashScreen(),
         initialRoute: '/',
         routes: {
-          '/': (context) => const SplashScreen(),
+          '/': (context) => const RequestDeatils (),
           '/phone_verification': (context) => const LoginScreen(),
           VendorRequestAcceptScreen.routeName: (context) => const VendorRequestAcceptScreen(),
           VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()

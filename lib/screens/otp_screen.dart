@@ -17,13 +17,13 @@ import 'package:untitled/screens/login_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
+import 'package:untitled/screens/rw_mgmt_marketing_agent_screen.dart';
 import 'package:untitled/screens/rw_staff_registration_screen.dart';
 import 'package:untitled/screens/rw_vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/screens/vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
-import 'package:untitled/screens/vendor_staff_add_screen.dart';
 
 import '../components/future_manager.dart';
 import '../components/logo.dart';
@@ -92,8 +92,8 @@ class _OTPState extends State<OtpScreen> {
         Provider.of<VendorManager>(context, listen: false);
     _determinePosition().then((position) {
       log("position: ${position.longitude}, ${position.latitude}");
-      vendorManager.vendorRegistrationRequest.latitude = position.latitude;
-      vendorManager.vendorRegistrationRequest.longitude = position.longitude;
+      vendorManager.vendorDTO.latitude = position.latitude;
+      vendorManager.vendorDTO.longitude = position.longitude;
     }).catchError((error) => log("Error: $error"));
   }
 
@@ -264,7 +264,7 @@ class _OTPState extends State<OtpScreen> {
         var responseJson = jsonDecode(response.body);
 
         if (response.statusCode == 201 && responseJson["id"] != null) {
-          vendorManager.vendorRegistrationRequest.phoneNumber =
+          vendorManager.vendorDTO.phoneNumber =
               responseJson["phoneNumber"];
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
@@ -272,8 +272,8 @@ class _OTPState extends State<OtpScreen> {
           }));
         }
         if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
-          profileManager.vendorRegistrationRequest =
-              VendorRegistrationRequest.fromJson(responseJson["vendorDTO"]);
+          profileManager.vendorDTO =
+              VendorDTO.fromJson(responseJson["vendorDTO"]);
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
             return const VendorDashBoard();
@@ -281,7 +281,7 @@ class _OTPState extends State<OtpScreen> {
         }
         if (response.statusCode == 201 &&
             responseJson["vendorStaffDTO"] != null) {
-          vendorMechanicManager.vendorMechanic =
+          profileManager.vendorMechanic =
               VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
 
           Navigator.of(context).pushReplacement(
@@ -291,23 +291,29 @@ class _OTPState extends State<OtpScreen> {
             );
           }));
         }
-        if (response.statusCode == 201 &&
-            responseJson["runwheelzStaffDTO"] != null) {
-          profileManager.staffDTO =
-              StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
-          log("manager: ${jsonEncode(profileManager.staffDTO)}");
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-            return const RunWheelManagementPage();
-          }));
+        if (response.statusCode == 201 && responseJson["runwheelzStaffDTO"] != null) {
+          profileManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+          if (profileManager.staffDTO.role?.roleName == "MARKETING_AGENT") {
 
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  log("marketing_agent");
+                  return const MarketingAgentPage();
+                }));
+          } else {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return const RunWheelManagementPage();
+                })
+            );
+          }
 
         }
         if (response.statusCode == 201 &&
             logInManager.currentURLs![1].contains("vendor")) {
           var jsonResponse = jsonDecode(response.body);
-          vendorManager.vendorRegistrationRequest =
-              VendorRegistrationRequest.fromJson(jsonResponse);
+          vendorManager.vendorDTO =
+              VendorDTO.fromJson(jsonResponse);
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
             return MultiProvider(providers: [
@@ -316,7 +322,7 @@ class _OTPState extends State<OtpScreen> {
             ], child: const RWVendorRegistration());
           }));
         }
-        if (response.statusCode == 201 &&
+        /*if (response.statusCode == 201 &&
             logInManager.currentURLs![1].contains("mechanic")) {
 
           var jsonResponse = jsonDecode(response.body);
@@ -327,11 +333,11 @@ class _OTPState extends State<OtpScreen> {
                 return MultiProvider(providers: [
                   ChangeNotifierProvider<RoleManager>(
                       create: (context) => RoleManager()),
-                ], child: const VendorStaffRegistration());
+                ], child: const RWStaffRegistration());
               }));
 
           // RWStaffRegistration
-        }
+        }*/
         if (response.statusCode == 201 &&
             logInManager.currentURLs![1].contains("staff")) {
 

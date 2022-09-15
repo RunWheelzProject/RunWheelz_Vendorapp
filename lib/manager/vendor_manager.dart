@@ -10,17 +10,17 @@ import 'package:untitled/services/vendor_registration.dart';
 import '../model/role.dart';
 
 class VendorManager extends ChangeNotifier {
-  late VendorRegistrationRequest vendorRegistrationRequest = VendorRegistrationRequest();
+  late VendorDTO vendorDTO = VendorDTO();
 
-  List<VendorRegistrationRequest> _vendorList = [];
-  List<VendorRegistrationRequest> _filteredList = [];
+  List<VendorDTO> _vendorList = [];
+  List<VendorDTO> _filteredList = [];
   bool _isRegistered = true;
   bool _isEnable = false;
 
 
   VendorManager() {
     VendorRegistrationService().getAllVendor().then((staff) {
-      for (VendorRegistrationRequest item in staff) {
+      for (VendorDTO item in staff) {
         _vendorList.add(item);
       }
       notifyListeners();
@@ -30,7 +30,7 @@ class VendorManager extends ChangeNotifier {
 
   void getRegisteredList() {
     _filteredList = [];
-    for (VendorRegistrationRequest item in _vendorList) {
+    for (VendorDTO item in _vendorList) {
       if (item.registrationStatus == true) _filteredList.add(item);
     }
     notifyListeners();
@@ -38,18 +38,18 @@ class VendorManager extends ChangeNotifier {
 
   void getNotRegisteredList() async {
     _filteredList = [];
-    List<VendorRegistrationRequest> vendors = await VendorRegistrationService().getVendorsNotRegistered();
-    for (VendorRegistrationRequest item in _vendorList) {
+    List<VendorDTO> vendors = await VendorRegistrationService().getVendorsNotRegistered();
+    for (VendorDTO item in _vendorList) {
       if (item.registrationStatus == false) _filteredList.add(item);
     }
     notifyListeners();
   }
 
 
-  List<VendorRegistrationRequest> get vendorList => _vendorList;
-  get _vendorRegistrationRequest => vendorRegistrationRequest;
+  List<VendorDTO> get vendorList => _vendorList;
+  get _vendorRegistrationRequest => vendorDTO;
 
-  List<VendorRegistrationRequest> get filteredList => _filteredList;
+  List<VendorDTO> get filteredList => _filteredList;
   bool get isRegistered => _isRegistered;
   bool get isEnable => _isEnable;
   set isRegistered(bool val) => _isRegistered = val;

@@ -136,7 +136,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                             ),
                           ),
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.ownerName = value
+                            vendorManager.vendorDTO.ownerName = value
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -165,7 +165,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                           ),
 
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.phoneNumber = value
+                            vendorManager.vendorDTO.phoneNumber = value
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -200,7 +200,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                             ),
                           ),
                           onChanged: (value) => {
-                            vendorManager.vendorRegistrationRequest.garageName = value
+                            vendorManager.vendorDTO.garageName = value
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {

@@ -10,6 +10,7 @@ import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/model/staff.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/model/vendor_mechanic.dart';
+import 'package:untitled/screens/customer_board.dart';
 import 'dart:core';
 import 'dart:developer';
 
@@ -30,6 +31,7 @@ import '../components/logo.dart';
 import '../manager/login_manager.dart';
 import '../manager/roles_manager.dart';
 import '../manager/vendor_manager.dart';
+import '../model/customer.dart';
 import '../model/otp_response.dart';
 import '../model/phone_verification.dart';
 import '../services/phone_verification.dart';
@@ -258,71 +260,80 @@ class _OTPState extends State<OtpScreen> {
           otp: _currentVerificationCode));
       log("isResendOTP: $isResendOTP");
       log("phoneVerification: $phoneVerification");
-      PhoneVerificationService()
-          .verifyOtp(phoneVerification, logInManager.currentURLs![1])
-          .then((http.Response response) {
+      PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1]).then((http.Response response) {
         var responseJson = jsonDecode(response.body);
+        if (responseJson["role"] != null) {
+          var role = responseJson["role"];
 
-        if (response.statusCode == 201 && responseJson["id"] != null) {
-          vendorManager.vendorDTO.phoneNumber =
-              responseJson["phoneNumber"];
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-            return const VendorRegistrationV1();
-          }));
-        }
-        if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
-          profileManager.vendorDTO =
-              VendorDTO.fromJson(responseJson["vendorDTO"]);
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-            return const VendorDashBoard();
-          }));
-        }
-        if (response.statusCode == 201 &&
-            responseJson["vendorStaffDTO"] != null) {
-          profileManager.vendorMechanic =
-              VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
+          if (role["roleName"] == "CUSTOMER") {
 
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-            return VendorMechanicDashBoard(
-              requestId: "",
-            );
-          }));
-        }
-        if (response.statusCode == 201 && responseJson["runwheelzStaffDTO"] != null) {
-          profileManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
-          if (profileManager.staffDTO.role?.roleName == "MARKETING_AGENT") {
-
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  log("marketing_agent");
-                  return const MarketingAgentPage();
+            profileManager.customerDTO = CustomerDTO.fromJson(responseJson);
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                  log("role1: ${jsonEncode(role)}");
+                  return CustomerDashBoard(isCustomer: true);
                 }));
-          } else {
+          }
+        } else {
+          if (response.statusCode == 201 && responseJson["id"] != null) {
+            vendorManager.vendorDTO.phoneNumber =
+            responseJson["phoneNumber"];
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  return const RunWheelManagementPage();
-                })
-            );
+                  return const VendorRegistrationV1();
+                }));
           }
+          if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
+            profileManager.vendorDTO =
+                VendorDTO.fromJson(responseJson["vendorDTO"]);
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return const VendorDashBoard();
+                }));
+          }
+          if (response.statusCode == 201 &&
+              responseJson["vendorStaffDTO"] != null) {
+            profileManager.vendorMechanic =
+                VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
 
-        }
-        if (response.statusCode == 201 &&
-            logInManager.currentURLs![1].contains("vendor")) {
-          var jsonResponse = jsonDecode(response.body);
-          vendorManager.vendorDTO =
-              VendorDTO.fromJson(jsonResponse);
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-            return MultiProvider(providers: [
-              ChangeNotifierProvider<RoleManager>(
-                  create: (context) => RoleManager()),
-            ], child: const RWVendorRegistration());
-          }));
-        }
-        /*if (response.statusCode == 201 &&
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return VendorMechanicDashBoard(
+                    requestId: "",
+                  );
+                }));
+          }
+          if (response.statusCode == 201 &&
+              responseJson["runwheelzStaffDTO"] != null) {
+            profileManager.staffDTO =
+                StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+            if (profileManager.staffDTO.role?.roleName == "MARKETING_AGENT") {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    log("marketing_agent");
+                    return const MarketingAgentPage();
+                  }));
+            } else {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return const RunWheelManagementPage();
+                  })
+              );
+            }
+          }
+          if (response.statusCode == 201 &&
+              logInManager.currentURLs![1].contains("vendor")) {
+            var jsonResponse = jsonDecode(response.body);
+            vendorManager.vendorDTO =
+                VendorDTO.fromJson(jsonResponse);
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return MultiProvider(providers: [
+                    ChangeNotifierProvider<RoleManager>(
+                        create: (context) => RoleManager()),
+                  ], child: const RWVendorRegistration());
+                }));
+          }
+          /*if (response.statusCode == 201 &&
             logInManager.currentURLs![1].contains("mechanic")) {
 
           var jsonResponse = jsonDecode(response.body);
@@ -338,29 +349,29 @@ class _OTPState extends State<OtpScreen> {
 
           // RWStaffRegistration
         }*/
-        if (response.statusCode == 201 &&
-            logInManager.currentURLs![1].contains("staff")) {
+          if (response.statusCode == 201 &&
+              logInManager.currentURLs![1].contains("staff")) {
+            var jsonResponse = jsonDecode(response.body);
+            log("JsonResponse: $jsonResponse");
+            staffManager.staffDTO = StaffDTO.fromJson(jsonResponse);
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return MultiProvider(providers: [
+                    ChangeNotifierProvider<RoleManager>(
+                        create: (context) => RoleManager()),
+                  ], child: const RWStaffRegistration());
+                }));
 
-          var jsonResponse = jsonDecode(response.body);
-          log("JsonResponse: $jsonResponse");
-          staffManager.staffDTO = StaffDTO.fromJson(jsonResponse);
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-            return MultiProvider(providers: [
-              ChangeNotifierProvider<RoleManager>(
-                  create: (context) => RoleManager()),
-            ], child: const RWStaffRegistration());
-          }));
-
-          // RWStaffRegistration
-        }
-        var messageMap = responseJson as Map;
-        if (messageMap.containsKey("message")) {
-          log("ServerError: ${messageMap["message"]}");
-          setState(() {
-            _msgValue = messageMap["message"];
-            _msgStyle = const TextStyle(color: Colors.red);
-          });
+            // RWStaffRegistration
+          }
+          var messageMap = responseJson as Map;
+          if (messageMap.containsKey("message")) {
+            log("ServerError: ${messageMap["message"]}");
+            setState(() {
+              _msgValue = messageMap["message"];
+              _msgStyle = const TextStyle(color: Colors.red);
+            });
+          }
         }
       }).catchError((error) {
         log("ServerError: $error");
@@ -368,6 +379,7 @@ class _OTPState extends State<OtpScreen> {
           _msgValue = error.toString();
           _msgStyle = const TextStyle(color: Colors.red);
         });
+
       });
     }
   }

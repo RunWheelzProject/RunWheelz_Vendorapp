@@ -6,11 +6,14 @@ import 'package:provider/provider.dart';
 import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/model/staff.dart';
+import 'package:untitled/screens/customer_board.dart';
+import 'package:untitled/screens/customer_reqeust_history.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_inprogrees_screen.dart';
+import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/screens/vendor_pending_screen.dart';
 import 'package:untitled/screens/vendor_request_accept.screen.dart';
 import '../manager/login_manager.dart';
@@ -28,8 +31,17 @@ class NewRequests {
 
 class VendorDataManagementPage extends StatelessWidget {
   final String pageTitle;
+  bool isCustomer;
+  bool isVendor;
+  bool isMechanic;
   List<ServiceRequestDTO>? serviceRequestList;
-  VendorDataManagementPage({Key? key, required this.pageTitle, this.serviceRequestList}) : super(key: key);
+  VendorDataManagementPage({Key? key,
+    required this.pageTitle,
+    this.serviceRequestList,
+    this.isCustomer = false,
+    this.isVendor = false,
+    this.isMechanic= false
+  }) : super(key: key);
 
 
 
@@ -47,7 +59,13 @@ class VendorDataManagementPage extends StatelessWidget {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  return const VendorDashBoard();
+                  if (isCustomer) {
+                    return const CustomerRequestHistory();
+                  } else if(isVendor) {
+                    return const VendorDashBoard();
+                  } else {
+                    return VendorMechanicDashBoard(requestId: '');
+                  }
                 })
             )
           },
@@ -55,7 +73,7 @@ class VendorDataManagementPage extends StatelessWidget {
         ),
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text("Vendor Dashboard"),
+          title: isVendor ? const Text("Vendor Dashboard") : const Text("Customer DashBoard"),
         ),
         body: SafeArea(
             child: SizedBox(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/dashboard_box.dart';
 import 'package:untitled/model/servie_request.dart';
+import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/utils/add_space.dart';
@@ -79,7 +80,11 @@ class VendorDashBoardState extends State<VendorDashBoard> {
       log("accepted: ${jsonEncode(requests)}");
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "New Requests", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "New Requests",
+                serviceRequestList: requests,
+                isVendor: true
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
@@ -92,7 +97,11 @@ class VendorDashBoardState extends State<VendorDashBoard> {
       requests = requests.where((element) => element.status == 'VENDOR_INPROGRESS').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "In Progress", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "In Progress",
+                serviceRequestList: requests,
+                isVendor: true
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
@@ -103,19 +112,22 @@ class VendorDashBoardState extends State<VendorDashBoard> {
       requests = requests.where((element) => element.status == 'VENDOR_PENDING').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "Pending Requests", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "Pending Requests",
+                serviceRequestList: requests,
+                isVendor: true
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
   }
 
   void goToRaisedRequests() {
-
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "New Requests", serviceRequestList: requests);
+            return CustomerDashBoard(isVendor: true);
           })
       );
     }).catchError((error) => log("error: $error"));

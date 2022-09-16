@@ -438,6 +438,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/model/role.dart';
 import 'package:untitled/model/vendor.dart';
+import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
@@ -483,8 +484,14 @@ class VendorDashboardProfile extends StatefulWidget {
   bool isStaff;
   bool isVendor;
   bool isMechanic;
+  bool isCustomer;
 
-  VendorDashboardProfile({Key? key, this.isStaff = false, this.isVendor = false, this.isMechanic = false}) : super(key: key);
+  VendorDashboardProfile({Key? key,
+    this.isStaff = false,
+    this.isVendor = false,
+    this.isMechanic = false,
+    this.isCustomer = false
+  }) : super(key: key);
 
   @override
   VendorDashboardProfileState createState() => VendorDashboardProfileState();
@@ -529,6 +536,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
     if (widget.isMechanic) setState(() => title = "Mechanic");
     if (widget.isStaff) setState(() => title = "Staff");
     if (widget.isVendor) setState(() => title = "Vendor");
+    if (widget.isCustomer) setState(() => title = "Customer");
 
     int id = Provider.of<VendorManager>(context, listen: false).vendorDTO.id as int;
     final ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
@@ -577,6 +585,15 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
       });
     }
 
+    if (widget.isCustomer) {
+      setState(() {
+        _nameController.text = profileManager.customerDTO.name ?? "not exists";
+        _phoneController.text = profileManager.customerDTO.phoneNumber  ?? "not exists";
+        profileData.name = profileManager.customerDTO.name?? "";
+        profileData.phoneNumber = profileManager.customerDTO.phoneNumber ?? "";
+      });
+    }
+
   }
   @override
   Widget build(BuildContext context) {
@@ -590,8 +607,9 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                if (widget.isStaff) return const VendorDashBoard();
-                if (widget.isVendor) return const RunWheelManagementPage();
+                if (widget.isStaff) return const RunWheelManagementPage();
+                if (widget.isVendor) return const VendorDashBoard();
+                if (widget.isCustomer) return CustomerDashBoard(isCustomer: widget.isCustomer, isVendor: widget.isVendor);
                 return VendorMechanicDashBoard(requestId: '');
               })
           )

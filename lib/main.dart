@@ -9,6 +9,7 @@ import 'package:untitled/screens/breakdown_services.dart';
 import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/customer_registration_screen.dart';
 import 'package:untitled/screens/general_services_screen.dart';
+import 'package:untitled/screens/login_confirm.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/request_status_screen.dart';
@@ -321,7 +322,7 @@ class RunWheelzState extends State<RunWheelz> {
         //home: const SplashScreen(),
         initialRoute: '/',
         routes: {
-          '/': (context) => const CustomerDashBoard(),
+          '/': (context) => LogInConfirmation(),
           '/phone_verification': (context) => const LoginScreen(),
           VendorRequestAcceptScreen.routeName: (context) => const VendorRequestAcceptScreen(),
           VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()

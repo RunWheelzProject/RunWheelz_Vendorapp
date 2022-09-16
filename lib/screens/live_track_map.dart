@@ -186,7 +186,8 @@ class LocationTrackingMap extends StatefulWidget {
   final String? requestId;
   final LatLng customerLatLng;
   final LatLng mechanicLatLng;
-  const LocationTrackingMap({required this.id,
+  const LocationTrackingMap({
+    required this.id,
     this.requestId,
     required this.customerLatLng,
     required this.mechanicLatLng,

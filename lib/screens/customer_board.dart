@@ -23,7 +23,9 @@ import 'package:http/http.dart' as http;
 typedef CallBack = void Function();
 
 class CustomerDashBoard extends StatefulWidget {
-  const CustomerDashBoard({Key? key}) : super(key: key);
+  bool isVendor;
+  bool isCustomer;
+  CustomerDashBoard({Key? key, this.isVendor = false, this.isCustomer = false}) : super(key: key);
 
   @override
   CustomerDashBoardState createState() => CustomerDashBoardState();
@@ -43,9 +45,6 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
   @override
   void initState() {
     super.initState();
-    setState(() => countRequests());
-    log("counts: ${requestCounts}");
-    //log("${jsonEncode(requestCounts)}");
   }
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
@@ -135,7 +134,7 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (BuildContext context) {
-                                return VendorDashboardProfile(isVendor: true);
+                                return VendorDashboardProfile(isCustomer: widget.isCustomer, isVendor: widget.isVendor);
                               })
                           );
                         },
@@ -163,7 +162,7 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
                       onTap: () {
                         Navigator.of(context).pushReplacement(
                             MaterialPageRoute(builder: (BuildContext context) {
-                              return const CustomerDashBoard();
+                              return CustomerDashBoard(isCustomer: widget.isCustomer, isVendor: widget.isVendor);
                             })
                         );
                       },

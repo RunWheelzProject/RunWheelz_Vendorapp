@@ -13,7 +13,7 @@ class BreakdownService {
 
   Future<http.Response> customerRequest(ServiceRequestDTO serviceRequestDTO) async {
 
-    String body = jsonEncode(customerRequest);
+    String body = jsonEncode(serviceRequestDTO);
     log("customerRequest: $body");
     Map<String, String> headers = {
       'Content-type': 'application/json',

@@ -67,7 +67,7 @@ class VendorMechanicDashBoardState extends State<CustomerFavoriteMechanic> {
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return const CustomerDashBoard();
+                return CustomerDashBoard(isCustomer: true);
               })
           )
         },

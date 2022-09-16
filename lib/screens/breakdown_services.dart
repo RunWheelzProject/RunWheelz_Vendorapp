@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/components/customer_appbar.dart';
 import 'package:untitled/components/dashboard_box.dart';
 import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/model/servie_request.dart';
@@ -21,7 +22,6 @@ import 'package:http/http.dart' as http;
 import 'customer_board.dart';
 import 'google_map_location_screen.dart';
 
-
 typedef CallBack = void Function();
 
 class BreakDownServices extends StatefulWidget {
@@ -32,126 +32,86 @@ class BreakDownServices extends StatefulWidget {
 }
 
 class BreakDownServicesState extends State<BreakDownServices> {
-
   @override
   Widget build(BuildContext context) {
-    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context);
-    return Scaffold(
-        primary: true,
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.purple,
-          onPressed: () => {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return const CustomerDashBoard();
-                })
-            )
-          },
-          child: const Icon(Icons.arrow_back),
-        ),
-        appBar: AppBar(
-          flexibleSpace: SafeArea(
-            child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text("Run Wheelz",
-                        style: TextStyle(color: Colors.white, fontSize: 23)),
-                    addHorizontalSpace(70),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (BuildContext context) {
-                                return VendorDashboardProfile(isVendor: true);
-                              })
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.account_circle_rounded,
-                          color: Colors.white,
-                        )),
-                    addHorizontalSpace(20),
-                    const Icon(
-                      Icons.notification_add_rounded,
-                      color: Colors.white,
-                    ),
-                    addHorizontalSpace(20),
-                  ],
-                )),
-          ),
-        ),
-        drawer: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),
-            child: Menu.menuData("menu", res.menuItems)),
-        body: SafeArea(
-            child: SingleChildScrollView(
-                child: Container(
-                    margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5.0),
-                      color: Colors.white,
-                    ),
-                    child: Column(children: <Widget>[
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        padding: const EdgeInsets.all(20),
-                        decoration: const BoxDecoration(
-                            color: Colors.purple,
-                            border: Border(bottom: BorderSide())),
-                        child: const Text(
-                          "BreakDown Services",
-                          style: TextStyle(fontSize: 21, color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            addVerticalSpace(50),
-                            RWDropDown(
-                                value: 'Select Services',
-                                onChanged: (String? val) => serviceRequestManager.serviceRequestDTO.serviceType = val,
-                                items: const ['Select Services', 'Puncture', 'ElectricalWorks', 'Denting']
-                            ),
-                            addVerticalSpace(20),
-                            RWDropDown(
-                                value: 'Select Vehicle Type',
-                                onChanged: (String? val) => serviceRequestManager.serviceRequestDTO.make = val,
-                                items: const ['Select Vehicle Type', 'Honda', 'TVS', 'Suzuki']
-                            ),
-                            addVerticalSpace(20),
-                            RWTextFormField(
-                                label: "Vehicle Number",
-                                icon: const Icon(Icons.numbers),
-                                onSaved: (String? val ) => serviceRequestManager.serviceRequestDTO.vehicleNumber = val
-                            ),
-                            addVerticalSpace(70),
-                            ElevatedButton(
-                                onPressed: () => {
-                                Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                      return GoogleMapLocationPickerV1(isCustomer: true,);
-                                    })
-                                )
-                                },
-                                child: const Text("Proceed")
-                            )
-                          ],
-                        ),
-                      )
+    return CustomerAppBar(child: _mainContainer());
+  }
 
-                    ])
-                )
-            )
-        )
-    );
+  Widget _mainContainer() {
+    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context);
+    return SafeArea(
+        child: SingleChildScrollView(
+            child: Container(
+                margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: Colors.white,
+                ),
+                child: Column(children: <Widget>[
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.all(20),
+                    decoration: const BoxDecoration(
+                        color: Colors.purple,
+                        border: Border(bottom: BorderSide())),
+                    child: const Text(
+                      "BreakDown Services",
+                      style: TextStyle(fontSize: 21, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        addVerticalSpace(50),
+                        RWDropDown(
+                            value: 'Select Services',
+                            onChanged: (String? val) => serviceRequestManager
+                                .serviceRequestDTO.serviceType = val,
+                            items: const [
+                              'Select Services',
+                              'Puncture',
+                              'ElectricalWorks',
+                              'Denting'
+                            ]),
+                        addVerticalSpace(20),
+                        RWDropDown(
+                            value: 'Select Vehicle Type',
+                            onChanged: (String? val) => serviceRequestManager
+                                .serviceRequestDTO.make = val,
+                            items: const [
+                              'Select Vehicle Type',
+                              'Honda',
+                              'TVS',
+                              'Suzuki'
+                            ]),
+                        addVerticalSpace(20),
+                        RWTextFormField(
+                            label: "Vehicle Number",
+                            icon: const Icon(Icons.numbers),
+                            onSaved: (String? val) => serviceRequestManager
+                                .serviceRequestDTO.vehicleNumber = val),
+                        addVerticalSpace(70),
+                        ElevatedButton(
+                            onPressed: () {
+                              log(jsonEncode(serviceRequestManager.serviceRequestDTO));
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
+                                return GoogleMapLocationPickerV1(
+                                  isCustomer: true,
+                                );
+                              }));
+                            },
+                            child: const Text("Proceed"))
+                      ],
+                    ),
+                  )
+                ]))));
   }
 }
-
 
 typedef OnClick = void Function();
 typedef DropDownOnChanged = void Function(String?)?;
@@ -164,17 +124,13 @@ class RWDropDown extends StatelessWidget {
   final DropDownOnChanged onChanged;
   final List<String>? items;
 
-  RWDropDown({
-    required this.value,
-    required this.onChanged,
-    required this.items
-  });
+  RWDropDown(
+      {required this.value, required this.onChanged, required this.items});
 
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField(
-      decoration: const InputDecoration(
-          contentPadding: EdgeInsets.all(10)),
+      decoration: const InputDecoration(contentPadding: EdgeInsets.all(10)),
       value: value,
       icon: const Icon(
         Icons.expand_circle_down,
@@ -183,7 +139,9 @@ class RWDropDown extends StatelessWidget {
       elevation: 16,
       style: const TextStyle(color: Colors.deepPurple),
       onChanged: onChanged,
-      items: items?.map<DropdownMenuItem<String>>((String item) { return DropdownMenuItem<String>(value: item, child: Text(item));}).toList(),
+      items: items?.map<DropdownMenuItem<String>>((String item) {
+        return DropdownMenuItem<String>(value: item, child: Text(item));
+      }).toList(),
     );
   }
 }
@@ -197,21 +155,19 @@ class RWTextFormField extends StatelessWidget {
   final TextInputType? textInputType;
   final List<TextInputFormatter>? textInputFormatters;
 
-  const RWTextFormField({
-    required this.label,
-    required this.icon,
-    required this.onSaved,
-    this.helperText,
-    this.maxLength,
-    this.textInputType,
-    this.textInputFormatters
-  });
-
+  const RWTextFormField(
+      {required this.label,
+      required this.icon,
+      required this.onSaved,
+      this.helperText,
+      this.maxLength,
+      this.textInputType,
+      this.textInputFormatters});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      onSaved: onSaved,
+      onChanged: onSaved,
       keyboardType: textInputType,
       inputFormatters: textInputFormatters,
       maxLength: maxLength,

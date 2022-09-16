@@ -109,7 +109,7 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                    return widget.isVendor ? const VendorRegistrationV1() : const CustomerDashBoard();
+                    return widget.isVendor ? const VendorRegistrationV1() : CustomerDashBoard(isCustomer: true);
                   }));
                 },
                 tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,

@@ -81,7 +81,11 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
       log("accepted: ${jsonEncode(requests)}");
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "New Requests", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "New Requests",
+                serviceRequestList: requests,
+                isCustomer: true,
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
@@ -94,7 +98,11 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
       requests = requests.where((element) => element.status == 'VENDOR_INPROGRESS').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "In Progress", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "In Progress",
+                serviceRequestList: requests,
+                isCustomer: true,
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
@@ -105,7 +113,11 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
       requests = requests.where((element) => element.status == 'VENDOR_PENDING').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "Pending Requests", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "Pending Requests",
+                serviceRequestList: requests,
+                isCustomer: true,
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
@@ -117,7 +129,11 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "New Requests", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "New Requests",
+                serviceRequestList: requests,
+                isCustomer: true,
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
@@ -133,7 +149,7 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  return const CustomerDashBoard();
+                  return CustomerDashBoard(isCustomer: true);
                 })
             )
           },
@@ -153,7 +169,7 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (BuildContext context) {
-                                return VendorDashboardProfile(isVendor: true);
+                                return VendorDashboardProfile(isCustomer: true);
                               })
                           );
                         },

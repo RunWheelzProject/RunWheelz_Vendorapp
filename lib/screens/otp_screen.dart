@@ -11,6 +11,7 @@ import 'package:untitled/model/staff.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/model/vendor_mechanic.dart';
 import 'package:untitled/screens/customer_board.dart';
+import 'package:untitled/screens/customer_registration_screen.dart';
 import 'dart:core';
 import 'dart:developer';
 
@@ -262,17 +263,28 @@ class _OTPState extends State<OtpScreen> {
       log("phoneVerification: $phoneVerification");
       PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1]).then((http.Response response) {
         var responseJson = jsonDecode(response.body);
+        log(jsonEncode(responseJson));
         if (responseJson["role"] != null) {
           var role = responseJson["role"];
 
           if (role["roleName"] == "CUSTOMER") {
 
             profileManager.customerDTO = CustomerDTO.fromJson(responseJson);
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                  log("role1: ${jsonEncode(role)}");
-                  return CustomerDashBoard(isCustomer: true);
-                }));
+            if (profileManager.customerDTO.registrationStatus == true) {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    log("role1: ${jsonEncode(role)}");
+                    return CustomerDashBoard(isCustomer: true);
+                  }));
+            } else {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    log("role1: ${jsonEncode(role)}");
+                    return const CustomerRegistration();
+                  }));
+            }
           }
+
         } else {
           if (response.statusCode == 201 && responseJson["id"] != null) {
             vendorManager.vendorDTO.phoneNumber =

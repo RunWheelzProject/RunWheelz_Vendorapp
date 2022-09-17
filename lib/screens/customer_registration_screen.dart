@@ -1,11 +1,22 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:profile/profile.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/customer_managere.dart';
+import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
+import 'package:untitled/screens/customer_board.dart';
+import '../model/customer.dart';
 import './google_map_location_screen.dart';
 import '../utils/add_space.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:developer';
+import '../model/vendor.dart';
+import '../resources/resources.dart' as res;
 
 class CustomerRegistration extends StatefulWidget {
   const CustomerRegistration({Key? key}) : super(key: key);
@@ -19,6 +30,28 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
   String dropDownValue = 'Current Location';
   bool _isTermsChecked = false;
 
+  Future<CustomerDTO> customerUpdate(CustomerDTO customerDTO) async {
+    Uri uri = Uri.parse("${res.APP_URL}/api/customer/updatecustomer");
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+    var json = jsonEncode(customerDTO);
+    http.Response response = await http.put(
+      uri,
+      headers: headers,
+      body: json
+    );
+
+    var responseJson = jsonDecode(response.body);
+    if (response.statusCode == 201) {
+      return CustomerDTO.fromJson(responseJson);
+    }
+
+    throw Exception("customer not updated/created");
+
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -27,8 +60,7 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
 
   @override
   Widget build(BuildContext context) {
-    final CustomerManager customerManager =
-        Provider.of<CustomerManager>(context);
+    final ProfileManager profileManager = Provider.of<ProfileManager>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Run Wheelz")),
@@ -57,65 +89,74 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
               ),
             ),
             Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    addVerticalSpace(20),
-                    addVerticalSpace(35),
-                    RWTextFormField(
-                        label: 'Name',
-                        icon:
-                            const Icon(Icons.person, color: Colors.deepPurple),
-                        onSaved: (value) => {} //cu.ownerName = value
-                        ),
-                    addVerticalSpace(30),
-                    RWTextFormField(
-                        label: 'Email',
-                        icon: const Icon(Icons.email, color: Colors.deepPurple),
-                        onSaved: (value) => {} //cu.ownerName = value
-                        ),
-                    addVerticalSpace(30),
-                    Align(
-                        alignment: Alignment.topLeft,
-                        child: Row(
-                          children: [
-                            Checkbox(
-                              value: _isTermsChecked,
-                              onChanged: (value) {
-                                //data.termsAndConditions = value as bool;
-                                setState(() {
-                                  _isTermsChecked =
-                                      _isTermsChecked ? false : true;
-                                });
-                              },
-                            ),
-                            TextButton(
-                                onPressed: () => {},
-                                child: const Text("Terms and Conditions"))
-                          ],
-                        )),
-                    addVerticalSpace(20),
-                    Container(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                            onPressed: _isTermsChecked
-                                ? () {
-                                    if (_formKey.currentState!.validate()) {
-                                      Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) {
-                                        //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                        return GoogleMapLocationPickerV1(isCustomer: true);
-                                      }));
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      addVerticalSpace(20),
+                      addVerticalSpace(35),
+                      RWTextFormField(
+                          label: 'Name',
+                          icon: const Icon(Icons.person,
+                              color: Colors.deepPurple),
+                          onSaved: (value) => profileManager.customerDTO.name = value //cu.ownerName = value
+                          ),
+                      addVerticalSpace(30),
+                      RWTextFormField(
+                          label: 'Email',
+                          icon:
+                              const Icon(Icons.email, color: Colors.deepPurple),
+                          onSaved: (value) => profileManager.customerDTO.email = value //cu.ownerName = value
+                          ),
+                      addVerticalSpace(30),
+                      Align(
+                          alignment: Alignment.topLeft,
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                value: _isTermsChecked,
+                                onChanged: (value) {
+                                  profileManager.customerDTO.termsAndConditions = true;
+                                  setState(() {
+                                    _isTermsChecked =
+                                        _isTermsChecked ? false : true;
+                                  });
+                                },
+                              ),
+                              TextButton(
+                                  onPressed: () => {},
+                                  child: const Text("Terms and Conditions"))
+                            ],
+                          )),
+                      addVerticalSpace(20),
+                      Container(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                              onPressed: _isTermsChecked
+                                  ? () {
+                                      if (_formKey.currentState!.validate()) {
+                                        log(jsonEncode(profileManager.customerDTO));
+                                        customerUpdate(profileManager.customerDTO).then((CustomerDTO customer) {
+                                          profileManager.customerDTO = customer;
+                                          Navigator.of(context).pushReplacement(
+                                              MaterialPageRoute(builder:
+                                                  (BuildContext context) {
+                                                //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
+                                                return CustomerDashBoard(
+                                                    isCustomer: true);
+                                              }));
+                                        });
+                                      }
                                     }
-                                  }
-                                : null,
-                            child: const Text(
-                              'Next',
-                              style: TextStyle(fontSize: 24),
-                            )))
-                  ],
-                )),
+                                  : null,
+                              child: const Text(
+                                'Register',
+                                style: TextStyle(fontSize: 24),
+                              )))
+                    ],
+                  )),
+            )
           ]),
         )
       ])),
@@ -146,7 +187,7 @@ class RWTextFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      onSaved: onSaved,
+      onChanged: onSaved,
       keyboardType: textInputType,
       inputFormatters: textInputFormatters,
       maxLength: maxLength,

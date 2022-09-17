@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/components/card_header.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/model/vendor_mechanic.dart';
 import 'package:untitled/screens/live_track_map.dart';
@@ -46,7 +47,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
   String _dropDownMechanicValue = 'Select';
   LatLng? _mechanicLatLng;
   List<String> _statusUpdateList = [];
-
+  List<Row> serviceRows = [];
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
     VendorManager vendorManager =
@@ -76,6 +77,31 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
         await http.get(Uri.parse("${res.APP_URL}/api/customer/$id"));
     var jsonResponse = jsonDecode(response.body);
     return CustomerDTO.fromJson(jsonResponse);
+  }
+
+  List<Row> createRows(List<List<String?>> list) {
+    List<Row> rows = [];
+    log("service Details ${jsonEncode(list)}");
+    for (var item in list) {
+      log(jsonEncode(item));
+      rows.add(
+          Row(
+            children: [
+              Text(
+                "${item[0]}: " ?? "",
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Text(item[1] ?? "")
+            ],
+          )
+      );
+    }
+
+    return rows;
   }
 
   @override
@@ -115,7 +141,6 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
         backgroundColor: Colors.purple,
         onPressed: () {
           if (widget.isFromMechanic) {
-            log("yesssssssssss");
             Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (BuildContext context) {
               return VendorMechanicDashBoard(requestId: '');
@@ -147,208 +172,37 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
         ),
       ),
       body: SingleChildScrollView(child: Center(
-        child: Column(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
           children: [
-            Container(
-              margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Column(
-                children: [
-                  const Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Service Details",
-                      style: TextStyle(color: Colors.deepOrange, fontSize: 20),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "ServiceType : ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(widget.serviceRequestDTO?.serviceType ?? "")
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "Make: ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(widget.serviceRequestDTO?.make ?? "")
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "Vehicle Number : ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(widget.serviceRequestDTO?.vehicleNumber ?? "")
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: const [
-                      Text(
-                        "Location: ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text("lingampalley")
-                    ],
-                  ),
-                ],
-              ),
+            CardHeader(
+              title: "Request Details",
+                children: createRows([
+                  ["Service Type", widget.serviceRequestDTO?.serviceType],
+                  ["Make", widget.serviceRequestDTO?.make],
+                  ["Vehicle Number", widget.serviceRequestDTO?.vehicleNumber],
+                  ["Location", "Lingampally"]
+                ])
             ),
-            Container(
-              margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Column(
-                children: [
-                  const Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Customer Details",
-                      style: TextStyle(color: Colors.deepOrange, fontSize: 20),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "Name : ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(_customer?.name ?? "")
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "Phone Number: ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(_customer?.phoneNumber ?? "")
-                    ],
-                  ),
-                ],
-              ),
+            const SizedBox(height: 20,),
+            CardHeader(
+                title: "Customer Details",
+                children: createRows([
+                  ["Name", _customer?.name],
+                  ["Phone", _customer?.phoneNumber],
+                ])
             ),
-            SizedBox(
-              height: 20,
-            ),
-            if (!widget.isFromMechanic)
-            Container(
-              margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Column(
-                children: [
-                  const Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Mechanic Details",
-                      style: TextStyle(color: Colors.deepOrange, fontSize: 20),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "Name: ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(_vendorMechanic?.name ?? "")
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "Mobile Number: ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(_vendorMechanic?.phoneNumber ?? "")
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ],
-              ),
+            const SizedBox(height: 20,),
+            CardHeader(
+                title: "Mechanic Details",
+                children: createRows([
+                  ["Name", _vendorMechanic?.name],
+                  ["Phone", _vendorMechanic?.phoneNumber],
+                ])
             ),
             if (widget.isFromMechanic)
               Container(
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.symmetric(
-                    vertical: 10, horizontal: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5),
@@ -399,28 +253,19 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                                           _vendorMechanic?.id
                                               .toString())['longitude']) / 1000).toStringAsFixed(2))
                                   .toString()),
-                              SizedBox(width: 20,),
+                              const SizedBox(width: 20,),
                               ElevatedButton(
                                 child: const Text("Track Customer"),
                                 onPressed: () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => LocationTrackingMap(
-                                        id: _vendorMechanic?.id
-                                            .toString() ??
-                                            "",
-                                        requestId: widget
-                                            .serviceRequestDTO?.id
-                                            .toString() ??
-                                            "",
+                                        id: _vendorMechanic?.id.toString() ?? "",
+                                        requestId: widget.serviceRequestDTO?.id.toString() ?? "",
                                         customerLatLng: LatLng(
-                                            widget.serviceRequestDTO
-                                                ?.latitude ??
-                                                0.0,
-                                            widget.serviceRequestDTO
-                                                ?.longitude ??
-                                                0.0),
-                                        mechanicLatLng:
-                                        _mechanicLatLng as LatLng,
+                                            widget.serviceRequestDTO?.latitude ?? 0.0,
+                                            widget.serviceRequestDTO?.longitude ?? 0.0
+                                        ),
+                                        mechanicLatLng: _mechanicLatLng as LatLng,
                                       ))
                                   );
                                 },
@@ -458,9 +303,6 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                           onChanged: (val) {
                             setState(() => _dropDownMechanicValue = val!);
                           }),
-                      const SizedBox(
-                        width: 15,
-                      ),
                       ElevatedButton(
                           onPressed: () async {
                             widget.serviceRequestDTO?.status = _dropDownMechanicValue;
@@ -526,6 +368,6 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
           ],
         ),
       ),
-    ));
+    )));
   }
 }

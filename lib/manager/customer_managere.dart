@@ -7,6 +7,6 @@ import '../model/staff.dart';
 
 class CustomerManager extends ChangeNotifier {
   late CustomerDTO _customerDTO = CustomerDTO();
-  get customerDTO => _customerDTO;
+  CustomerDTO get customerDTO => _customerDTO;
   set customerDTO(value) => _customerDTO = value;
 }

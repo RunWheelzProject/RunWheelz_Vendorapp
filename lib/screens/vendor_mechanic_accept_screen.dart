@@ -33,15 +33,15 @@ class VendorMechanicRequestAcceptScreen extends StatefulWidget {
   const VendorMechanicRequestAcceptScreen({Key? key}) : super(key: key);
 
   @override
-  _VendorMechanicRequestAcceptScreen createState() => _VendorMechanicRequestAcceptScreen();
+  _VendorMechanicRequestAcceptScreen createState() =>
+      _VendorMechanicRequestAcceptScreen();
 }
-class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcceptScreen> {
 
-
+class _VendorMechanicRequestAcceptScreen
+    extends State<VendorMechanicRequestAcceptScreen> {
   final loc.Location location = loc.Location();
   StreamSubscription<loc.LocationData>? _locationSubscription;
   List<String> stauts = ["started", "reached"];
-
 
   @override
   void initState() {
@@ -52,10 +52,14 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
   }
 
   _getLocation() async {
-    final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
     try {
       final loc.LocationData _locationResult = await location.getLocation();
-      await FirebaseFirestore.instance.collection('location').doc(args.assignedToMechanic.toString()).set({
+      await FirebaseFirestore.instance
+          .collection('location')
+          .doc(args.assignedToMechanic.toString())
+          .set({
         'latitude': _locationResult.latitude,
         'longitude': _locationResult.longitude,
       }, SetOptions(merge: true));
@@ -65,7 +69,8 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
   }
 
   Future<void> _listenLocation() async {
-    final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
     _locationSubscription = location.onLocationChanged.handleError((onError) {
       log(onError);
       _locationSubscription?.cancel();
@@ -74,8 +79,10 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
       });
     }).listen((loc.LocationData currentlocation) async {
       log("mechanic: ${args.assignedToMechanic.toString()}, lat1: ${currentlocation.latitude}, long1: ${currentlocation.longitude}");
-      await FirebaseFirestore.instance.collection('location')
-          .doc(args.assignedToMechanic.toString()).set({
+      await FirebaseFirestore.instance
+          .collection('location')
+          .doc(args.assignedToMechanic.toString())
+          .set({
         'latitude': currentlocation.latitude,
         'longitude': currentlocation.longitude
       }, SetOptions(merge: true));
@@ -102,14 +109,17 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.purple,
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-            return VendorMechanicDashBoard(requestId: args.id.toString(),);
+            return VendorMechanicDashBoard(
+              requestId: args.id.toString(),
+            );
           }))
         },
         child: const Icon(Icons.arrow_back),
@@ -125,127 +135,136 @@ class _VendorMechanicRequestAcceptScreen extends State<VendorMechanicRequestAcce
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Container(
-              height: 270,
-              margin: const EdgeInsets.only(
-                  left: 20, right: 20, top: 20, bottom: 10),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.white,
-              ),
-              child: Column(children: [
-                Row(
-                  children: [
-                    const Text(
-                      "Request ID: ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(args.id.toString() ?? "")
-                  ],
+      body: Column(children: [
+        Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Colors.white, width: 1.5),
+                color: Colors.white),
+            child: Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                      color: Colors.purple,
+                      border: Border(bottom: BorderSide())),
+                  child: const Text(
+                    "Service Details",
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 const SizedBox(
                   height: 10,
                 ),
+                Container(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(children: [
+                      Row(
+                        children: [
+                          const Text(
+                            "Request ID: ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(args.id.toString() ?? "")
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          const Text(
+                            "ServiceType: ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(args.serviceType ?? "")
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          const Text(
+                            "Vehicle Number: ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(args.vehicleNumber ?? "")
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          const Text(
+                            "Customer Name: ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(args.customerArgs?.name ?? "")
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          const Text(
+                            "Customer Mobile Number: ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(args.customerArgs?.phoneNumber ?? "")
+                        ],
+                      ),
+                    ])),
                 const SizedBox(
-                  height: 10,
+                  height: 30,
                 ),
                 Row(
                   children: [
-                    const Text(
-                      "ServiceType: ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ElevatedButton(
+                        onPressed: () {
+                          _listenLocation();
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                            return VendorMechanicDashBoard(
+                              requestId: args.id.toString(),
+                            );
+                          }));
+                        },
+                        child: const Text("Accept")
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(args.serviceType ?? "")
                   ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    const Text(
-                      "Vehicle Number: ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(args.vehicleNumber ?? "")
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    const Text(
-                      "Customer Name: ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(args.customerArgs?.name ?? "")
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    const Text(
-                      "Customer Mobile Number: ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(args.customerArgs?.phoneNumber ?? "")
-                  ],
-                ),
-              ])
-          ),
-          const SizedBox(height: 30,),
-          Row(
-            children: [
-              ElevatedButton(
-                  onPressed: () {
-                    _listenLocation();
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return VendorMechanicDashBoard(requestId: args.id.toString(),);
-                        })
-                    );
-                  },
-                  child: const Text("Accept")
-              ),/*
-              IconButton(
-                icon: const Icon(Icons.directions, color: Colors.white,),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          LocationTrackingMap(args)));
-                },
-              )*/
-            ],
-          )
-
-        ],
-      ),
+                )
+              ],
+            ))
+      ]),
     );
   }
 }

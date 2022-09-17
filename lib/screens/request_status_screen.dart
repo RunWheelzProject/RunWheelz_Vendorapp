@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/screens/profile.dart';
+import '../components/card_header.dart';
 import '../components/customer_appbar.dart';
 import '../components/header_text.dart';
 import '../components/item_row.dart';
@@ -42,6 +43,32 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
   VendorMechanicTrakcer vendorMechanicTrakcer = VendorMechanicTrakcer();
   Timer? _timer;
   VendorMechanic? _vendorMechanic;
+  LatLng? _mechanicLatLng;
+
+  List<Row> createRows(List<List<String?>> list) {
+    List<Row> rows = [];
+    log("service Details ${jsonEncode(list)}");
+    for (var item in list) {
+      log(jsonEncode(item));
+      rows.add(
+          Row(
+            children: [
+              Text(
+                "${item[0]}: " ?? "",
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Text(item[1] ?? "")
+            ],
+          )
+      );
+    }
+
+    return rows;
+  }
 
   @override
   void initState() {
@@ -66,341 +93,46 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
   }
 
   Widget _mainContainer() {
+    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
+
     return Container(
         padding: const EdgeInsets.all(10),
         child: Column(children: <Widget>[
           const SizedBox(
             height: 10,
           ),
-          requestDetails(),
-          const SizedBox(
-            height: 10,
+          CardHeader(
+            title: "Request Details",
+              children: createRows([
+                ["Service Type", serviceRequestManager.serviceRequestDTO?.serviceType],
+                ["Make", serviceRequestManager.serviceRequestDTO?.make],
+                ["Vehicle Number", serviceRequestManager.serviceRequestDTO?.vehicleNumber],
+                ["Location", "Lingampally"]
+              ])
           ),
-          vendorDetails() ??
-              const SizedBox(
-                height: 0,
-              ),
-          const SizedBox(
-            height: 10,
+          const SizedBox(height: 20,),
+          if (_vendorMechanic != null)
+          CardHeader(
+            title: "Vendor Details",
+              children: createRows([
+                ["Name", _vendorMechanic?.vendor?.ownerName],
+                ["Phone", _vendorMechanic?.vendor?.phoneNumber],
+              ])
           ),
-          mechanicDetails() ??
-              const SizedBox(
-                height: 0,
-              ),
-          const SizedBox(
-            height: 45,
+          const SizedBox(height: 20,),
+          if (_vendorMechanic != null)
+          CardHeader(
+            title: "Mechanic Details",
+              children: createRows([
+                ["Name", _vendorMechanic?.name],
+                ["Phone", _vendorMechanic?.phoneNumber],
+              ])
           ),
-          requestStatus(),
+          requestStatus() ?? const SizedBox(height: 0,),
           const SizedBox(
             height: 10,
           ),
         ]));
-  }
-
-  Widget requestDetails() {
-    ServiceRequestManager serviceRequestManager =
-        Provider.of<ServiceRequestManager>(context, listen: false);
-    return Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: Colors.white, width: 1.5),
-            color: Colors.white),
-        child: Column(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                  color: Colors.purple, border: Border(bottom: BorderSide())),
-              child: const Text(
-                "Request Details",
-                style: TextStyle(fontSize: 16, color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Container(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          "Request ID: ",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                            serviceRequestManager.serviceRequestDTO.id
-                                    .toString() ??
-                                "",
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Text(
-                          "Service Type: ",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                            serviceRequestManager
-                                    .serviceRequestDTO.serviceType ??
-                                "",
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Text(
-                          "Make: ",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(serviceRequestManager.serviceRequestDTO.make ?? "",
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Text(
-                          "Vehicle Number: ",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                            serviceRequestManager
-                                    .serviceRequestDTO.vehicleNumber ??
-                                "",
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                  ],
-                ))
-          ],
-        ));
-  }
-
-  Widget? vendorDetails() {
-    ServiceRequestManager serviceRequestManager =
-        Provider.of<ServiceRequestManager>(context, listen: false);
-    if (_vendorMechanic != null) {
-      return Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: Colors.white, width: 1.5),
-              color: Colors.white),
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                    color: Colors.purple, border: Border(bottom: BorderSide())),
-                child: const Text(
-                  "Vendor Details",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            "Name: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(_vendorMechanic?.vendor?.ownerName ?? "",
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ))
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        children: [
-                          const Text(
-                            "Garage Name: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(_vendorMechanic?.vendor?.garageName ?? "",
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ))
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        children: [
-                          const Text(
-                            "Phone Number: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(_vendorMechanic?.vendor?.phoneNumber ?? "",
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ))
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  ))
-            ],
-          ));
-    }
-    return null;
-  }
-
-  Widget? mechanicDetails() {
-    ServiceRequestManager serviceRequestManager =
-        Provider.of<ServiceRequestManager>(context, listen: false);
-    if (_vendorMechanic != null) {
-      return Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: Colors.white, width: 1.5),
-              color: Colors.white),
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                    color: Colors.purple, border: Border(bottom: BorderSide())),
-                child: const Text(
-                  "Mechanic Details",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            "Name: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(_vendorMechanic?.name ?? "",
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ))
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        children: [
-                          const Text(
-                            "Phone Number: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(_vendorMechanic?.phoneNumber ?? "",
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ))
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  ))
-            ],
-          ));
-    }
-    return null;
   }
 
   Future<void> getMechanicDetails(
@@ -444,34 +176,101 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
     }
   }
 
-  Widget requestStatus() {
-    ServiceRequestManager serviceRequestManager =
-        Provider.of<ServiceRequestManager>(context, listen: false);
-    ProfileManager profileManager =
-        Provider.of<ProfileManager>(context, listen: false);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context)
-                  .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                return CustomerDashBoard(isCustomer: true);
-                //return LocationTrackingMap(id: _vendorMechanic?.id.toString() as String);
-              }));
-            },
-            child: const Text("Cancel Request"),
-          ),
-          ElevatedButton(
-          onPressed: () {
-            Navigator.of(context)
-                .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-              return CustomerDashBoard(isCustomer: true);
-              //return LocationTrackingMap(id: _vendorMechanic?.id.toString() as String);
-            }));
-          },
-          child: const Text("Track Mechanic"),
-        )
-    ]);
+  Widget? requestStatus() {
+    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
+    if (_vendorMechanic != null) {
+      log(jsonEncode(_vendorMechanic?.id));
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Container(
+              margin: const EdgeInsets.all(10),
+              padding: const EdgeInsets.symmetric(
+                  vertical: 10, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  StreamBuilder(
+                      stream: FirebaseFirestore.instance.collection('location').snapshots(),
+                      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        _mechanicLatLng = LatLng(
+                            snapshot.data!.docs.singleWhere((element) => element.id == "12")['latitude'],
+                            snapshot.data!.docs.singleWhere((element) => element.id == "12")['longitude']
+                        );
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Distance: ", style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text(double.parse((Geolocator.distanceBetween(
+                                serviceRequestManager.serviceRequestDTO.latitude ?? 0.0,
+                                serviceRequestManager.serviceRequestDTO.longitude ?? 0.0,
+                                snapshot.data!.docs.singleWhere((element) => element.id == "12")['latitude'],
+                                snapshot.data!.docs.singleWhere((element) => element.id == "12")['longitude']) / 1000)
+                                .toStringAsFixed(2))
+                                .toString()),
+                            const SizedBox(width: 20,),
+                            ElevatedButton(
+                              child: const Text("Track Customer"),
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        LocationTrackingMap(
+                                          isCustomer: true,
+                                          id: _vendorMechanic?.id
+                                              .toString() ??
+                                              "",
+                                          requestId: serviceRequestManager
+                                              .serviceRequestDTO.id
+                                              .toString() ??
+                                              "",
+                                          customerLatLng: LatLng(
+                                              serviceRequestManager
+                                                  .serviceRequestDTO
+                                                  ?.latitude ??
+                                                  0.0,
+                                              serviceRequestManager
+                                                  .serviceRequestDTO
+                                                  ?.longitude ??
+                                                  0.0),
+                                          mechanicLatLng:
+                                          _mechanicLatLng as LatLng,
+                                        ))
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      }),
+                  const SizedBox(height: 20,),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context)
+                          .pushReplacement(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                            return CustomerDashBoard(isCustomer: true);
+                            //return LocationTrackingMap(id: _vendorMechanic?.id.toString() as String);
+                          }));
+                    },
+                    child: const Text("Cancel Request"),
+                  ),
+                ],
+              ),
+            ),
+          ]);
+    } else {
+      return null;
+    }
   }
 }

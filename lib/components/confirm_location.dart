@@ -13,6 +13,7 @@ import 'package:untitled/screens/vendor_info_display_screen.dart';
 import 'package:untitled/services/vendor_registration.dart';
 import 'package:untitled/utils/add_space.dart';
 
+import '../manager/profile_manager.dart';
 import '../manager/service_request_manager.dart';
 import '../services/service_request_service.dart';
 
@@ -93,6 +94,9 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                         });
                       }
                       if (widget.isCustomer) {
+                        serviceRequestManager.serviceRequestDTO.requestedCustomer =
+                          Provider.of<ProfileManager>(context, listen: false).customerDTO.id;
+                        log("it's customer");
                         BreakdownService()
                             .customerRequest(
                                 serviceRequestManager.serviceRequestDTO)

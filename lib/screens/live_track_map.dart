@@ -177,20 +177,25 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:provider/provider.dart';
+import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 
 
 class LocationTrackingMap extends StatefulWidget {
-
+  bool isCustomer;
+  bool isMechanic;
   final String id;
   final String? requestId;
   final LatLng customerLatLng;
   final LatLng mechanicLatLng;
-  const LocationTrackingMap({
+  LocationTrackingMap({
+    super.key,
     required this.id,
     this.requestId,
     required this.customerLatLng,
     required this.mechanicLatLng,
+    this.isCustomer = false,
+    this.isMechanic = false,
   });
 
   @override
@@ -263,6 +268,7 @@ class _MyMapState extends State<LocationTrackingMap> {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
+                  if (widget.isCustomer) return CustomerDashBoard();
                   return VendorMechanicDashBoard(requestId: '');
                 }))
           },

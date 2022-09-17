@@ -322,7 +322,7 @@ class RunWheelzState extends State<RunWheelz> {
         //home: const SplashScreen(),
         initialRoute: '/',
         routes: {
-          '/': (context) => LogInConfirmation(),
+          '/': (context) => const LogInConfirmation(),
           '/phone_verification': (context) => const LoginScreen(),
           VendorRequestAcceptScreen.routeName: (context) => const VendorRequestAcceptScreen(),
           VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()

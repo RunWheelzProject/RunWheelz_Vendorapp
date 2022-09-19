@@ -120,7 +120,7 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
                             MaterialPageRoute(builder: (BuildContext context) {
                           return VendorInprogressScreen(
                             serviceRequestDTO: item,
-                            isFromMechanic: true, pageTitle: '',
+                            isMechanic: true, pageTitle: '',
                           );
                         }));
                       },

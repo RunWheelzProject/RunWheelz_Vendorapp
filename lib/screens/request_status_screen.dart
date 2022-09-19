@@ -101,7 +101,7 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
           const SizedBox(
             height: 10,
           ),
-          CardHeader(
+          CardWithHeader(
             title: "Request Details",
               children: createRows([
                 ["Service Type", serviceRequestManager.serviceRequestDTO?.serviceType],
@@ -112,7 +112,7 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
           ),
           const SizedBox(height: 20,),
           if (_vendorMechanic != null)
-          CardHeader(
+          CardWithHeader(
             title: "Vendor Details",
               children: createRows([
                 ["Name", _vendorMechanic?.vendor?.ownerName],
@@ -121,7 +121,7 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
           ),
           const SizedBox(height: 20,),
           if (_vendorMechanic != null)
-          CardHeader(
+          CardWithHeader(
             title: "Mechanic Details",
               children: createRows([
                 ["Name", _vendorMechanic?.name],

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:untitled/manager/preferred_mechanic_manager.dart';
 import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/screens/breakdown_services.dart';
 import 'package:untitled/screens/customer_board.dart';
@@ -311,7 +312,8 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<ProfileManager>(create: (context) => ProfileManager()),
         ChangeNotifierProvider<VendorMechanicManager>(create: (context) => VendorMechanicManager()),
         ChangeNotifierProvider<ServiceRequestManager>(create: (context) => ServiceRequestManager()),
-        ChangeNotifierProvider<LiveTrackerManager>(create: (context) => LiveTrackerManager())
+        ChangeNotifierProvider<LiveTrackerManager>(create: (context) => LiveTrackerManager()),
+        ChangeNotifierProvider<PreferredMechanicManager>(create: (context) => PreferredMechanicManager())
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

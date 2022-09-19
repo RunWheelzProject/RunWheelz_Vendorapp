@@ -4,12 +4,15 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/dashboard_box.dart';
+import 'package:untitled/manager/preferred_mechanic_manager.dart';
 import 'package:untitled/model/servie_request.dart';
 import 'package:untitled/screens/breakdown_services.dart';
 import 'package:untitled/screens/customer_favorite_mechnic.dart';
 import 'package:untitled/screens/customer_reqeust_history.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/general_services_screen.dart';
+import 'package:untitled/screens/preferred_mechanic_add.dart';
+import 'package:untitled/screens/preferred_mechanics.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/menu.dart';
@@ -18,6 +21,8 @@ import '../manager/vendor_manager.dart';
 import '../resources/resources.dart' as res;
 
 import 'package:http/http.dart' as http;
+
+import '../services/preferred_mechanic_service.dart';
 
 
 typedef CallBack = void Function();
@@ -45,6 +50,11 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
   @override
   void initState() {
     super.initState();
+    int id = Provider.of<ProfileManager>(context, listen: false).customerDTO.id ?? 0;
+    PreferredMechanicManager preferredMechanicManager = Provider.of<PreferredMechanicManager>(context, listen: false);
+    PreferredMechanicService().getAllPreferredMechanics(id).then((vendors) {
+      setState(() => preferredMechanicManager.preferredMechanicList = vendors);
+    });
   }
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
@@ -97,7 +107,11 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
       requests = requests.where((element) => element.status == 'VENDOR_PENDING').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "Pending Requests", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "Pending Requests",
+                serviceRequestList: requests,
+                isCustomer: true,
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
@@ -109,7 +123,11 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return VendorDataManagementPage(pageTitle: "New Requests", serviceRequestList: requests);
+            return VendorDataManagementPage(
+                pageTitle: "New Requests",
+                serviceRequestList: requests,
+                isCustomer: true
+            );
           })
       );
     }).catchError((error) => log("error: $error"));
@@ -182,7 +200,7 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
                       onTap: () {
                         Navigator.of(context).pushReplacement(
                             MaterialPageRoute(builder: (BuildContext context) {
-                              return CustomerFavoriteMechanic();
+                              return const PreferredMechanic();
                             })
                         );
                       },

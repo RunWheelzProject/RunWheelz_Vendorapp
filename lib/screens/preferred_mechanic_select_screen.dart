@@ -1,22 +1,43 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled/screens/preferred_mechanic_select_screen.dart';
+import 'package:untitled/screens/preferred_mechanics.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/customer_appbar.dart';
+import '../manager/preferred_mechanic_manager.dart';
 import '../manager/service_request_manager.dart';
+import '../model/preferred_mechanic_dto.dart';
 import 'google_map_location_screen.dart';
 
 typedef CallBack = void Function();
 
-class GeneralServices extends StatefulWidget {
-  const GeneralServices({Key? key}) : super(key: key);
+class PreferredMechanicSelectScreen extends StatefulWidget {
+  const PreferredMechanicSelectScreen({Key? key}) : super(key: key);
 
   @override
   GeneralServicesState createState() => GeneralServicesState();
 }
 
-class GeneralServicesState extends State<GeneralServices> {
+class GeneralServicesState extends State<PreferredMechanicSelectScreen> {
+  List<String> dropDownList = [];
+  String _dropDownSelectedItem = "Select preferred mechanic";
+
+  @override
+  void initState() {
+    super.initState();
+    PreferredMechanicManager preferredMechanicManager = Provider.of<PreferredMechanicManager>(context, listen: false);
+
+    for (PreferredMechanicDTO mechanic in preferredMechanicManager.preferredMechanicList) {
+      dropDownList.add(mechanic.vendor?.ownerName ?? "");
+    }
+
+    dropDownList = ["Select preferred mechanic", ...dropDownList];
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomerAppBar(child: _mainContainer());
@@ -40,7 +61,7 @@ class GeneralServicesState extends State<GeneralServices> {
                         color: Colors.purple,
                         border: Border(bottom: BorderSide())),
                     child: const Text(
-                      "General Services",
+                      "Preferred Mechanic",
                       style: TextStyle(fontSize: 21, color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
@@ -51,25 +72,30 @@ class GeneralServicesState extends State<GeneralServices> {
                       children: [
                         addVerticalSpace(50),
                         RWDropDown(
-                            value: 'Select Vehicle Type',
-                            onChanged: (String? val) => { serviceRequestManager.serviceRequestDTO.make},
-                            items: const [
-                              'Select Vehicle Type',
-                              'Honda',
-                              'TVS',
-                              'Suzuki'
-                            ]),
-                        addVerticalSpace(20),
-                        RWTextFormField(
-                            label: "Vehicle Number",
-                            icon: const Icon(Icons.numbers),
-                            onSaved: (String? val) => {serviceRequestManager
-                                .serviceRequestDTO.vehicleNumber = val}),
+                            value: _dropDownSelectedItem,
+                            onChanged: (String? val) {
+                              setState(() {
+                                _dropDownSelectedItem = val!;
+                              });
+
+                              PreferredMechanicManager preferredMechanicManager = Provider.of<PreferredMechanicManager>(context, listen: false);
+                            for (PreferredMechanicDTO mechanic in preferredMechanicManager.preferredMechanicList) {
+                              if (mechanic.vendor?.ownerName == val) {
+                                preferredMechanicManager.selectedPreferredMechanicDTO = mechanic;
+                              }
+                            }
+
+
+
+                            log(jsonEncode(preferredMechanicManager.selectedPreferredMechanicDTO));
+                        },
+                            items: dropDownList,
+                        ),
                         addVerticalSpace(70),
                         ElevatedButton(
                             onPressed: () => {
                               Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                return const PreferredMechanicSelectScreen();
+                                return GoogleMapLocationPickerV1(isCustomer: true);
                               }))
                               /*Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                                 return GoogleMapLocationPickerV1(isCustomer: true);
@@ -130,12 +156,12 @@ class RWTextFormField extends StatelessWidget {
 
   const RWTextFormField(
       {required this.label,
-      required this.icon,
-      required this.onSaved,
-      this.helperText,
-      this.maxLength,
-      this.textInputType,
-      this.textInputFormatters});
+        required this.icon,
+        required this.onSaved,
+        this.helperText,
+        this.maxLength,
+        this.textInputType,
+        this.textInputFormatters});
 
   @override
   Widget build(BuildContext context) {

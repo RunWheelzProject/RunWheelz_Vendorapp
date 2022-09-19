@@ -15,6 +15,7 @@ import '../resources/resources.dart' as res;
 class VendorMechanicManager extends ChangeNotifier {
 
  List<VendorMechanic> _vendorMechanicList = [];
+
  VendorMechanic _vendorMechanic = VendorMechanic();
  bool _isEnable = false;
  String _curDropDownValue = "";
@@ -64,6 +65,9 @@ set curDropDownValue(String val) {
   _vendorMechanicList = vendorMechanic;
   notifyListeners();
  }
+
+
+
  List<VendorMechanic> get vendorMechanicList => _vendorMechanicList;
 
  set vendorMechanic(VendorMechanic vendorMechanic) {

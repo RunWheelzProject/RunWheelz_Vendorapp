@@ -26,10 +26,10 @@ import '../model/servie_request.dart';
 import '../model/staff.dart';
 import '../services/staff_service.dart';
 
-class CardHeader extends StatelessWidget {
+class CardWithHeader extends StatelessWidget {
   List<Widget> children;
   String title;
-  CardHeader({super.key, required this.children, required this.title});
+  CardWithHeader({super.key, required this.children, required this.title});
 
   @override
   Widget build(BuildContext context) {

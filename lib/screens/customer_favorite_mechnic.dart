@@ -131,7 +131,7 @@ class VendorMechanicDashBoardState extends State<CustomerFavoriteMechanic> {
                                 MaterialPageRoute(builder: (BuildContext context) {
                                   return VendorInprogressScreen(
                                     serviceRequestDTO: item,
-                                    isFromMechanic: true, pageTitle: '',
+                                    isMechanic: true, pageTitle: '',
                                   );
                                 }));
                           },

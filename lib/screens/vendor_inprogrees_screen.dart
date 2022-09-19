@@ -29,12 +29,19 @@ import '../services/staff_service.dart';
 import 'data_viewer_screen.dart';
 
 class VendorInprogressScreen extends StatefulWidget {
+  bool isCustomer;
+  bool isVendor;
   final String pageTitle;
   ServiceRequestDTO? serviceRequestDTO;
-  bool isFromMechanic;
+  bool isMechanic;
 
   VendorInprogressScreen(
-      {Key? key, this.serviceRequestDTO, this.isFromMechanic = false, required this.pageTitle})
+      {Key? key,
+        this.serviceRequestDTO,
+        this.isCustomer = false,
+        this.isVendor = false,
+        this.isMechanic = false,
+        required this.pageTitle})
       : super(key: key);
 
   @override
@@ -50,10 +57,9 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
   List<Row> serviceRows = [];
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
-    VendorManager vendorManager =
-        Provider.of<VendorManager>(context, listen: false);
-    http.Response response = await http.get(Uri.parse(
-        "${res.APP_URL}/api/servicerequest/by_vendor/${vendorManager.vendorDTO.id}"));
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
+    int? id = widget.isCustomer ? profileManager.customerDTO.id : profileManager.vendorDTO.id;
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/$id"));
     var jsonList = jsonDecode(response.body) as List;
     var jsonResponse = jsonDecode(response.body);
     List<ServiceRequestDTO> list = [];
@@ -140,20 +146,34 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.purple,
         onPressed: () {
-          if (widget.isFromMechanic) {
+          if (widget.isMechanic) {
             Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (BuildContext context) {
               return VendorMechanicDashBoard(requestId: '');
             }));
           }else {
             getNewRequests().then((requests) {
-              requests = requests
-                  .where((element) => element.status == 'VENDOR_INPROGRESS')
-                  .toList();
+              requests = requests.where((element) {
+                    if (widget.pageTitle == "In Progress") {
+                      if (element.status == "VENDOR_INPROGRESS") return true;
+                    }
+                    if (widget.pageTitle == "New Requests") {
+                      if (element.status == "VENDOR_ACCEPTED") return true;
+                    }
+                    if (widget.pageTitle == "Pending Requests") {
+                      if (element.status == "VENDOR_PENDING") return true;
+                    }
+                    return false;
+              }).toList();
               Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (BuildContext context) {
                     return VendorDataManagementPage(
-                        pageTitle: "In Progress", serviceRequestList: requests);
+                        pageTitle: widget.pageTitle,
+                        serviceRequestList: requests,
+                        isCustomer: widget.isCustomer,
+                        isVendor: widget.isVendor,
+                        isMechanic: widget.isMechanic,
+                    );
                   }));
             }).catchError((error) => log("error: $error"));
           }
@@ -176,7 +196,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
           children: [
-            CardHeader(
+            CardWithHeader(
               title: "Request Details",
                 children: createRows([
                   ["Service Type", widget.serviceRequestDTO?.serviceType],
@@ -186,7 +206,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                 ])
             ),
             const SizedBox(height: 20,),
-            CardHeader(
+            CardWithHeader(
                 title: "Customer Details",
                 children: createRows([
                   ["Name", _customer?.name],
@@ -194,14 +214,14 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                 ])
             ),
             const SizedBox(height: 20,),
-            CardHeader(
+            CardWithHeader(
                 title: "Mechanic Details",
                 children: createRows([
                   ["Name", _vendorMechanic?.name],
                   ["Phone", _vendorMechanic?.phoneNumber],
                 ])
             ),
-            if (widget.isFromMechanic)
+            if (widget.isMechanic)
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -278,6 +298,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                   ],
                 ),
               ),
+            if (widget.isVendor)
             Container(
               margin: const EdgeInsets.all(10),
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),

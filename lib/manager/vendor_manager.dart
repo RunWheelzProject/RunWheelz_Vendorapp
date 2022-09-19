@@ -52,6 +52,8 @@ class VendorManager extends ChangeNotifier {
   List<VendorDTO> get filteredList => _filteredList;
   bool get isRegistered => _isRegistered;
   bool get isEnable => _isEnable;
+
+
   set isRegistered(bool val) => _isRegistered = val;
   set isEnable(bool val) {
     _isEnable = val;

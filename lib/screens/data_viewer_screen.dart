@@ -59,13 +59,9 @@ class VendorDataManagementPage extends StatelessWidget {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  if (isCustomer) {
-                    return const CustomerRequestHistory();
-                  } else if(isVendor) {
-                    return const VendorDashBoard();
-                  } else {
-                    return VendorMechanicDashBoard(requestId: '');
-                  }
+                  if (isCustomer) return const CustomerRequestHistory();
+                  if(isVendor) return const VendorDashBoard();
+                  return VendorMechanicDashBoard(requestId: '');
                 })
             )
           },
@@ -98,8 +94,13 @@ class VendorDataManagementPage extends StatelessWidget {
                           onItemSelected: (ServiceRequestDTO item) {
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorInprogressScreen(serviceRequestDTO: item,
-                                    pageTitle: pageTitle,);
+                                    return VendorInprogressScreen(
+                                      serviceRequestDTO: item,
+                                      pageTitle: pageTitle,
+                                      isVendor: isVendor,
+                                      isCustomer: isCustomer,
+                                      isMechanic: isMechanic
+                                    );
                                   })
                               );
                             },

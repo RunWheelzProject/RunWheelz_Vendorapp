@@ -22,7 +22,8 @@ import '../model/customer.dart';
 class GoogleMapLocationPickerV1 extends StatefulWidget {
   bool isCustomer;
   bool isVendor;
-  GoogleMapLocationPickerV1({Key? key, this.isCustomer = false, this.isVendor = false}) : super(key: key);
+  bool isGeneral;
+  GoogleMapLocationPickerV1({Key? key, this.isCustomer = false, this.isVendor = false, this.isGeneral = false}) : super(key: key);
 
   @override
   GoogleMapLocationPickerState createState() => GoogleMapLocationPickerState();
@@ -192,7 +193,8 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
                 bottom: 0,
                 child: ConfirmLocation(
                     isCustomer: widget.isCustomer,
-                    isVendor: widget.isVendor
+                    isVendor: widget.isVendor,
+                    isGeneral: widget.isGeneral
                 )
             )
           ]),

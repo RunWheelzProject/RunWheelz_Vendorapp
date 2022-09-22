@@ -10,6 +10,7 @@ import 'package:untitled/model/servie_request.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/request_status_screen.dart';
 import 'package:untitled/screens/vendor_info_display_screen.dart';
+import 'package:untitled/services/preferred_mechanic_service.dart';
 import 'package:untitled/services/vendor_registration.dart';
 import 'package:untitled/utils/add_space.dart';
 
@@ -20,7 +21,8 @@ import '../services/service_request_service.dart';
 class ConfirmLocation extends StatefulWidget {
   bool isVendor;
   bool isCustomer;
-  ConfirmLocation({Key? key, this.isVendor = false, this.isCustomer = false})
+  bool isGeneral;
+  ConfirmLocation({Key? key, this.isVendor = false, this.isCustomer = false, this.isGeneral = false})
       : super(key: key);
 
   @override
@@ -93,7 +95,7 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                           log("ServerError: $error");
                         });
                       }
-                      if (widget.isCustomer) {
+                      if (widget.isCustomer & widget.isGeneral != true) {
                         serviceRequestManager.serviceRequestDTO.requestedCustomer =
                           Provider.of<ProfileManager>(context, listen: false).customerDTO.id;
                         log("it's customer");
@@ -111,6 +113,17 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                           }));
                         }).catchError((error) {
                           log("ServerError: $error");
+                        });
+                      }
+                      if (widget.isGeneral) {
+                        PreferredMechanicService().sendNotification(serviceRequestManager.serviceRequestDTO).then((request) {
+                          log("request");
+                          serviceRequestManager.serviceRequestDTO = request;
+                          // need to implement preferred mechanic
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (BuildContext context) {
+                                return const RequestStatusDetailsV1();
+                              }));
                         });
                       }
                     },

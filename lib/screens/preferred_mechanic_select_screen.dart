@@ -82,6 +82,7 @@ class GeneralServicesState extends State<PreferredMechanicSelectScreen> {
                             for (PreferredMechanicDTO mechanic in preferredMechanicManager.preferredMechanicList) {
                               if (mechanic.vendor?.ownerName == val) {
                                 preferredMechanicManager.selectedPreferredMechanicDTO = mechanic;
+                                serviceRequestManager.serviceRequestDTO.acceptedByVendor = mechanic.vendor?.id;
                               }
                             }
 
@@ -95,7 +96,7 @@ class GeneralServicesState extends State<PreferredMechanicSelectScreen> {
                         ElevatedButton(
                             onPressed: () => {
                               Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                return GoogleMapLocationPickerV1(isCustomer: true);
+                                return GoogleMapLocationPickerV1(isCustomer: true, isGeneral: true,);
                               }))
                               /*Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                                 return GoogleMapLocationPickerV1(isCustomer: true);

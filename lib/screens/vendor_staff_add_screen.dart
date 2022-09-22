@@ -221,7 +221,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                                     Navigator.of(context)
                                         .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                                       //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                      return const GoogleMapLocationPickerV1();
+                                      return GoogleMapLocationPickerV1();
                                     }));
                                   }
                                 },

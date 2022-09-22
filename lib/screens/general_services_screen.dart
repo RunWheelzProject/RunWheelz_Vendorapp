@@ -52,7 +52,7 @@ class GeneralServicesState extends State<GeneralServices> {
                         addVerticalSpace(50),
                         RWDropDown(
                             value: 'Select Vehicle Type',
-                            onChanged: (String? val) => { serviceRequestManager.serviceRequestDTO.make},
+                            onChanged: (String? val) => { serviceRequestManager.serviceRequestDTO.make = val},
                             items: const [
                               'Select Vehicle Type',
                               'Honda',

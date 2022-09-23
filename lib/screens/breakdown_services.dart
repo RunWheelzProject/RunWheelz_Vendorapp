@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/customer_appbar.dart';
 import 'package:untitled/components/dashboard_box.dart';
@@ -32,6 +33,15 @@ class BreakDownServices extends StatefulWidget {
 }
 
 class BreakDownServicesState extends State<BreakDownServices> {
+
+  MaskTextInputFormatter maskTextInputFormatter = MaskTextInputFormatter(
+      mask: 'AA ## A ####',
+      filter: { "#": RegExp(r'[0-9]'), "A": RegExp(r'[a-zA-Z]'),  },
+      type: MaskAutoCompletionType.lazy
+  );
+  final TextEditingController _vehicleController = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
     return CustomerAppBar(child: _mainContainer());
@@ -88,11 +98,20 @@ class BreakDownServicesState extends State<BreakDownServices> {
                             ]),
                         addVerticalSpace(20),
                         RWTextFormField(
+                            textEditingController: _vehicleController,
                             label: "Vehicle Number",
                             icon: const Icon(Icons.numbers),
-                            onSaved: (String? val) => serviceRequestManager
-                                .serviceRequestDTO.vehicleNumber = val),
-                        addVerticalSpace(70),
+                            textInputFormatters: [
+                              maskTextInputFormatter
+                            ],
+                            onSaved: (String? val) {
+                              serviceRequestManager.serviceRequestDTO.vehicleNumber = val;
+                              _vehicleController.value = TextEditingValue(
+                                  text: val?.toUpperCase() as String,
+                                  selection: _vehicleController.selection
+                              );
+                            }),
+                              addVerticalSpace(70),
                         ElevatedButton(
                             onPressed: () {
                               log(jsonEncode(serviceRequestManager.serviceRequestDTO));
@@ -154,15 +173,18 @@ class RWTextFormField extends StatelessWidget {
   final int? maxLength;
   final TextInputType? textInputType;
   final List<TextInputFormatter>? textInputFormatters;
+  final TextEditingController? textEditingController;
 
-  const RWTextFormField(
-      {required this.label,
+  const RWTextFormField({
+      required this.label,
       required this.icon,
       required this.onSaved,
       this.helperText,
       this.maxLength,
       this.textInputType,
-      this.textInputFormatters});
+      this.textInputFormatters,
+      this.textEditingController
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +192,7 @@ class RWTextFormField extends StatelessWidget {
       onChanged: onSaved,
       keyboardType: textInputType,
       inputFormatters: textInputFormatters,
+      controller: textEditingController,
       maxLength: maxLength,
       decoration: InputDecoration(
         labelText: label,

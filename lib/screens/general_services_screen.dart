@@ -6,6 +6,7 @@ import 'package:untitled/utils/add_space.dart';
 import '../components/customer_appbar.dart';
 import '../manager/service_request_manager.dart';
 import 'google_map_location_screen.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 typedef CallBack = void Function();
 
@@ -17,6 +18,16 @@ class GeneralServices extends StatefulWidget {
 }
 
 class GeneralServicesState extends State<GeneralServices> {
+
+  MaskTextInputFormatter maskTextInputFormatter = MaskTextInputFormatter(
+      mask: 'AA ## A ####',
+      filter: { "#": RegExp(r'[0-9]'), "A": RegExp(r'[a-zA-Z]'),  },
+      type: MaskAutoCompletionType.lazy
+  );
+  String _dropDownValue = 'Select Vehicle Type';
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _vehicleController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return CustomerAppBar(child: _mainContainer());
@@ -47,12 +58,17 @@ class GeneralServicesState extends State<GeneralServices> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(20),
-                    child: Column(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
                       children: [
                         addVerticalSpace(50),
                         RWDropDown(
-                            value: 'Select Vehicle Type',
-                            onChanged: (String? val) => { serviceRequestManager.serviceRequestDTO.make = val},
+                            value: _dropDownValue,
+                            onChanged: (String? val) {
+                              serviceRequestManager.serviceRequestDTO.make = val;
+                              _dropDownValue = val!;
+                            },
                             items: const [
                               'Select Vehicle Type',
                               'Honda',
@@ -61,24 +77,54 @@ class GeneralServicesState extends State<GeneralServices> {
                             ]),
                         addVerticalSpace(20),
                         RWTextFormField(
+                            textEditingController: _vehicleController,
                             label: "Vehicle Number",
                             icon: const Icon(Icons.numbers),
-                            onSaved: (String? val) => {serviceRequestManager
-                                .serviceRequestDTO.vehicleNumber = val}),
+                            helperText: "TG 21 B 4592",
+                            textInputFormatters: [
+                              maskTextInputFormatter
+                            ],
+                            onSaved: (String? val) {
+                              serviceRequestManager.serviceRequestDTO.vehicleNumber = val;
+                              _vehicleController.value = TextEditingValue(
+                                text: val?.toUpperCase() as String,
+                                  selection: _vehicleController.selection
+                              );
+                            }
+                            ),
                         addVerticalSpace(70),
                         ElevatedButton(
                             onPressed: () => {
-                              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                return const PreferredMechanicSelectScreen();
-                              }))
-                              /*Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                return GoogleMapLocationPickerV1(isCustomer: true);
-                              }))*/
+                              if (_formKey.currentState!.validate() && _dropDownValue != "Select Vehicle Type") {
+                                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                                  return const PreferredMechanicSelectScreen();
+                                }))
+                              } else {
+                                  showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                          title:
+                                          const Text("Message"),
+                                          content: const Text("Please select vehicle type and enter vehicle number",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.red)),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(
+                                                      context, 'OK'),
+                                              child: const Text('OK'),
+                                            ),
+                                          ])
+                              )
+                              }
                             },
                             child: const Text("Proceed"))
                       ],
                     ),
-                  )
+                  ))
                 ])
             )
         )
@@ -127,28 +173,35 @@ class RWTextFormField extends StatelessWidget {
   final int? maxLength;
   final TextInputType? textInputType;
   final List<TextInputFormatter>? textInputFormatters;
+  final TextCapitalization? textCapitalization;
+  final TextEditingController? textEditingController;
 
-  const RWTextFormField(
-      {required this.label,
-      required this.icon,
-      required this.onSaved,
-      this.helperText,
-      this.maxLength,
-      this.textInputType,
-      this.textInputFormatters});
+  const RWTextFormField({
+    required this.label,
+    required this.icon,
+    required this.onSaved,
+    this.helperText,
+    this.maxLength,
+    this.textInputType,
+    this.textInputFormatters,
+    this.textCapitalization,
+    this.textEditingController
+  });
+
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      onSaved: onSaved,
+      onChanged: onSaved,
       keyboardType: textInputType,
       inputFormatters: textInputFormatters,
+      controller: textEditingController,
       maxLength: maxLength,
+      textCapitalization: textCapitalization ?? TextCapitalization.none,
       decoration: InputDecoration(
         labelText: label,
         helperText: helperText,
         prefixIcon: icon,
-        labelStyle: const TextStyle(color: Colors.black38),
         helperStyle: const TextStyle(color: Colors.red, fontSize: 14),
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -167,7 +220,8 @@ class RWTextFormField extends StatelessWidget {
             borderSide: const BorderSide(
               color: Colors.purple,
               width: 0,
-            )),*/
+            )
+        ),*/
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -176,5 +230,34 @@ class RWTextFormField extends StatelessWidget {
         return null;
       },
     );
+  }
+}
+
+class MaskedTextInputFormatter extends TextInputFormatter {
+  final String mask;
+  final String separator;
+
+  MaskedTextInputFormatter({
+    required this.mask,
+    required this.separator,
+  });
+
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if(newValue.text.isNotEmpty) {
+      if(newValue.text.length > oldValue.text.length) {
+        if(newValue.text.length > mask.length) return oldValue;
+        if(newValue.text.length < mask.length && mask[newValue.text.length - 1] == separator) {
+          return TextEditingValue(
+            text: '${oldValue.text}$separator${newValue.text.substring(newValue.text.length-1)}',
+            selection: TextSelection.collapsed(
+              offset: newValue.selection.end + 1,
+            ),
+          );
+        }
+      }
+    }
+    return newValue;
   }
 }

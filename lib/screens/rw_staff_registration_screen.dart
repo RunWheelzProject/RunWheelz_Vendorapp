@@ -290,6 +290,7 @@ class RWTextFormField extends StatelessWidget {
   final int? maxLength;
   final TextInputType? textInputType;
   final List<TextInputFormatter>? textInputFormatters;
+  final TextCapitalization? textCapitalization;
 
   const RWTextFormField({
     required this.label,
@@ -298,7 +299,8 @@ class RWTextFormField extends StatelessWidget {
     this.helperText,
     this.maxLength,
     this.textInputType,
-    this.textInputFormatters
+    this.textInputFormatters,
+    this.textCapitalization
   });
 
 
@@ -309,6 +311,7 @@ class RWTextFormField extends StatelessWidget {
       keyboardType: textInputType,
       inputFormatters: textInputFormatters,
       maxLength: maxLength,
+      textCapitalization: textCapitalization ?? TextCapitalization.none,
       decoration: InputDecoration(
         labelText: label,
         helperText: helperText,

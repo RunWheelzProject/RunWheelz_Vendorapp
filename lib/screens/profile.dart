@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
-import 'package:file/memory.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -117,7 +116,6 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
         log(file.path);
         setState(() {
           _imageFile = XFile(file.path);
-
         });
       });
 
@@ -441,7 +439,6 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
               icon: const Icon(Icons.camera),
               onPressed: () {
                 takePhoto(ImageSource.camera, _picker).then((file) {
-                  UserImageService().uploadImage(File(_imageFile?.path ?? "images/logo.jpg")).then((msg) => log(msg));
                 });
               },
               label: const Text("Camera"),
@@ -450,7 +447,6 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
               icon: const Icon(Icons.image),
               onPressed: () {
                 takePhoto(ImageSource.gallery, _picker).then((file) {
-                  UserImageService().uploadImage(File(_imageFile?.path ?? "images/logo.jpg")).then((msg) => log(msg));
                 });
               },
               label: const Text("Gallery"),
@@ -472,12 +468,16 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
     if (widget.isCustomer) newPath = path.join(dir, profileManager.customerDTO.id.toString());
     if (widget.isMechanic) newPath = path.join(dir, profileManager.vendorMechanic.id.toString());
     if (widget.isStaff) newPath = path.join(dir, profileManager.staffDTO.id.toString());
-
+    log("newPath: $newPath");
     File file = File(image!.path);
     file.rename(newPath).then((file) {
       setState(() {
         _imageFile = XFile(file.path);
       });
+
+      String path = _imageFile != null ? _imageFile?.path as String : "logo.jpg";
+      UserImageService().uploadImage(File(path)).then((msg) => log(msg));
+
     });
 
     return file;

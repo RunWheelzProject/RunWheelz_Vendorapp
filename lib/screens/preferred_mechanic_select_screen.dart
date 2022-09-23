@@ -86,8 +86,6 @@ class GeneralServicesState extends State<PreferredMechanicSelectScreen> {
                               }
                             }
 
-
-
                             log(jsonEncode(preferredMechanicManager.selectedPreferredMechanicDTO));
                         },
                             items: dropDownList,
@@ -95,9 +93,32 @@ class GeneralServicesState extends State<PreferredMechanicSelectScreen> {
                         addVerticalSpace(70),
                         ElevatedButton(
                             onPressed: () => {
-                              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                                return GoogleMapLocationPickerV1(isCustomer: true, isGeneral: true,);
-                              }))
+                              if (_dropDownSelectedItem != "Select preferred mechanic") {
+                                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                                  return GoogleMapLocationPickerV1(isCustomer: true, isGeneral: true,);
+                                }))
+                              } else {
+                                showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                            title:
+                                            const Text("Message"),
+                                            content: const Text("Please select preferred mechanic",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.red)),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(
+                                                        context, 'OK'),
+                                                child: const Text('OK'),
+                                              ),
+                                            ])
+                                )
+                              }
+
                               /*Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                                 return GoogleMapLocationPickerV1(isCustomer: true);
                               }))*/

@@ -11,7 +11,7 @@ class LocationManager extends ChangeNotifier {
   late String _currentLocation = "";
   late List<PlaceSearchData> _searchedLocations = [];
   late GoogleMapController? _mapController;
-
+  bool _isEmpty = false;
 
   get apiKey => _apiKey;
   get currentLocation => _currentLocation.toString();
@@ -30,6 +30,9 @@ class LocationManager extends ChangeNotifier {
 
   void searchLocations(String input) async {
     _searchedLocations = await RPlaceAutoComplete().getAutoComplete(input);
+    log(jsonEncode(_searchedLocations));
+    isEmpty = true;
+    isEmpty = true;
     notifyListeners();
   }
 
@@ -39,8 +42,15 @@ class LocationManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  set isEmpty(bool val) {
+    _isEmpty = val;
+    notifyListeners();
+  }
+  bool get isEmpty => _isEmpty;
+
   void clearSearchedLocations() {
     _searchedLocations = [];
+    isEmpty = false;
     notifyListeners();
   }
 

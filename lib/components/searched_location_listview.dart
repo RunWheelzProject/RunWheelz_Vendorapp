@@ -60,22 +60,28 @@ class SearchedLocationListViewState extends State<SearchedLocationListView> {
 
                 final detail = await plist.getDetailsByPlaceId(locationManager.searchedLocations[position].placeId);
                 final geometry = detail.result.geometry!;
+
                 if (widget.isVendor) {
                   vendorManager.vendorDTO.latitude = geometry.location.lat;
                   vendorManager.vendorDTO.longitude = geometry.location.lng;
                   locationManager.clearSearchedLocations();
                 }
+
                 if (widget.isCustomer) {
                   serviceRequestManager.serviceRequestDTO.latitude = geometry.location.lat;
                   serviceRequestManager.serviceRequestDTO.longitude = geometry.location.lng;
                   locationManager.clearSearchedLocations();
+                  locationManager.isEmpty = false;
                 }
+
                 LatLng newLocation = LatLng(geometry.location.lat, geometry.location.lng);
                 List<Placemark> placeMarks = await placemarkFromCoordinates(geometry.location.lat, geometry.location.lng);
                 locationManager.setCurrentLocation = '${placeMarks[0].locality}, ${placeMarks[0].subLocality}';
                 locationManager.mapController?.animateCamera(
                     CameraUpdate.newCameraPosition(
-                        CameraPosition(target: newLocation, zoom: 14)));
+                        CameraPosition(target: newLocation, zoom: 14))
+                );
+                locationManager.isEmpty = false;
               },
           );
         });

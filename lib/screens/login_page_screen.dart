@@ -37,7 +37,6 @@ class _LoginScreen extends State<LoginScreen> {
   }
 
 
-
   @override
   void initState() {
 
@@ -93,6 +92,7 @@ class _LoginScreen extends State<LoginScreen> {
                         }
                         if (value.length == 10) {
                           setState(() => readToProceed = true);
+                          FocusScope.of(context).unfocus();
                         }
                       },
                       keyboardType: TextInputType.number,
@@ -145,7 +145,8 @@ class _LoginScreen extends State<LoginScreen> {
                                                             context, 'OK'),
                                                     child: const Text('OK'),
                                                   ),
-                                                ]));
+                                                ])
+                                    );
                                   });
                                 });
                               } else {

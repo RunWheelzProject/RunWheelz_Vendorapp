@@ -281,7 +281,8 @@ class _MyMapState extends State<LocationTrackingMap> {
               polylines: Set<Polyline>.of(polylines.values),
               initialCameraPosition: const CameraPosition(
                   target: LatLng(18.8157, 78.8764),
-                  zoom: 10.0),
+                  zoom: 10.0
+              ),
               onMapCreated: (GoogleMapController controller) async {
                 log("YES ADDED");
                 setState(() {

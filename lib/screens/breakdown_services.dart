@@ -6,21 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/customer_appbar.dart';
-import 'package:untitled/components/dashboard_box.dart';
 import 'package:untitled/manager/service_request_manager.dart';
-import 'package:untitled/model/servie_request.dart';
-import 'package:untitled/screens/customer_registration_screen.dart';
-import 'package:untitled/screens/data_viewer_screen.dart';
-import 'package:untitled/screens/profile.dart';
 import 'package:untitled/utils/add_space.dart';
-import '../components/menu.dart';
-import '../manager/profile_manager.dart';
-import '../manager/vendor_manager.dart';
-import '../resources/resources.dart' as res;
-
-import 'package:http/http.dart' as http;
-
-import 'customer_board.dart';
 import 'google_map_location_screen.dart';
 
 typedef CallBack = void Function();
@@ -33,7 +20,9 @@ class BreakDownServices extends StatefulWidget {
 }
 
 class BreakDownServicesState extends State<BreakDownServices> {
-
+  String _selectService = "Select Services";
+  String _selectVehicleType = "Select Vehicle Type";
+  final _formKey = GlobalKey<FormState>();
   MaskTextInputFormatter maskTextInputFormatter = MaskTextInputFormatter(
       mask: 'AA ## A ####',
       filter: { "#": RegExp(r'[0-9]'), "A": RegExp(r'[a-zA-Z]'),  },
@@ -72,13 +61,19 @@ class BreakDownServicesState extends State<BreakDownServices> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(20),
-                    child: Column(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
                       children: [
                         addVerticalSpace(50),
                         RWDropDown(
-                            value: 'Select Services',
-                            onChanged: (String? val) => serviceRequestManager
-                                .serviceRequestDTO.serviceType = val,
+                            value: _selectService,
+                            onChanged: (String? val) {
+                              serviceRequestManager.serviceRequestDTO.serviceType = val;
+                              setState(() {
+                                _selectService = val!;
+                              });
+                            },
                             items: const [
                               'Select Services',
                               'Puncture',
@@ -87,9 +82,13 @@ class BreakDownServicesState extends State<BreakDownServices> {
                             ]),
                         addVerticalSpace(20),
                         RWDropDown(
-                            value: 'Select Vehicle Type',
-                            onChanged: (String? val) => serviceRequestManager
-                                .serviceRequestDTO.make = val,
+                            value: _selectVehicleType,
+                            onChanged: (String? val) {
+                              serviceRequestManager.serviceRequestDTO.make = val;
+                              setState(() {
+                                _selectVehicleType = val!;
+                              });
+                            },
                             items: const [
                               'Select Vehicle Type',
                               'Honda',
@@ -115,18 +114,42 @@ class BreakDownServicesState extends State<BreakDownServices> {
                         ElevatedButton(
                             onPressed: () {
                               log(jsonEncode(serviceRequestManager.serviceRequestDTO));
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) {
-                                //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                return GoogleMapLocationPickerV1(
-                                  isCustomer: true,
+                              if (_formKey.currentState!.validate() &&
+                                  _selectVehicleType != "Select Vehicle Type" &&
+                                  _selectService != "Select Service") {
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) {
+                                          //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
+                                          return GoogleMapLocationPickerV1(
+                                            isCustomer: true,
+                                          );
+                                        }));
+                              } else {
+                                showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                            title:
+                                            const Text("Message"),
+                                            content: const Text("Please select missing fields",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.red)),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(
+                                                        context, 'OK'),
+                                                child: const Text('OK'),
+                                              ),
+                                            ])
                                 );
-                              }));
+                              }
                             },
                             child: const Text("Proceed"))
                       ],
-                    ),
+                    )),
                   )
                 ]))));
   }

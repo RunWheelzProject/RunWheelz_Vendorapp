@@ -61,9 +61,6 @@ class PreferredMechanicService {
         headers: headers
     );
 
-    log("notRegistered: ${jsonEncode(response.body)}");
-
-
     var jsonResponse = jsonDecode(response.body);
     if (response.statusCode == 200) {
       return ServiceRequestDTO.fromJson(jsonResponse);

@@ -26,6 +26,7 @@ import '../manager/vendor_manager.dart';
 import '../model/servie_request.dart';
 import '../model/staff.dart';
 import '../services/staff_service.dart';
+import '../utils/get_location.dart';
 import 'data_viewer_screen.dart';
 
 class VendorInprogressScreen extends StatefulWidget {
@@ -55,6 +56,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
   LatLng? _mechanicLatLng;
   List<String> _statusUpdateList = [];
   List<Row> serviceRows = [];
+  String? _serviceLocation;
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
@@ -95,6 +97,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
             children: [
               Text(
                 "${item[0]}: " ?? "",
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, fontSize: 16),
               ),
@@ -113,6 +116,13 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
   @override
   void initState() {
     super.initState();
+
+    getServiceLocation(
+        widget.serviceRequestDTO?.latitude ?? 0.0,
+        widget.serviceRequestDTO?.longitude ?? 0.0
+    ).then((String location) => setState(() => _serviceLocation = location));
+
+
 
     if (widget.pageTitle == "In Progress") {
       setState(() => _statusUpdateList = ['Select', 'VENDOR_PENDING', 'VENDOR_COMPLETED']);
@@ -202,7 +212,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                   ["Service Type", widget.serviceRequestDTO?.serviceType],
                   ["Make", widget.serviceRequestDTO?.make],
                   ["Vehicle Number", widget.serviceRequestDTO?.vehicleNumber],
-                  ["Location", "Lingampally"]
+                  ["Location", _serviceLocation]
                 ])
             ),
             const SizedBox(height: 20,),
@@ -293,14 +303,14 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                             ],
                           );
                         }),
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10,),
 
                   ],
                 ),
               ),
+            const SizedBox(height: 20,),
             if (widget.isVendor)
             Container(
-              margin: const EdgeInsets.all(10),
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -311,8 +321,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       DropdownButton<String>(
                           value: _dropDownMechanicValue,
@@ -380,7 +389,8 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                               );
                             }
                           },
-                          child: const Text("Update")),
+                          child: const Text("Update")
+                      ),
                     ],
                   )
                 ],

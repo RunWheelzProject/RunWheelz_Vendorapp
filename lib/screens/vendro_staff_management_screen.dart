@@ -30,7 +30,7 @@ class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
   List<VendorMechanic> _vendorMechanic = [];
 
   Future<List<VendorMechanic>> getAllMechanics() async {
-    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getallmechanics"));
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getAllVendorMechanic"));
     var jsonResponse = jsonDecode(response.body);
     log("${jsonEncode(jsonResponse)}");
     List<VendorMechanic> list = [];
@@ -120,7 +120,7 @@ class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
                             //profileManager.staffDTO = staff;
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
-                                  return VendorDashboardProfile(isStaff: true,);
+                                  return VendorDashboardProfile(isMechanic: true,);
                                 })
                             );
                           },

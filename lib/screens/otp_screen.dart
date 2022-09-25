@@ -3,8 +3,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:profile/profile.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:untitled/manager/customer_managere.dart';
 import 'package:untitled/manager/manager.dart';
 import 'package:untitled/manager/profile_manager.dart';
+import 'package:untitled/manager/role_based_login_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/model/staff.dart';
@@ -87,6 +89,27 @@ class _OTPState extends State<OtpScreen> {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
     return await Geolocator.getCurrentPosition();
+  }
+
+  void collectData(RoleBasedLogIn role, var responseJson) {
+    VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
+    CustomerManager customerManager = Provider.of<CustomerManager>(context, listen: false);
+    StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
+    VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context, listen: false);
+    if (role.roleType == 4) {
+      profileManager.vendorDTO = VendorDTO.fromJson(responseJson["vendorDTO"]);
+      vendorManager.vendorDTO = VendorDTO.fromJson(responseJson["vendorDTO"]);
+    } else if (role.roleType == 7) {
+      profileManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
+      vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
+    } else if (role.roleType == 1 || role.roleType == 3 || role.roleType == 2) {
+      profileManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+      staffManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+    } else if (role.roleType == 5) {
+      profileManager.customerDTO = CustomerDTO.fromJson(responseJson["customerDTO"]);
+      customerManager.customerDTO = CustomerDTO.fromJson(responseJson["customerDTO"]);
+    }
   }
 
   @override
@@ -240,14 +263,6 @@ class _OTPState extends State<OtpScreen> {
   void verifyOtp() {
     LogInManager logInManager =
         Provider.of<LogInManager>(context, listen: false);
-    VendorManager vendorManager =
-        Provider.of<VendorManager>(context, listen: false);
-    StaffManager staffManager =
-        Provider.of<StaffManager>(context, listen: false);
-    ProfileManager profileManager =
-        Provider.of<ProfileManager>(context, listen: false);
-    VendorMechanicManager vendorMechanicManager =
-        Provider.of<VendorMechanicManager>(context, listen: false);
 
     if (!_isVerifyDisabled) {
       return;
@@ -264,134 +279,28 @@ class _OTPState extends State<OtpScreen> {
       PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1]).then((http.Response response) {
         var responseJson = jsonDecode(response.body);
         log(jsonEncode(responseJson));
-        if (responseJson["role"] != null) {
-          var role = responseJson["role"];
 
-          if (role["roleName"] == "CUSTOMER") {
+          RoleBasedLogIn roleBasedLoggedIn = RoleBasedLogIn(
+            status: response.statusCode,
+            roleType: responseJson["roleType"],
+            url: logInManager.currentURLs![1],
+            registrationStatus: responseJson["registrationStatus"]
+          );
 
-            profileManager.customerDTO = CustomerDTO.fromJson(responseJson);
-            if (profileManager.customerDTO.registrationStatus == true) {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (BuildContext context) {
-                    log("role1: ${jsonEncode(role)}");
-                    return CustomerDashBoard(isCustomer: true);
-                  }));
-            } else {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (BuildContext context) {
-                    log("role1: ${jsonEncode(role)}");
-                    return const CustomerRegistration();
-                  }));
-            }
-          }
-
-        } else {
-          if (response.statusCode == 201 && responseJson["id"] != null) {
-            vendorManager.vendorDTO.phoneNumber =
-            responseJson["phoneNumber"];
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return const VendorRegistrationV1();
-                }));
-          }
-          if (response.statusCode == 201 && responseJson["vendorDTO"] != null) {
-            profileManager.vendorDTO =
-                VendorDTO.fromJson(responseJson["vendorDTO"]);
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return const VendorDashBoard();
-                }));
-          }
-          if (response.statusCode == 201 &&
-              responseJson["vendorStaffDTO"] != null) {
-            profileManager.vendorMechanic =
-                VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
-
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return VendorMechanicDashBoard(
-                    requestId: "",
-                  );
-                }));
-          }
-          if (response.statusCode == 201 &&
-              responseJson["runwheelzStaffDTO"] != null) {
-            profileManager.staffDTO =
-                StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
-            if (profileManager.staffDTO.role?.roleName == "MARKETING_AGENT") {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (BuildContext context) {
-                    log("marketing_agent");
-                    return const MarketingAgentPage();
-                  }));
-            } else {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (BuildContext context) {
-                    return const RunWheelManagementPage();
-                  })
-              );
-            }
-          }
-          if (response.statusCode == 201 &&
-              logInManager.currentURLs![1].contains("vendor")) {
-            var jsonResponse = jsonDecode(response.body);
-            vendorManager.vendorDTO =
-                VendorDTO.fromJson(jsonResponse);
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return MultiProvider(providers: [
-                    ChangeNotifierProvider<RoleManager>(
-                        create: (context) => RoleManager()),
-                  ], child: const RWVendorRegistration());
-                }));
-          }
-          /*if (response.statusCode == 201 &&
-            logInManager.currentURLs![1].contains("mechanic")) {
-
-          var jsonResponse = jsonDecode(response.body);
-          log("JsonResponse: $jsonResponse");
-          vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(jsonResponse);
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-                return MultiProvider(providers: [
-                  ChangeNotifierProvider<RoleManager>(
-                      create: (context) => RoleManager()),
-                ], child: const RWStaffRegistration());
+          for (RoleBasedLogIn role in RoleBasedLogInManager.roleBasedLoggedIn) {
+            if (roleBasedLoggedIn == role) {
+              collectData(role, responseJson);
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                return role.navigateTo;
               }));
-
-          // RWStaffRegistration
-        }*/
-          if (response.statusCode == 201 &&
-              logInManager.currentURLs![1].contains("staff")) {
-            var jsonResponse = jsonDecode(response.body);
-            log("JsonResponse: $jsonResponse");
-            staffManager.staffDTO = StaffDTO.fromJson(jsonResponse);
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return MultiProvider(providers: [
-                    ChangeNotifierProvider<RoleManager>(
-                        create: (context) => RoleManager()),
-                  ], child: const RWStaffRegistration());
-                }));
-
-            // RWStaffRegistration
+            }
           }
-          var messageMap = responseJson as Map;
-          if (messageMap.containsKey("message")) {
-            log("ServerError: ${messageMap["message"]}");
-            setState(() {
-              _msgValue = messageMap["message"];
-              _msgStyle = const TextStyle(color: Colors.red);
-            });
-          }
-        }
       }).catchError((error) {
         log("ServerError: $error");
         setState(() {
           _msgValue = error.toString();
           _msgStyle = const TextStyle(color: Colors.red);
         });
-
       });
     }
   }

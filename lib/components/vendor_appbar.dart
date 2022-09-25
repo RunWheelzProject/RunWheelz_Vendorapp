@@ -6,13 +6,16 @@ import 'package:untitled/screens/profile.dart';
 import 'package:untitled/utils/add_space.dart';
 
 import '../screens/customer_board.dart';
+import '../screens/vendor_dashboard.dart';
+import '../screens/vendor_works.dart';
+import '../screens/vendro_staff_management_screen.dart';
 
 
 
-class CustomerAppBar extends StatelessWidget {
+class VendorAppBar extends StatelessWidget {
   Widget child;
 
-  CustomerAppBar({super.key, required this.child});
+  VendorAppBar({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,7 @@ class CustomerAppBar extends StatelessWidget {
                               MaterialPageRoute(
                                   builder: (BuildContext context) {
                                     return VendorDashboardProfile(
-                                        isCustomer: true);
+                                        isVendor: true);
                                   })
                           );
                         },
@@ -59,17 +62,17 @@ class CustomerAppBar extends StatelessWidget {
                 RWMap(
                     title: "Home",
                     icon: const Icon(Icons.home, color: Colors.deepPurple,),
-                    navigateTo: CustomerDashBoard(isCustomer: true)
+                    navigateTo: const VendorDashBoard()
                 ),
                 RWMap(
-                    title: "Request History",
+                    title: "Vendor Works",
                     icon: const Icon(Icons.history, color: Colors.deepPurple,),
-                    navigateTo: const CustomerRequestHistory()
+                    navigateTo: const VendorWorks()
                 ),
                 RWMap(
-                    title: "My Mechanic",
+                    title: "Vendor Staff",
                     icon: const Icon(Icons.person, color: Colors.deepPurple,),
-                    navigateTo: CustomerFavoriteMechanic()
+                    navigateTo: const VendorStaffManagementPage()
                 )
               ],
             )
@@ -80,45 +83,3 @@ class CustomerAppBar extends StatelessWidget {
   }
 }
 
-
-/*
-
-Drawer(
-child: ListView(
-children: [
-ListTile(
-title: const Text('Home',
-style: TextStyle(color: Colors.red, fontSize: 16),),
-onTap: () {
-Navigator.of(context).pushReplacement(
-MaterialPageRoute(builder: (BuildContext context) {
-return CustomerDashBoard(isCustomer: true);
-})
-);
-},
-),
-ListTile(
-title: const Text('Request History',
-style: TextStyle(color: Colors.red, fontSize: 16),),
-onTap: () {
-Navigator.of(context).pushReplacement(
-MaterialPageRoute(builder: (BuildContext context) {
-return const CustomerRequestHistory();
-})
-);
-},
-),
-ListTile(
-title: const Text('My Mechanics',
-style: TextStyle(color: Colors.red, fontSize: 16),),
-onTap: () {
-Navigator.of(context).pushReplacement(
-MaterialPageRoute(builder: (BuildContext context) {
-return CustomerFavoriteMechanic();
-})
-);
-},
-),
-],
-)
-))*/

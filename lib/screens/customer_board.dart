@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/components/customer_appbar.dart';
 import 'package:untitled/components/dashboard_box.dart';
 import 'package:untitled/manager/preferred_mechanic_manager.dart';
 import 'package:untitled/model/servie_request.dart';
@@ -135,148 +136,80 @@ class CustomerDashBoardState extends State<CustomerDashBoard> {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-        primary: true,
-        appBar: AppBar(
-          flexibleSpace: SafeArea(
-            child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text("Run Wheelz",
-                        style: TextStyle(color: Colors.white, fontSize: 23)),
-                    addHorizontalSpace(70),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (BuildContext context) {
-                                return VendorDashboardProfile(isCustomer: widget.isCustomer, isVendor: widget.isVendor);
-                              })
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.account_circle_rounded,
-                          color: Colors.white,
-                        )),
-                    addHorizontalSpace(20),
-                    const Icon(
-                      Icons.notification_add_rounded,
-                      color: Colors.white,
-                    ),
-                    addHorizontalSpace(20),
-                  ],
-                )),
-          ),
-        ),
-        drawer: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),
-            child: Drawer(
-                child: ListView(
-                  children: [
-                    ListTile(
-                      title: const Text('Home', style: TextStyle(color: Colors.red, fontSize: 16),),
-                      onTap: () {
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return CustomerDashBoard(isCustomer: widget.isCustomer, isVendor: widget.isVendor);
-                            })
-                        );
-                      },
-                    ),
-                    ListTile(
-                      title: const Text('Request History', style: TextStyle(color: Colors.red, fontSize: 16),),
-                      onTap: () {
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return const CustomerRequestHistory();
-                            })
-                        );
-                      },
-                    ),
-                    ListTile(
-                      title: const Text('My Mechanics', style: TextStyle(color: Colors.red, fontSize: 16),),
-                      onTap: () {
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return const PreferredMechanic();
-                            })
-                        );
-                      },
-                    ),
-                  ],
-                )
-            )),
-        body: SafeArea(
-            child: SingleChildScrollView(
-                child: Container(
-                    height: 500,
-                    margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
-                    padding: const EdgeInsets.only(top: 40),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5.0),
-                      color: Colors.white,
-                    ),
-                    child: Column(children: <Widget>[
-                      const Text(
-                        "Customer Dashboards",
-                        style: TextStyle(
-                            color: Colors.deepPurple,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 21
-                        )
-                      ),
-                      addVerticalSpace(50),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          CustomerDashBoardBox(
-                              callBack: goToRequests,
-                              icon: const Icon(
-                                Icons.notifications_active_outlined,
-                                color: Colors.purple,
-                                size: 34,
-                              ),
-                              title: "General Services",
-                          ),
-                          CustomerDashBoardBox(
-                              callBack: goToInProgress,
-                              icon: const Icon(
-                                Icons.file_download,
-                                color: Colors.purple,
-                                size: 34,
-                              ),
-                              title: "BreakDown",
-                          ),
-                        ],
-                      ),
-                      addVerticalSpace(40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          CustomerDashBoardBox(
-                              callBack: goToPendingRequests,
-                              icon: const Icon(
-                                  Icons.pending_actions_rounded,
-                                  color: Colors.purple,
-                                  size: 34
-                              ),
-                              title: "Towing",
-                          ),
-                          CustomerDashBoardBox(
-                              callBack: goToRaisedRequests,
-                              icon: const Icon(
-                                Icons.new_label_outlined,
-                                color: Colors.purple,
-                                size: 34,
-                              ),
-                              title: "After Marketing",
-                          ),
-                        ],
+    return CustomerAppBar(
+        child: _mainContainer()
+    );
+  }
+
+  Widget _mainContainer() {
+    return SafeArea(
+        child: SingleChildScrollView(
+            child: Container(
+                height: 500,
+                margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
+                padding: const EdgeInsets.only(top: 40),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: Colors.white,
+                ),
+                child: Column(children: <Widget>[
+                  const Text(
+                      "Customer Dashboards",
+                      style: TextStyle(
+                          color: Colors.deepPurple,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 21
                       )
-                    ])
-                )
+                  ),
+                  addVerticalSpace(50),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      CustomerDashBoardBox(
+                        callBack: goToRequests,
+                        icon: const Icon(
+                          Icons.notifications_active_outlined,
+                          color: Colors.purple,
+                          size: 34,
+                        ),
+                        title: "General Services",
+                      ),
+                      CustomerDashBoardBox(
+                        callBack: goToInProgress,
+                        icon: const Icon(
+                          Icons.file_download,
+                          color: Colors.purple,
+                          size: 34,
+                        ),
+                        title: "BreakDown",
+                      ),
+                    ],
+                  ),
+                  addVerticalSpace(40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      CustomerDashBoardBox(
+                        callBack: goToPendingRequests,
+                        icon: const Icon(
+                            Icons.pending_actions_rounded,
+                            color: Colors.purple,
+                            size: 34
+                        ),
+                        title: "Towing",
+                      ),
+                      CustomerDashBoardBox(
+                        callBack: goToRaisedRequests,
+                        icon: const Icon(
+                          Icons.new_label_outlined,
+                          color: Colors.purple,
+                          size: 34,
+                        ),
+                        title: "After Marketing",
+                      ),
+                    ],
+                  )
+                ])
             )
         )
     );

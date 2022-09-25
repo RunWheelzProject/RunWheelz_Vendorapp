@@ -85,7 +85,7 @@ class GeneralServicesState extends State<GeneralServices> {
                               maskTextInputFormatter
                             ],
                             onSaved: (String? val) {
-                              serviceRequestManager.serviceRequestDTO.vehicleNumber = val?.toUpperCase();
+                              serviceRequestManager.serviceRequestDTO.vehicleNumber = val!;
                               _vehicleController.value = TextEditingValue(
                                 text: val?.toUpperCase() as String,
                                   selection: _vehicleController.selection

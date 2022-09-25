@@ -34,10 +34,11 @@ class LogInConfirmation extends StatelessWidget {
               ),
             child:Center(
               child: Container(
+                margin: const EdgeInsets.all(20),
               width: MediaQuery.of(context).size.width,
               height: 400,
               decoration: const BoxDecoration(
-                  color: Colors.white70
+                  color: Colors.white
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -26,7 +26,19 @@ class RGoogleMap extends StatefulWidget {
 class RGoogleMapState extends State<RGoogleMap> {
   final LatLng startLocation = const LatLng(18.790894, 78.911850);
   List<Marker> _markers = [];
-  
+
+  @override
+  void initState() {
+    final marker = Marker(
+        position: widget.currentLocation ?? startLocation,
+        markerId: const MarkerId('0'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueRed)
+    );
+    setState(() {
+      _markers.add(marker);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     LocationManager locationManager = Provider.of<LocationManager>(context, listen: false);
@@ -39,14 +51,6 @@ class RGoogleMapState extends State<RGoogleMap> {
       mapType: MapType.normal,
       markers: _markers.toSet(),
       onMapCreated: (controller) {
-          final marker = Marker(
-              position: widget.currentLocation ?? startLocation,
-              markerId: const MarkerId('0'),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueRed)
-          );
-          _markers.add(marker);
-
         setState(() {
           locationManager.setMapController(controller);
         });

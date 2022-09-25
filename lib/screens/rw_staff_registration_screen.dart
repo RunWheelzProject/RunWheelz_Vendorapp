@@ -161,18 +161,15 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                             alignment: Alignment.centerLeft,
                             child: RWDropDown(
                               value: _dropDownValue,
-                              items: roles,
+                              items: const ["Select Role", "ADMIN", "EXECUTIVE", "MARKETING_AGENT"],
                               onChanged: (String? newValue) {
                                   _dropDownValue = newValue!;
                                   RoleDTO roleDTO = RoleDTO();
-                                  for (var role in roleManager.roleNames) {
-                                    if (role.roleName == newValue) {
-                                      roleDTO.id = role.id;
-                                      break;
-                                    }
-                                    roleDTO.roleName = newValue;
-                                    staffManager.staffDTO.role = roleDTO;
-                                  }
+                                  if (_dropDownValue == "ADMIN") roleDTO.id = 1;
+                                  if (_dropDownValue == "MARKETING_AGENT") roleDTO.id = 2;
+                                  if (_dropDownValue == "EXECUTIVE") roleDTO.id = 3;
+                                  roleDTO.roleName = newValue;
+                                  staffManager.staffDTO.role = roleDTO;
                               },
                             )
                         ),

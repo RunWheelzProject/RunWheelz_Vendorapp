@@ -184,7 +184,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                 if (widget.isStaff) return const RunWheelManagementPage();
                 if (widget.isVendor) return const VendorDashBoard();
                 if (widget.isCustomer) return CustomerDashBoard(isCustomer: widget.isCustomer, isVendor: widget.isVendor);
-                return VendorMechanicDashBoard(requestId: '');
+                return VendorDashBoard();
               })
           )
         },

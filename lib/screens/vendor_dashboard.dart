@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/dashboard_box.dart';
+import 'package:untitled/components/vendor_appbar.dart';
 import 'package:untitled/model/servie_request.dart';
 import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
@@ -41,14 +42,14 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   void initState() {
     super.initState();
     setState(() => countRequests());
-    log("counts: ${requestCounts}");
+    log("counts: $requestCounts");
     //log("${jsonEncode(requestCounts)}");
   }
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     http.Response response = await
-      http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${profileManager.vendorDTO.id}"));
+    http.get(Uri.parse("${res.APP_URL}/api/servicerequest/by_vendor/${profileManager.vendorDTO.id}"));
     var jsonList = jsonDecode(response.body) as List;
     var jsonResponse = jsonDecode(response.body);
     List<ServiceRequestDTO> list = [];
@@ -77,6 +78,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   void goToRequests() {
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       log("accepted: ${jsonEncode(requests)}");
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
@@ -95,6 +97,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
 
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_INPROGRESS').toList();
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return VendorDataManagementPage(
@@ -110,6 +113,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
 
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_PENDING').toList();
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return VendorDataManagementPage(
@@ -125,6 +129,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   void goToRaisedRequests() {
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return CustomerDashBoard(isVendor: true);
@@ -135,111 +140,79 @@ class VendorDashBoardState extends State<VendorDashBoard> {
 
   @override
   Widget build(BuildContext context) {
+    return VendorAppBar(
+        child: _mainContainer()
+    );
+  }
+
+  Widget _mainContainer() {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-        primary: true,
-        appBar: AppBar(
-          flexibleSpace: SafeArea(
-            child: Center(
-                child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text("Run Wheelz",
-                    style: TextStyle(color: Colors.white, fontSize: 23)),
-                addHorizontalSpace(70),
-                IconButton(
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (BuildContext context) {
-                            return VendorDashboardProfile(isVendor: true);
-                          })
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.account_circle_rounded,
-                      color: Colors.white,
-                    )),
-                addHorizontalSpace(20),
-                const Icon(
-                  Icons.notification_add_rounded,
+    return SafeArea(
+        child: SingleChildScrollView(
+            child: Container(
+                height: 500,
+                margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
+                padding: const EdgeInsets.only(top: 40),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
                   color: Colors.white,
                 ),
-                addHorizontalSpace(20),
-              ],
-            )),
-          ),
-        ),
-        drawer: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),
-            child: Menu.menuData("menu", res.menuItems)),
-        body: SafeArea(
-            child: SingleChildScrollView(
-                child: Container(
-                  height: 500,
-                  margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
-                  padding: const EdgeInsets.only(top: 40),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5.0),
-                      color: Colors.white,
+                child: Column(children: <Widget>[
+                  Text(
+                    "Vendor Dashboard",
+                    style: textTheme.headline4,
+                  ),
+                  addVerticalSpace(50),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DashBoardBox(
+                          callBack: goToRequests,
+                          icon: const Icon(
+                            Icons.notifications_active_outlined,
+                            color: Colors.purple,
+                            size: 34,
+                          ),
+                          title: "New Requests",
+                          count: (requestCounts["VENDOR_ACCEPTED"].toString()) ?? "0"
                       ),
-                  child: Column(children: <Widget>[
-                    Text(
-                      "Vendor Dashboard",
-                      style: textTheme.headline4,
-                    ),
-                    addVerticalSpace(50),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        DashBoardBox(
-                            callBack: goToRequests,
-                            icon: const Icon(
-                              Icons.notifications_active_outlined,
-                              color: Colors.purple,
-                              size: 34,
-                            ),
-                            title: "New Requests",
-                            count: (requestCounts["VENDOR_ACCEPTED"].toString()) ?? "0"
-                        ),
-                        DashBoardBox(
-                            callBack: goToInProgress,
-                            icon: const Icon(
-                              Icons.file_download,
-                              color: Colors.purple,
-                              size: 34,
-                            ),
-                            title: "In Progress",
-                            count: (requestCounts["VENDOR_INPROGRESS"].toString()) ?? "0"),
-                      ],
-                    ),
-                    addVerticalSpace(40),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        DashBoardBox(
-                            callBack: goToPendingRequests,
-                            icon: const Icon(
+                      DashBoardBox(
+                          callBack: goToInProgress,
+                          icon: const Icon(
+                            Icons.file_download,
+                            color: Colors.purple,
+                            size: 34,
+                          ),
+                          title: "In Progress",
+                          count: (requestCounts["VENDOR_INPROGRESS"].toString()) ?? "0"),
+                    ],
+                  ),
+                  addVerticalSpace(40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DashBoardBox(
+                          callBack: goToPendingRequests,
+                          icon: const Icon(
                               Icons.pending_actions_rounded,
                               color: Colors.purple,
                               size: 34
-                            ),
-                            title: "Pending Requests",
-                            count: (requestCounts["VENDOR_PENDING"].toString()) ?? "0"),
-                        DashBoardBox(
-                            callBack: goToRaisedRequests,
-                            icon: const Icon(
-                              Icons.new_label_outlined,
-                              color: Colors.purple,
-                              size: 34,
-                            ),
-                            title: "Raise Request",
-                            count: "34"
-                        ),
-                      ],
-                    )
-                  ])
-              )
+                          ),
+                          title: "Pending Requests",
+                          count: (requestCounts["VENDOR_PENDING"].toString()) ?? "0"),
+                      DashBoardBox(
+                          callBack: goToRaisedRequests,
+                          icon: const Icon(
+                            Icons.new_label_outlined,
+                            color: Colors.purple,
+                            size: 34,
+                          ),
+                          title: "Raise Request",
+                          count: "34"
+                      ),
+                    ],
+                  )
+                ])
             )
         )
     );

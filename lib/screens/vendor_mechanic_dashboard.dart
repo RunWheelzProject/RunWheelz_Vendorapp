@@ -105,24 +105,23 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
                   ),
                   Expanded(
                       child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: SearchableList<ServiceRequestDTO>(
-                      initialList: serviceRequests,
-                      builder: (ServiceRequestDTO newRequest) => Item(
-                        serviceRequestDTO: newRequest,
-                      ),
-                      filter: (value) => serviceRequests
-                          .where((element) =>
-                              element.id.toString().contains(value))
-                          .toList(),
-                      onItemSelected: (ServiceRequestDTO item) {
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                          return VendorInprogressScreen(
-                            serviceRequestDTO: item,
-                            isMechanic: true, pageTitle: '',
-                          );
-                        }));
+                      padding: const EdgeInsets.all(15),
+                      child: SearchableList<ServiceRequestDTO>(
+                        initialList: serviceRequests,
+                        builder: (ServiceRequestDTO newRequest) => Item(
+                          serviceRequestDTO: newRequest,
+                        ),
+                        filter: (value) => serviceRequests
+                            .where((element) =>
+                                element.id.toString().contains(value))
+                            .toList(),
+                        onItemSelected: (ServiceRequestDTO item) {
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                            return VendorInprogressScreen(
+                              serviceRequestDTO: item,
+                              isMechanic: true, pageTitle: '',
+                            );
+                          }));
                       },
                       inputDecoration: InputDecoration(
                         labelText: "Search ",

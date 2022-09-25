@@ -18,14 +18,16 @@ class LogInManager extends ChangeNotifier {
       "${res.APP_URL}/api/auth/register/runwheelz/staff/verifyotp"
     ],
     "mechanicRegistration": [
-      "${res.APP_URL}/api/auth/register/vendor/mechanic/sendOtp?",
-      "${res.APP_URL}/api/auth/register/vendor/mechanic/verifyotp"
+      "${res.APP_URL}/api/auth/register/mechanic/sendOtp?",
+      "${res.APP_URL}/api/auth/register/mechanic/verifyotp"
     ],
     "customerRegistration": [
       "${res.APP_URL}/api/customer/sendOtp?",
       "${res.APP_URL}/api/customer/verifyotp"
     ]
   };
+
+
 
   late List<String>? _currentURLs = [];
 

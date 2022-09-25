@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -22,10 +23,12 @@ import '../resources/resources.dart';
 import 'package:http/http.dart' as http;
 
 import '../utils/add_space.dart';
+import '../utils/get_location.dart';
 import 'customer_board.dart';
 import 'customer_favorite_mechnic.dart';
 import 'customer_reqeust_history.dart';
 import 'live_track_map.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class VendorMechanicTrakcer {
   bool isStopped = false;
@@ -44,7 +47,7 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
   Timer? _timer;
   VendorMechanic? _vendorMechanic;
   LatLng? _mechanicLatLng;
-
+  String? _serviceLocation;
   List<Row> createRows(List<List<String?>> list) {
     List<Row> rows = [];
     log("service Details ${jsonEncode(list)}");
@@ -70,9 +73,18 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
     return rows;
   }
 
+
   @override
   void initState() {
     super.initState();
+
+    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
+
+    getServiceLocation(
+      serviceRequestManager.serviceRequestDTO.latitude ?? 0.0,
+      serviceRequestManager.serviceRequestDTO.longitude ?? 0.0
+    ).then((String location) => setState(() => _serviceLocation = location));
+
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (isStopped) {
         timer.cancel();
@@ -104,13 +116,31 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
           CardWithHeader(
             title: "Request Details",
               children: createRows([
-                ["Service Type", serviceRequestManager.serviceRequestDTO?.serviceType],
+                ["Service Type", serviceRequestManager.serviceRequestDTO?.serviceType ?? "None"],
                 ["Make", serviceRequestManager.serviceRequestDTO?.make],
                 ["Vehicle Number", serviceRequestManager.serviceRequestDTO?.vehicleNumber],
-                ["Location", "Lingampally"]
+                ["Location", _serviceLocation]
               ])
           ),
           const SizedBox(height: 20,),
+          if (_vendorMechanic == null)
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 50),
+              child: Column(
+                  children: const [
+                    SpinKitFadingCircle(
+                      color: Colors.red,
+                      size: 100.0,
+                    ),
+                    SizedBox(height: 60,),
+                    Text("Waiting for mechanic approval of your request",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16
+                    ))
+                  ]
+              ),
+            ),
           if (_vendorMechanic != null)
           CardWithHeader(
             title: "Vendor Details",

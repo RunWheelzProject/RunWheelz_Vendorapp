@@ -8,6 +8,7 @@ import 'package:untitled/model/servie_request.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/utils/add_space.dart';
+import '../components/customer_appbar.dart';
 import '../components/menu.dart';
 import '../manager/profile_manager.dart';
 import '../manager/vendor_manager.dart';
@@ -138,125 +139,81 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
       );
     }).catchError((error) => log("error: $error"));
   }
-
   @override
   Widget build(BuildContext context) {
+    return CustomerAppBar(
+        child: _mainContainer()
+    );
+  }
+
+  Widget _mainContainer() {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-        primary: true,
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.purple,
-          onPressed: () => {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return CustomerDashBoard(isCustomer: true);
-                })
-            )
-          },
-          child: const Icon(Icons.arrow_back),
-        ),
-        appBar: AppBar(
-          flexibleSpace: SafeArea(
-            child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text("Run Wheelz",
-                        style: TextStyle(color: Colors.white, fontSize: 23)),
-                    addHorizontalSpace(70),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (BuildContext context) {
-                                return VendorDashboardProfile(isCustomer: true);
-                              })
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.account_circle_rounded,
-                          color: Colors.white,
-                        )),
-                    addHorizontalSpace(20),
-                    const Icon(
-                      Icons.notification_add_rounded,
-                      color: Colors.white,
-                    ),
-                    addHorizontalSpace(20),
-                  ],
-                )),
-          ),
-        ),
-        drawer: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),
-            child: Menu.menuData("menu", res.menuItems)),
-        body: SafeArea(
-            child: SingleChildScrollView(
-                child: Container(
-                    height: 500,
-                    margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
-                    padding: const EdgeInsets.only(top: 40),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5.0),
-                      color: Colors.white,
-                    ),
-                    child: Column(children: <Widget>[
-                      Text(
-                        "Request History",
-                        style: textTheme.headline4,
-                      ),
-                      addVerticalSpace(50),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          DashBoardBox(
-                              callBack: goToRequests,
-                              icon: const Icon(
-                                Icons.notifications_active_outlined,
-                                color: Colors.purple,
-                                size: 34,
-                              ),
-                              title: "New Requests",
-                              count: (requestCounts["VENDOR_ACCEPTED"].toString()) ?? "0"
+    return SafeArea(
+        child: SingleChildScrollView(
+            child: Container(
+                height: 500,
+                margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
+                padding: const EdgeInsets.only(top: 40),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: Colors.white,
+                ),
+                child: Column(children: <Widget>[
+                  Text(
+                    "Request History",
+                    style: textTheme.headline4,
+                  ),
+                  addVerticalSpace(50),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DashBoardBox(
+                          callBack: goToRequests,
+                          icon: const Icon(
+                            Icons.notifications_active_outlined,
+                            color: Colors.purple,
+                            size: 34,
                           ),
-                          DashBoardBox(
-                              callBack: goToInProgress,
-                              icon: const Icon(
-                                Icons.file_download,
-                                color: Colors.purple,
-                                size: 34,
-                              ),
-                              title: "In Progress",
-                              count: (requestCounts["VENDOR_INPROGRESS"].toString()) ?? "0"),
-                        ],
+                          title: "New Requests",
+                          count: (requestCounts["VENDOR_ACCEPTED"].toString()) ?? "0"
                       ),
-                      addVerticalSpace(40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          DashBoardBox(
-                              callBack: goToPendingRequests,
-                              icon: const Icon(
-                                  Icons.pending_actions_rounded,
-                                  color: Colors.purple,
-                                  size: 34
-                              ),
-                              title: "Pending Requests",
-                              count: (requestCounts["VENDOR_PENDING"].toString()) ?? "0"),
-                          DashBoardBox(
-                              callBack: goToRaisedRequests,
-                              icon: const Icon(
-                                Icons.new_label_outlined,
-                                color: Colors.purple,
-                                size: 34,
-                              ),
-                              title: "Raise Request",
-                              count: "34"
+                      DashBoardBox(
+                          callBack: goToInProgress,
+                          icon: const Icon(
+                            Icons.file_download,
+                            color: Colors.purple,
+                            size: 34,
                           ),
-                        ],
-                      )
-                    ])
-                )
+                          title: "In Progress",
+                          count: (requestCounts["VENDOR_INPROGRESS"].toString()) ?? "0"),
+                    ],
+                  ),
+                  addVerticalSpace(40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DashBoardBox(
+                          callBack: goToPendingRequests,
+                          icon: const Icon(
+                              Icons.pending_actions_rounded,
+                              color: Colors.purple,
+                              size: 34
+                          ),
+                          title: "Pending Requests",
+                          count: (requestCounts["VENDOR_PENDING"].toString()) ?? "0"),
+                      DashBoardBox(
+                          callBack: goToRaisedRequests,
+                          icon: const Icon(
+                            Icons.new_label_outlined,
+                            color: Colors.purple,
+                            size: 34,
+                          ),
+                          title: "Raise Request",
+                          count: "34"
+                      ),
+                    ],
+                  )
+                ])
             )
         )
     );

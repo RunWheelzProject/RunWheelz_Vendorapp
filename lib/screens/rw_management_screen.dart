@@ -10,6 +10,7 @@ import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/rw_vendor_registration_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import '../components/menu.dart';
+import '../components/side_menu.dart';
 import '../manager/login_manager.dart';
 import '../manager/profile_manager.dart';
 import '../manager/roles_manager.dart';
@@ -74,9 +75,6 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
 
   @override
   Widget build(BuildContext context) {
-    /*StaffManager staffManager = Provider.of<StaffManager>(context);
-    ProfileManager profileManager = Provider.of<ProfileManager>(context);
-    profileManager.staffDTO = staffManager.staffDTO;*/
 
     return Scaffold(
         primary: true,
@@ -113,8 +111,26 @@ class _RunWheelManagementPageState extends State<RunWheelManagementPage> {
           ),
         ),
         drawer: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 55, 0, 0),
-            child: menu()
+            padding: const EdgeInsets.fromLTRB(0, 120, 0, 0),
+            child: SideMenu(
+              menuList: [
+                RWMap(
+                    title: "Home",
+                    icon: const Icon(Icons.home, color: Colors.deepPurple,),
+                    navigateTo: const RunWheelManagementPage()
+                ),
+                RWMap(
+                    title: "Vendor",
+                    icon: const Icon(Icons.electric_bike_outlined, color: Colors.deepPurple,),
+                    navigateTo: VendorManagementPage()
+                ),
+                RWMap(
+                    title: "Staff",
+                    icon: const Icon(Icons.person, color: Colors.deepPurple,),
+                    navigateTo: const StaffManagementPage()
+                ),
+              ],
+            )
         ),
       body: SafeArea(
           child: SizedBox(

@@ -22,7 +22,7 @@ import 'package:untitled/screens/vendor_inprogrees_screen.dart';
 import 'package:untitled/screens/vendor_mechanic_accept_screen.dart';
 import 'package:untitled/screens/vendor_pending_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
-import 'package:untitled/screens/vendor_request_accept.screen.dart';
+import 'package:untitled/screens/vendor_request_accept_screen.dart';
 import 'package:untitled/screens/vendor_works.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';

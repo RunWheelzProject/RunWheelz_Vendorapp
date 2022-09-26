@@ -32,10 +32,9 @@ class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
   Future<List<VendorMechanic>> getAllMechanics() async {
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/getAllVendorMechanic"));
     var jsonResponse = jsonDecode(response.body);
-    log("${jsonEncode(jsonResponse)}");
     List<VendorMechanic> list = [];
     for (var item in jsonResponse) {
-      list.add(VendorMechanic.fromJson(item));
+      if (item != null) list.add(VendorMechanic.fromJson(item));
     }
     return list;
 
@@ -45,6 +44,7 @@ class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
   void initState() {
     super.initState();
     getAllMechanics().then((mechanics) {
+      log("mechanics: ${jsonEncode(mechanics)}");
      setState(() => _vendorMechanic = mechanics);
     }).catchError((error) => log("error: $error"));
   }
@@ -114,8 +114,7 @@ class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
                             vendorMechanic: mechanic,
                           ),
                           filter: (value) => _vendorMechanic.where((element) =>
-                          element.phoneNumber?.contains(value) as bool)
-                              .toList(),
+                          element.phoneNumber?.contains(value) as bool).toList(),
                           onItemSelected: (VendorMechanic vendorMechanic) {
                             //profileManager.staffDTO = staff;
                             Navigator.of(context).pushReplacement(

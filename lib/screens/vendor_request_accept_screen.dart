@@ -1,27 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled/main.dart';
-import 'package:untitled/manager/service_request_manager.dart';
-import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/model/servie_request.dart';
-import 'package:untitled/model/vendor.dart';
-import 'package:untitled/screens/rw_management_screen.dart';
-import 'package:untitled/screens/rw_staff_management_screen.dart';
-import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
-import 'package:untitled/screens/vendor_select_mechanic.dart';
-import 'package:untitled/services/vendor_registration.dart';
-
 import '../manager/profile_manager.dart';
-import '../manager/vendor_manager.dart';
-import '../model/staff.dart';
 import '../model/vendor_mechanic.dart';
-import '../services/staff_service.dart';
 import 'package:http/http.dart' as http;
 import '../resources/resources.dart' as res;
 

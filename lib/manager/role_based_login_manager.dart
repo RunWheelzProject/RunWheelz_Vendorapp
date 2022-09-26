@@ -11,6 +11,7 @@ import '../screens/vendor_registration_screen_v1.dart';
 
 
 import '../resources/resources.dart' as res;
+import '../screens/vendor_staff_registration_screen.dart';
 
 class RoleBasedLogIn<T> {
   int? status;
@@ -120,7 +121,7 @@ class RoleBasedLogInManager extends ChangeNotifier {
         roleType: 7,
         url: "${res.APP_URL}/api/auth/register/mechanic/verifyotp",
         registrationStatus: false,
-        navigateTo: const VendorRegistrationV1()
+        navigateTo: const VendorStaffRegistration()
     ),
 
 

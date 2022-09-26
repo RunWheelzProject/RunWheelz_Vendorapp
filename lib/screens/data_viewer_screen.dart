@@ -15,7 +15,7 @@ import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_inprogrees_screen.dart';
 import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/screens/vendor_pending_screen.dart';
-import 'package:untitled/screens/vendor_request_accept.screen.dart';
+import 'package:untitled/screens/vendor_request_accept_screen.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 

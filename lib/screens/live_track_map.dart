@@ -174,11 +174,15 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:provider/provider.dart';
 import 'package:untitled/screens/customer_board.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
+
+import '../utils/get_location.dart';
 
 
 class LocationTrackingMap extends StatefulWidget {
@@ -213,29 +217,36 @@ class _MyMapState extends State<LocationTrackingMap> {
   bool _added = false;
 
 
-  _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+  _addMarker(LatLng position, String id, BitmapDescriptor descriptor, String title) {
     MarkerId markerId = MarkerId(id);
-    Marker marker =
-    Marker(markerId: markerId, icon: descriptor, position: position);
+    Marker marker = Marker(
+        markerId: markerId,
+        icon: descriptor,
+        position: position,
+        infoWindow: InfoWindow(title: title, snippet: '*')
+    );
     markers[markerId] = marker;
   }
 
   _addPolyLine() {
     PolylineId id = const PolylineId("poly");
     Polyline polyline = Polyline(
-        polylineId: id, color: Colors.green, points: polylineCoordinates);
+        polylineId: id, color: Colors.green, points: polylineCoordinates
+    );
     polylines[id] = polyline;
     setState(() {});
   }
 
-  _getPolyline(double lat, double long) async {
+  _getPolyline(double customerLat, double customerLang, double lat, double long) async {
 
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         googleAPiKey,
-        PointLatLng(widget.customerLatLng.latitude, widget.customerLatLng.longitude),
+        //PointLatLng(widget.customerLatLng.latitude, widget.customerLatLng.longitude),
+        PointLatLng(customerLat, customerLang),
         PointLatLng(lat, long),
         travelMode: TravelMode.driving,
-        wayPoints: []);
+        wayPoints: []
+    );
     if (result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -247,15 +258,54 @@ class _MyMapState extends State<LocationTrackingMap> {
   @override
   void initState() {
     super.initState();
-    _addMarker(widget.customerLatLng, "origin",
-        BitmapDescriptor.defaultMarker);
+    Position position;
+    determinePosition().then((position) {
+      position = position;
+      _addMarker(
+          LatLng(position.latitude, position.longitude),
+          "mechanic",
+          BitmapDescriptor.defaultMarker,
+          "vendor"
+      );
+
+      _getPolyline(
+          position.latitude,
+          position.longitude,
+          widget.mechanicLatLng.latitude,
+          widget.mechanicLatLng.longitude
+      );
+
+      setState(() {
+
+      });
+
+    });
+
+
+    _addMarker(
+        widget.customerLatLng,
+        "origin",
+        BitmapDescriptor.defaultMarker,
+        "customer"
+    );
 
     /// destination marker
 
-    _addMarker(widget.mechanicLatLng, "destination",
-        BitmapDescriptor.defaultMarker);
+    _addMarker(
+        widget.mechanicLatLng,
+        "destination",
+        BitmapDescriptor.defaultMarker,
+        "mechanic"
+    );
 
-    _getPolyline(widget.mechanicLatLng.latitude, widget.mechanicLatLng.longitude);
+
+
+    _getPolyline(
+        widget.customerLatLng.latitude,
+        widget.customerLatLng.longitude,
+        widget.mechanicLatLng.latitude,
+        widget.mechanicLatLng.longitude
+    );
 
   }
 
@@ -269,7 +319,8 @@ class _MyMapState extends State<LocationTrackingMap> {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
                   if (widget.isCustomer) return CustomerDashBoard();
-                  return VendorMechanicDashBoard(requestId: '');
+                  if (widget.isMechanic) return VendorMechanicDashBoard(requestId: '');
+                  return const VendorDashBoard();
                 }))
           },
           child: const Icon(Icons.arrow_back),

@@ -49,7 +49,17 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
   bool _isFemale = false;
 
   Future<VendorMechanic> updateMechanic(VendorMechanic vendorMechanic) async {
-    http.Response response = await http.put(Uri.parse("${res.APP_URL}/api/vendorstaff/editMechanic"));
+    var body = jsonEncode(vendorMechanic);
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+    http.Response response = await http.post(
+        Uri.parse("${res.APP_URL}/api/vendorstaff/create_mechanic"),
+        body: body,
+        headers: headers
+    );
+
     var json = jsonDecode(response.body);
     if (response.statusCode == 201) {
       return VendorMechanic.fromJson(json);
@@ -146,11 +156,6 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                           maxLength: 10,
                         ),
                         addVerticalSpace(40),
-                        RWTextFormField(
-                            label: 'Address',
-                            icon: const Icon(Icons.location_on, color: Colors.deepPurple),
-                            onSaved: (value) => _address = value
-                        ),
                         Container(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton(
@@ -160,6 +165,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                                     vendorMechanicManager.vendorMechanic.registrationStatus = true;
                                     vendorMechanicManager.vendorMechanic.name = _name;
                                     vendorMechanicManager.vendorMechanic.aadharNumber = _aadhaarCard;
+                                    log("vendor: ${jsonEncode(Provider.of<ProfileManager>(context, listen: false).vendorDTO)}");
                                     vendorMechanicManager.vendorMechanic.vendor = Provider.of<ProfileManager>(context, listen: false).vendorDTO;
                                     log("vendor: ${jsonEncode(vendorMechanicManager.vendorMechanic)}");
 

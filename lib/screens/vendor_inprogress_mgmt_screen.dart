@@ -10,7 +10,7 @@ import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
-import 'package:untitled/screens/vendor_request_accept.screen.dart';
+import 'package:untitled/screens/vendor_request_accept_screen.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 

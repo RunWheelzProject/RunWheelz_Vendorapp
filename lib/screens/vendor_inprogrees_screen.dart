@@ -231,6 +231,83 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                   ["Phone", _vendorMechanic?.phoneNumber],
                 ])
             ),
+            if (widget.isVendor)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('location')
+                            .snapshots(),
+                        builder: (context,
+                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          _mechanicLatLng = LatLng(
+                              snapshot.data!.docs.singleWhere(
+                                      (element) =>
+                                  element.id ==
+                                      _vendorMechanic?.id
+                                          .toString())['latitude'],
+                              snapshot.data!.docs.singleWhere(
+                                      (element) =>
+                                  element.id ==
+                                      _vendorMechanic?.id
+                                          .toString())['longitude']);
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text("Distance: ", style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text(double.parse((Geolocator.distanceBetween(
+                                  widget.serviceRequestDTO?.latitude ??
+                                      0.0,
+                                  widget.serviceRequestDTO?.longitude ??
+                                      0.0,
+                                  snapshot.data!.docs.singleWhere((element) =>
+                                  element.id ==
+                                      _vendorMechanic?.id.toString())[
+                                  'latitude'],
+                                  snapshot.data!.docs.singleWhere(
+                                          (element) =>
+                                      element.id ==
+                                          _vendorMechanic?.id
+                                              .toString())['longitude']) / 1000).toStringAsFixed(2))
+                                  .toString()),
+                              const SizedBox(width: 20,),
+                              ElevatedButton(
+                                child: const Text("Track Mechanic"),
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => LocationTrackingMap(
+                                        id: _vendorMechanic?.id.toString() ?? "",
+                                        requestId: widget.serviceRequestDTO?.id.toString() ?? "",
+                                        customerLatLng: LatLng(
+                                            widget.serviceRequestDTO?.latitude ?? 0.0,
+                                            widget.serviceRequestDTO?.longitude ?? 0.0
+                                        ),
+                                        mechanicLatLng: _mechanicLatLng as LatLng,
+                                      ))
+                                  );
+                                },
+                              )
+                            ],
+                          );
+                        }),
+                    const SizedBox(height: 10,),
+
+                  ],
+                ),
+              ),
             if (widget.isMechanic)
               Container(
                 decoration: BoxDecoration(

@@ -98,9 +98,12 @@ class _OTPState extends State<OtpScreen> {
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context, listen: false);
     if (role.roleType == 4) {
+
       profileManager.vendorDTO = VendorDTO.fromJson(responseJson["vendorDTO"]);
       vendorManager.vendorDTO = VendorDTO.fromJson(responseJson["vendorDTO"]);
+      log("vendorDTO: ${jsonEncode(profileManager.vendorDTO)}");
     } else if (role.roleType == 7) {
+      log("vendorStaffDTO: ${responseJson["vendorStaffDTO"]}");
       profileManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
       vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
     } else if (role.roleType == 1 || role.roleType == 3 || role.roleType == 2) {
@@ -286,7 +289,7 @@ class _OTPState extends State<OtpScreen> {
             url: logInManager.currentURLs![1],
             registrationStatus: responseJson["registrationStatus"]
           );
-
+          log("roleBasedLoggedIn: ${jsonEncode(roleBasedLoggedIn)}");
           for (RoleBasedLogIn role in RoleBasedLogInManager.roleBasedLoggedIn) {
             if (roleBasedLoggedIn == role) {
               collectData(role, responseJson);

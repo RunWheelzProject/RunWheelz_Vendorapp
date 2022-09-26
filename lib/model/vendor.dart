@@ -84,7 +84,7 @@ class VendorDTO {
       city: json["city"],
       zipcode: json["zipcode"],
       country: json["country"],
-      role: RoleDTO.fromJson(json["roleId"]),
+      role: RoleDTO.fromJson(json["role"]),
       registrationStatus: json["registrationStatus"],
       marketingAgent: json["marketingAgent"],
       executive: json["executive"],

@@ -8,7 +8,7 @@ import '../model/vendor.dart';
 import '../resources/resources.dart' as res;
 class VendorRegistrationService {
 
-  final Uri vendorRegistrationRequestURL = Uri.parse("${res.APP_URL}/api/vendor/editvrr");
+  final Uri vendorRegistrationRequestURL = Uri.parse("${res.APP_URL}/api/vendor/registrationrequest");
   final Uri updateVendorInfoURL = Uri.parse("${res.APP_URL}/api/vendor/editvendor");
   final Uri _getAllVendor = Uri.parse("${res.APP_URL}/api/vendor/getallvendors");
   final Uri _getVendorsNotRegistered = Uri.parse("${res.APP_URL}/api/vendor/getallvendorregistrationrequests");

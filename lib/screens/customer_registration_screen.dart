@@ -30,7 +30,7 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
   String dropDownValue = 'Current Location';
   bool _isTermsChecked = false;
 
-  Future<CustomerDTO> customerUpdate(CustomerDTO customerDTO) async {
+  Future<http.Response> customerUpdate(CustomerDTO customerDTO) async {
     Uri uri = Uri.parse("${res.APP_URL}/api/customer/updatecustomer");
     Map<String, String> headers = {
       'Content-type': 'application/json',
@@ -44,11 +44,8 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
     );
 
     var responseJson = jsonDecode(response.body);
-    if (response.statusCode == 201) {
-      return CustomerDTO.fromJson(responseJson);
-    }
 
-    throw Exception("customer not updated/created");
+    return response;
 
   }
 
@@ -137,15 +134,41 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
                                   ? () {
                                       if (_formKey.currentState!.validate()) {
                                         log(jsonEncode(profileManager.customerDTO));
-                                        customerUpdate(profileManager.customerDTO).then((CustomerDTO customer) {
-                                          profileManager.customerDTO = customer;
-                                          Navigator.of(context).pushReplacement(
-                                              MaterialPageRoute(builder:
-                                                  (BuildContext context) {
-                                                //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
-                                                return CustomerDashBoard(
-                                                    isCustomer: true);
-                                              }));
+                                        customerUpdate(profileManager.customerDTO).then((response) {
+                                          var responseJson = jsonDecode(response.body);
+
+                                          if (response.statusCode == 201) {
+                                            profileManager.customerDTO = CustomerDTO.fromJson(responseJson);
+                                            Navigator.of(context).pushReplacement(
+                                                MaterialPageRoute(builder:
+                                                    (BuildContext context) {
+                                                  //log("vendor: ${jsonEncode(vendorManager.vendorRegistrationRequest)}");
+                                                  return CustomerDashBoard(
+                                                      isCustomer: true);
+                                                }));
+                                          }
+                                          if (response.statusCode == 226) {
+                                            showDialog<String>(
+                                                context: context,
+                                                builder: (BuildContext context) =>
+                                                    AlertDialog(
+                                                        title:
+                                                        const Text("Email"),
+                                                        content: const Text(
+                                                            "Email already exists, use different one",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                color: Colors.black87)),
+                                                        actions: <Widget>[
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context, 'OK'),
+                                                            child: const Text('OK'),
+                                                          ),
+                                                        ])
+                                            );
+                                          }
                                         });
                                       }
                                     }

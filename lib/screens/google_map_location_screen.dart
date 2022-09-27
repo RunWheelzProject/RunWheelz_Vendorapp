@@ -31,7 +31,9 @@ class GoogleMapLocationPickerV1 extends StatefulWidget {
       {Key? key,
       this.isCustomer = false,
       this.isVendor = false,
-      this.isGeneral = false})
+      this.isGeneral = false,
+        this.currentLocation
+      })
       : super(key: key);
 
   @override
@@ -75,7 +77,6 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
     _determinePosition().then((Position position) async {
       _latitude = position.latitude;
       _longitude = position.longitude;
-      widget.currentLocation = LatLng(position.latitude, position.longitude);
 
       if (widget.isVendor) {
         _vendorDTO?.longitude = _longitude;

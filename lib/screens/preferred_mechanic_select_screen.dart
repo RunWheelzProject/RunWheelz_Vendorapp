@@ -92,11 +92,12 @@ class GeneralServicesState extends State<PreferredMechanicSelectScreen> {
                         ),
                         addVerticalSpace(70),
                         ElevatedButton(
-                            onPressed: () => {
+                            onPressed: () {
+                              log("length: ${dropDownList.length}");
                               if (_dropDownSelectedItem != "Select preferred mechanic") {
                                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                                   return GoogleMapLocationPickerV1(isCustomer: true, isGeneral: true,);
-                                }))
+                                }));
                               } else {
                                 showDialog<String>(
                                     context: context,
@@ -104,7 +105,7 @@ class GeneralServicesState extends State<PreferredMechanicSelectScreen> {
                                         AlertDialog(
                                             title:
                                             const Text("Message"),
-                                            content: const Text("Please select preferred mechanic",
+                                            content: const Text("Please select preferred mechanic\nOR\n add some preferred mechanics",
                                                 style: TextStyle(
                                                     fontSize: 18,
                                                     color: Colors.red)),
@@ -116,7 +117,7 @@ class GeneralServicesState extends State<PreferredMechanicSelectScreen> {
                                                 child: const Text('OK'),
                                               ),
                                             ])
-                                )
+                                );
                               }
 
                               /*Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {

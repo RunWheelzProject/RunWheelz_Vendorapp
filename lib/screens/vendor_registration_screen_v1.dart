@@ -89,7 +89,7 @@ class VendorRegistration extends State<VendorRegistrationV1> {
             ),
             Container(
                 padding: const EdgeInsets.all(20),
-                child: Column(
+                child: Form(key: _formKey, child: Column(
                   children: [
                     addVerticalSpace(20),
                     RWTextFormField(
@@ -164,9 +164,9 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                               'Next',
                               style: TextStyle(fontSize: 24),
                             )))
-                  ],
-                )),
-          ]),
+                ],
+                ))),
+            ]),
         )
       ])),
     );

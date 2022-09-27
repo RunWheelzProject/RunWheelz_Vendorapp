@@ -298,8 +298,6 @@ class _MyMapState extends State<LocationTrackingMap> {
         "mechanic"
     );
 
-
-
     _getPolyline(
         widget.customerLatLng.latitude,
         widget.customerLatLng.longitude,
@@ -330,8 +328,8 @@ class _MyMapState extends State<LocationTrackingMap> {
               mapType: MapType.normal,
               markers: Set<Marker>.of(markers.values),
               polylines: Set<Polyline>.of(polylines.values),
-              initialCameraPosition: const CameraPosition(
-                  target: LatLng(18.8157, 78.8764),
+              initialCameraPosition: CameraPosition(
+                  target: widget.customerLatLng, //LatLng(18.8157, 78.8764),
                   zoom: 10.0
               ),
               onMapCreated: (GoogleMapController controller) async {
@@ -355,7 +353,7 @@ class _MyMapState extends State<LocationTrackingMap> {
                       (element) => element.id == widget.id)['latitude'],
               snapshot.data!.docs.singleWhere(
                       (element) => element.id == widget.id)['longitude']),
-          northeast: LatLng(18.8157, 78.8764),
+          northeast: widget.customerLatLng,
         ),
         10.0,
       ),

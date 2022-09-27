@@ -50,20 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDW8ZfRUD8jmHDJhNmCtpd4TTme-jo6cNg',
-    appId: '1:690391705041:android:c3ac85d4a7ac9784946cf0',
-    messagingSenderId: '690391705041',
-    projectId: 'firebasetestmessage',
-    storageBucket: 'firebasetestmessage.appspot.com',
+    apiKey: 'AIzaSyCvGSdYRXjICWnskDW4OGlikNljXD6Ch8Y',
+    appId: '1:243985447468:android:07fbd751976bcaa8a0ef89',
+    messagingSenderId: '243985447468',
+    projectId: 'runwheelzvendorcustomer',
+    storageBucket: 'runwheelzvendorcustomer.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyANLAeIspUYtmDSRtcFZc53hRCbKlwgnm4',
-    appId: '1:690391705041:ios:679955ab4c08d68a946cf0',
-    messagingSenderId: '690391705041',
-    projectId: 'firebasetestmessage',
-    storageBucket: 'firebasetestmessage.appspot.com',
-    iosClientId: '690391705041-r64nip7v111sl4ipf8hkoh0ci1q48d0p.apps.googleusercontent.com',
-    iosBundleId: 'com.example.runwheelzExperimental',
+    apiKey: 'AIzaSyAeCff1ymnT6Ly5eXofRkdfPL8CBX3Gzlo',
+    appId: '1:243985447468:ios:a6606afeee50e39da0ef89',
+    messagingSenderId: '243985447468',
+    projectId: 'runwheelzvendorcustomer',
+    storageBucket: 'runwheelzvendorcustomer.appspot.com',
+    iosClientId: '243985447468-qvgrol4merqr5bif1r1rvsrbfk910h6n.apps.googleusercontent.com',
+    iosBundleId: 'com.runwheelz.vendorapp',
   );
 }

@@ -183,10 +183,16 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                if (widget.isStaff) return const RunWheelManagementPage();
-                if (widget.isVendor) return const VendorDashBoard();
-                if (widget.isCustomer) return CustomerDashBoard(isCustomer: widget.isCustomer, isVendor: widget.isVendor);
-                return VendorDashBoard();
+                if (widget.isStaff) {
+                  return const RunWheelManagementPage();
+                } else if (widget.isVendor) {
+                  return const VendorDashBoard();
+                } else if (widget.isCustomer) {
+                  return CustomerDashBoard(isCustomer: widget.isCustomer, isVendor: widget.isVendor);
+                } else {
+                  return VendorMechanicDashBoard(requestId: '');
+                }
+
               })
           )
         },

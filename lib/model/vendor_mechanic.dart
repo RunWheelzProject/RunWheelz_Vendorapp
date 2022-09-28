@@ -39,7 +39,7 @@ class VendorMechanic {
         name: json["name"],
         phoneNumber: json["phoneNumber"],
         aadharNumber: json[" aadharNumber"],
-        vendor: VendorDTO.fromJson(json["vendor"]),
+        vendor: json["vendor"] == null ? json["vendor"] : VendorDTO.fromJson(json["vendor"]),
         registrationStatus: json["registrationStatus"],
         deviceToken: json["deviceToken"],
         status: json["status"]

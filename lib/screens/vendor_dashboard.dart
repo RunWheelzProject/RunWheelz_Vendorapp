@@ -127,12 +127,13 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   }
 
   void goToRaisedRequests() {
+    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
       requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
-            return CustomerDashBoard(isVendor: true);
+            return CustomerDashBoard(isCustomer: true);
           })
       );
     }).catchError((error) => log("error: $error"));

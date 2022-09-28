@@ -77,7 +77,7 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (BuildContext context) {
-                            return VendorDashboardProfile(isMechanic: true,);
+                            return VendorDashboardProfile(isMechanic: true, isVendor: false);
                       }));
                     },
                     icon: const Icon(
@@ -119,6 +119,7 @@ class VendorMechanicDashBoardState extends State<VendorMechanicDashBoard> {
                           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                             return VendorInprogressScreen(
                               serviceRequestDTO: item,
+                              isCustomer: false,
                               isMechanic: true, pageTitle: '',
                             );
                           }));

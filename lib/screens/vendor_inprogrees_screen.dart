@@ -224,6 +224,7 @@ class VendorInprogressScreenState extends State<VendorInprogressScreen> {
                 ])
             ),
             const SizedBox(height: 20,),
+            if (widget.isMechanic == false)
             CardWithHeader(
                 title: "Mechanic Details",
                 children: createRows([

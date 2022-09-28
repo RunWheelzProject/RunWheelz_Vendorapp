@@ -116,7 +116,6 @@ class _OTPState extends State<OtpScreen> {
         log("TEST: ${prefs.getString("vendorDTO") as String}");
       }
     } else if (role.roleType == 7) {
-      log("vendorStaffDTO: ${responseJson["vendorStaffDTO"]}");
       profileManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
       vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
       if (responseJson["vendorStaffDTO"] != null) {

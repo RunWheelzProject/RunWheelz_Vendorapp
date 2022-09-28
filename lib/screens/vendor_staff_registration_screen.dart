@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/staff_manager.dart';
@@ -48,6 +49,11 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
   String? _zipCode = '';
   bool _isMale = false;
   bool _isFemale = false;
+  MaskTextInputFormatter maskTextInputFormatter = MaskTextInputFormatter(
+      mask: '####-####-####',
+      filter: { "#": RegExp(r'[0-9]'),  },
+      type: MaskAutoCompletionType.lazy
+  );
 
   Future<VendorMechanic> updateMechanic(VendorMechanic vendorMechanic) async {
     var body = jsonEncode(vendorMechanic);
@@ -76,7 +82,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
   @override
   Widget build(BuildContext context) {
 
-    final VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context, listen: false);
+    VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Run Wheelz"), automaticallyImplyLeading: false,),
@@ -123,11 +129,11 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                             maxLength: 14,
                             textInputType: TextInputType.number,
                             textInputFormatters: [
-                              MaskedTextInputFormatter(mask: '0000-0000-0000', separator: '-')
+                                maskTextInputFormatter
                             ],
                             onSaved: (value) => _aadhaarCard = value
                         ),
-                        TextFormField(
+                        /*TextFormField(
                           decoration: const InputDecoration(
                             labelText: 'Phone Number',
                             prefixIcon: Icon(Icons.phone_android, color: Colors.purple),
@@ -158,7 +164,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                             FilteringTextInputFormatter.allow(RegExp('[0-9]')),
                           ],
                           maxLength: 10,
-                        ),
+                        ),*/
                         addVerticalSpace(40),
                         Container(
                             alignment: Alignment.centerRight,
@@ -170,6 +176,8 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                                     vendorMechanicManager.vendorMechanic.name = _name;
                                     vendorMechanicManager.vendorMechanic.aadharNumber = _aadhaarCard;
                                     vendorMechanicManager.vendorMechanic.vendor = Provider.of<ProfileManager>(context, listen: false).vendorDTO;
+                                    log(jsonEncode(vendorMechanicManager.vendorMechanic));
+
                                     updateMechanic(vendorMechanicManager.vendorMechanic).then((response) {
                                         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                                           return const VendorDashBoard();

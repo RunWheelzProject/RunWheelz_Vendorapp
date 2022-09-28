@@ -9,6 +9,7 @@ import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/customer_managere.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import '../services/vendor_registration.dart';
+import '../utils/validations.dart';
 import './google_map_location_screen.dart';
 import '../utils/add_space.dart';
 
@@ -94,11 +95,13 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                     addVerticalSpace(20),
                     RWTextFormField(
                         label: 'Name',
-                        icon:
-                            const Icon(Icons.person, color: Colors.deepPurple),
-                        onSaved: (value) =>
-                            vendorManager.vendorDTO.ownerName = value),
-                    addVerticalSpace(30),
+                        icon: const Icon(Icons.person, color: Colors.deepPurple),
+                        textInputFormatters: [
+                          CapitalizeTextFormatter()
+                        ],
+                        onSaved: (value) => vendorManager.vendorDTO.ownerName = value
+                    ),
+                    /*addVerticalSpace(30),
                     RWTextFormField(
                         label: 'Phone Number',
                         icon: const Icon(Icons.phone_android,
@@ -109,13 +112,18 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                         ],
                         maxLength: 10,
                         onSaved: (value) =>
-                            vendorManager.vendorDTO.phoneNumber = value),
+                        vendorManager.vendorDTO.phoneNumber = value
+                    ),*/
                     addVerticalSpace(30),
                     RWTextFormField(
                         label: 'Garage Name',
                         icon: const Icon(Icons.home, color: Colors.deepPurple),
-                        onSaved: (value) =>
-                            vendorManager.vendorDTO.garageName = value),
+                        textInputFormatters: [
+                          CapitalizeTextFormatter()
+                        ],
+                        onSaved: (value) => vendorManager.vendorDTO.garageName = value
+
+                    ),
                     addVerticalSpace(30),
                     Align(
                         alignment: Alignment.topLeft,
@@ -152,6 +160,7 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                                             MaterialPageRoute(builder:
                                                 (BuildContext context) {
                                           return GoogleMapLocationPickerV1(
+                                            isVendorInitialRequest: true,
                                             isVendor: true,
                                             currentLocation: currentLocation,
                                           );

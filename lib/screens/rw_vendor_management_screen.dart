@@ -3,8 +3,10 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/location_manager.dart';
 import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
+import 'package:untitled/manager/vendor_works_manager.dart';
 import 'package:untitled/model/staff.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/login_page_screen.dart';
@@ -92,7 +94,8 @@ class VendorManagementPageState extends State<VendorManagementPage> {
   @override
   Widget build(BuildContext context) {
     VendorManager vendorManager = Provider.of<VendorManager>(context);
-
+    VendorWorksManager vendorWorksManager = Provider.of<VendorWorksManager>(context);
+    LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.purple,
@@ -119,6 +122,9 @@ class VendorManagementPageState extends State<VendorManagementPage> {
                       alignment: Alignment.centerLeft,
                       child:ElevatedButton(
                           onPressed: () {
+                            vendorWorksManager.isAdmin = true;
+                            vendorWorksManager.isVendor = false;
+                            logInManager.setCurrentURLs("vendorRegistration");
                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                               return const LoginScreen();
                             })

@@ -46,7 +46,7 @@ class VendorRegistrationService {
       'Content-type': 'application/json',
       'Accept': 'application/json',
     };
-    http.Response response = await http.put(vendorRegistrationRequestURL, body: body, headers: headers);
+    http.Response response = await http.post(vendorRegistrationRequestURL, body: body, headers: headers);
     return response;
   }
 

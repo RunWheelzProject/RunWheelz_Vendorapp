@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/vendor_manager.dart';
@@ -12,6 +13,8 @@ import 'package:untitled/screens/vendor_works.dart';
 import 'package:untitled/services/vendor_registration.dart';
 import '../manager/roles_manager.dart';
 import '../model/role.dart';
+import '../model/vendor.dart';
+import '../utils/validations.dart';
 import './google_map_location_screen.dart';
 import '../utils/add_space.dart';
 import '../resources/resources.dart' as res;
@@ -32,6 +35,13 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
   String _dropDownValue = 'Select Role';
   String _dropDownStateVAlue = 'Select State';
   dynamic _onChangeValue;
+
+  MaskTextInputFormatter maskTextInputFormatter = MaskTextInputFormatter(
+      mask: '####-####-####',
+      filter: { "#": RegExp(r'[0-9]'),  },
+      type: MaskAutoCompletionType.lazy
+  );
+
 
   @override
   void initState() {
@@ -155,6 +165,10 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                   width: 0,
                                 )),
                           ),
+                          inputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                           onChanged: (value) => {
                             vendorManager.vendorDTO.ownerName =
                                 value
@@ -167,7 +181,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                           },
                         ),
                         addVerticalSpace(25),
-                        TextFormField(
+                        /*TextFormField(
                           initialValue: vendorManager.vendorDTO.phoneNumber,
                           decoration: InputDecoration(
                             labelText: "PhoneNumber",
@@ -202,7 +216,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                             }
                             return null;
                           },
-                        ),
+                        ),*/
                         addVerticalSpace(20),
                         TextFormField(
                           initialValue: vendorManager.vendorDTO.garageName,
@@ -229,6 +243,10 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                   width: 0,
                                 )),
                           ),
+                          inputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                           onChanged: (value) => {
                             vendorManager.vendorDTO.garageName =
                                 value
@@ -295,7 +313,7 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                           keyboardType: TextInputType.number,
                           maxLength: 14,
                           inputFormatters: [
-                            MaskedTextInputFormatter(mask: '0000-0000-0000', separator: '-')
+                            maskTextInputFormatter
                           ],
                         ),
                         addVerticalSpace(40),
@@ -325,6 +343,10 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                   width: 0,
                                 )),
                           ),
+                          inputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                           onChanged: (value) => {
                             vendorManager
                                 .vendorDTO.addressLine = value
@@ -371,6 +393,10 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                   width: 0,
                                 )),
                           ),
+                          inputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                           onChanged: (value) => {
                             vendorManager.vendorDTO.city = value
                           },
@@ -514,6 +540,10 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                   width: 0,
                                 )),
                           ),
+                          inputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                           onChanged: (value) => {
                             vendorManager.vendorDTO.country =
                                 value
@@ -544,9 +574,9 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                                           log("vendor1: ${jsonEncode(vendorManager.vendorDTO)}");
                                           VendorRegistrationService().updateVendorInfo(vendorManager.vendorDTO)
                                           .then((response) {
-                                            log("status: ${response.statusCode}");
+                                            var jsonResponse = jsonDecode(response.body);
                                             if (response.statusCode == 200) {
-                                              log("status: ${response.statusCode}");
+                                              vendorManager.vendorDTO = VendorDTO.fromJson(jsonResponse);
                                               Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                                                   return const VendorWorks();
                                                 })

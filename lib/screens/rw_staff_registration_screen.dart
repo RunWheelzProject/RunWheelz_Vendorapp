@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/components/logo.dart';
 import 'package:untitled/manager/staff_manager.dart';
@@ -12,6 +13,7 @@ import '../manager/roles_manager.dart';
 import '../model/role.dart';
 import '../utils/add_space.dart';
 import '../resources/IndianStates.dart';
+import '../utils/validations.dart';
 
 class RWStaffRegistration extends StatefulWidget {
   const RWStaffRegistration({Key? key}) : super(key: key);
@@ -37,6 +39,12 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
   String? _zipCode = '';
   bool _isMale = false;
   bool _isFemale = false;
+
+  MaskTextInputFormatter maskTextInputFormatter = MaskTextInputFormatter(
+      mask: '####-####-####',
+      filter: { "#": RegExp(r'[0-9]'),  },
+      type: MaskAutoCompletionType.lazy
+  );
 
   @override
   void initState() {
@@ -83,7 +91,11 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                         RWTextFormField(
                             label: 'Name',
                             icon: const Icon(Icons.person, color: Colors.deepPurple),
-                            onSaved: (value) => _name = value
+                            onSaved: (value) => _name = value,
+                          textInputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                         ),
                         addVerticalSpace(25),
                         Row(
@@ -111,7 +123,7 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                             maxLength: 14,
                             textInputType: TextInputType.number,
                             textInputFormatters: [
-                              MaskedTextInputFormatter(mask: '0000-0000-0000', separator: '-')
+                              maskTextInputFormatter
                             ],
                             onSaved: (value) => _aadhaarCard = value
                         ),
@@ -119,13 +131,21 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                         RWTextFormField(
                             label: 'Address',
                             icon: const Icon(Icons.location_on, color: Colors.deepPurple),
-                            onSaved: (value) => _address = value
+                            onSaved: (value) => _address = value,
+                          textInputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                         ),
                         addVerticalSpace(40),
                         RWTextFormField(
                             label: 'City',
                             icon: const Icon(Icons.location_on, color: Colors.deepPurple),
-                            onSaved: (value) => _city = value
+                            onSaved: (value) => _city = value,
+                          textInputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                         ),
                         addVerticalSpace(20),
                         Align(
@@ -154,7 +174,11 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                         RWTextFormField(
                             label: 'Country',
                             icon: const Icon(Icons.location_on, color: Colors.deepPurple),
-                            onSaved: (value) => _country = value
+                            onSaved: (value) => _country = value,
+                          textInputFormatters: [
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
+                          ],
                         ),
                         addVerticalSpace(20),
                         Align(

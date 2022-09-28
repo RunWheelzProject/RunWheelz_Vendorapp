@@ -104,11 +104,14 @@ class BreakDownServicesState extends State<BreakDownServices> {
                               maskTextInputFormatter,
                             ],
                             onSaved: (String? val) {
-                              serviceRequestManager.serviceRequestDTO.vehicleNumber = val;
+                              serviceRequestManager.serviceRequestDTO.vehicleNumber = val?.toUpperCase();
                               _vehicleController.value = TextEditingValue(
                                   text: val?.toUpperCase() as String,
                                   selection: _vehicleController.selection
                               );
+                              if (val?.length == 12) {
+                                FocusScope.of(context).unfocus();
+                              }
                             }),
                               addVerticalSpace(70),
                         ElevatedButton(

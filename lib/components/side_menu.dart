@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/screens/data_viewer_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendro_staff_management_screen.dart';
 import '../colors/app_colors.dart';
 import '../manager/login_manager.dart';
+import '../manager/vendor_manager.dart';
+import '../manager/vendor_works_manager.dart';
 import '../resources/resources.dart' as res;
 import '../screens/vendor_works.dart';
 
@@ -39,6 +42,12 @@ class SideMenu extends StatelessWidget {
               title: Text(menu.title, style: const TextStyle(color: Colors.red, fontSize: 16),),
               leading: menu.icon,
               onTap: () {
+                VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
+                vendorManager.vendorDTO = Provider.of<ProfileManager>(context, listen: false).vendorDTO;
+                VendorWorksManager vendorWorksManager = Provider.of<VendorWorksManager>(context, listen: false);
+                vendorWorksManager.isVendor = true;
+                vendorWorksManager.isAdmin = false;
+                vendorWorksManager.isMarketingAgent = false;
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (BuildContext context) {
                       return menu.navigateTo;

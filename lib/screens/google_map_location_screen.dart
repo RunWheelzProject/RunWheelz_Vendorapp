@@ -24,17 +24,18 @@ class GoogleMapLocationPickerV1 extends StatefulWidget {
   bool isCustomer;
   bool isVendor;
   bool isGeneral;
+  bool isVendorInitialRequest;
   List<PlaceSearchData> nearestLocations = [];
   LatLng? currentLocation;
 
-  GoogleMapLocationPickerV1(
-      {Key? key,
-      this.isCustomer = false,
-      this.isVendor = false,
-      this.isGeneral = false,
-        this.currentLocation
-      })
-      : super(key: key);
+  GoogleMapLocationPickerV1({
+    Key? key,
+    this.isCustomer = false,
+    this.isVendor = false,
+    this.isGeneral = false,
+    this.isVendorInitialRequest = false,
+    this.currentLocation
+  }) : super(key: key);
 
   @override
   GoogleMapLocationPickerState createState() => GoogleMapLocationPickerState();
@@ -215,6 +216,7 @@ class GoogleMapLocationPickerState extends State<GoogleMapLocationPickerV1> {
             Positioned(
                 bottom: 0,
                 child: ConfirmLocation(
+                  isVendorInitialRequest: widget.isVendorInitialRequest,
                   isVendor: widget.isVendor,
                   isCustomer: widget.isCustomer,
                   isGeneral: widget.isGeneral,

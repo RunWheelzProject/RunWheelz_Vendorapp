@@ -6,11 +6,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/model/role.dart';
 import 'package:untitled/model/user_image_dto.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
+import 'package:untitled/screens/splashscreen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/services/user_image_service.dart';
@@ -287,10 +289,12 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                 ),
               ),
               IconButton(
-                onPressed: () {
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool("SHARED_LOGGED", false);
                   Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (BuildContext context) {
-                        return const LoginScreen();
+                        return SplashScreen();
                       })
                   );
                 },

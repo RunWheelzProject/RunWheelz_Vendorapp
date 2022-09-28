@@ -6,16 +6,19 @@ import 'package:untitled/screens/profile.dart';
 import 'package:untitled/utils/add_space.dart';
 
 import '../screens/customer_board.dart';
+import '../screens/rw_management_screen.dart';
+import '../screens/rw_staff_management_screen.dart';
+import '../screens/rw_vendor_management_screen.dart';
 import '../screens/vendor_dashboard.dart';
 import '../screens/vendor_works.dart';
 import '../screens/vendro_staff_management_screen.dart';
 
 
 
-class VendorAppBar extends StatelessWidget {
+class StaffAppBar extends StatelessWidget {
   Widget child;
 
-  VendorAppBar({super.key, required this.child});
+  StaffAppBar({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -28,17 +31,15 @@ class VendorAppBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text("Run Wheelz",
+                    const Text("Management",
                         style: TextStyle(color: Colors.white, fontSize: 23)),
                     addHorizontalSpace(70),
                     IconButton(
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                    return VendorDashboardProfile(
-                                        isVendor: true);
-                                  })
+                              MaterialPageRoute(builder: (BuildContext context) {
+                                return VendorDashboardProfile(isStaff: true,);
+                              })
                           );
                         },
                         icon: const Icon(
@@ -56,27 +57,26 @@ class VendorAppBar extends StatelessWidget {
           ),
         ),
         drawer: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 120, 0, 0),
             child: SideMenu(
               menuList: [
                 RWMap(
                     title: "Home",
                     icon: const Icon(Icons.home, color: Colors.deepPurple,),
-                    navigateTo: const VendorDashBoard()
+                    navigateTo: const RunWheelManagementPage()
                 ),
                 RWMap(
-                    title: "Vendor Works",
-                    icon: const Icon(Icons.history, color: Colors.deepPurple,),
-                    navigateTo: VendorWorks()
+                    title: "Vendor",
+                    icon: const Icon(Icons.electric_bike_outlined, color: Colors.deepPurple,),
+                    navigateTo: VendorManagementPage()
                 ),
                 RWMap(
-                    title: "Vendor Staff",
+                    title: "Staff",
                     icon: const Icon(Icons.person, color: Colors.deepPurple,),
-                    navigateTo: const VendorStaffManagementPage()
-                )
+                    navigateTo: const StaffManagementPage()
+                ),
               ],
             )
-
         ),
         body: child
     );

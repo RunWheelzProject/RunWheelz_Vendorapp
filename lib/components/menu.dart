@@ -47,11 +47,11 @@ class Menu extends StatelessWidget {
               title: const Text('Vendor Works', style: TextStyle(color: Colors.red, fontSize: 16),),
               onTap: () {
                 logInManager.setCurrentURLs("mechanicRegistration");
-                Navigator.of(context).pushReplacement(
+                /*Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (BuildContext context) {
-                      return const VendorWorks();
+                      //return const VendorWorks();
                     })
-                );
+                );*/
               },
             ),
             ListTile(

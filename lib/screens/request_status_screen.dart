@@ -174,8 +174,7 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
     var json = jsonDecode(response.body);
     if (json["assignedToMechanic"] != 0) {
       setState(() => isStopped = true);
-      response = await http.get(Uri.parse(
-          "${res.APP_URL}/api/vendorstaff/${json["assignedToMechanic"]}"));
+      response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/${json["assignedToMechanic"]}"));
       json = jsonDecode(response.body);
       if (response.statusCode == 200) {
         setState(() => _vendorMechanic = VendorMechanic.fromJson(json));
@@ -234,8 +233,12 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
                               child: CircularProgressIndicator());
                         }
                         _mechanicLatLng = LatLng(
-                            snapshot.data!.docs.singleWhere((element) => element.id == "12")['latitude'],
-                            snapshot.data!.docs.singleWhere((element) => element.id == "12")['longitude']
+                            snapshot.data!.docs.singleWhere((element) =>
+                              element.id == _vendorMechanic?.id.toString()
+                            )['latitude'],
+                            snapshot.data!.docs.singleWhere((element) =>
+                            element.id == _vendorMechanic?.id.toString()
+                            )['longitude']
                         );
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -246,8 +249,12 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
                             Text(double.parse((Geolocator.distanceBetween(
                                 serviceRequestManager.serviceRequestDTO.latitude ?? 0.0,
                                 serviceRequestManager.serviceRequestDTO.longitude ?? 0.0,
-                                snapshot.data!.docs.singleWhere((element) => element.id == "12")['latitude'],
-                                snapshot.data!.docs.singleWhere((element) => element.id == "12")['longitude']) / 1000)
+                                snapshot.data!.docs.singleWhere((element) =>
+                                  element.id == _vendorMechanic?.id.toString()
+                                )['latitude'],
+                                snapshot.data!.docs.singleWhere((element) =>
+                                  element.id == _vendorMechanic?.id.toString()
+                                )['longitude']) / 1000)
                                 .toStringAsFixed(2))
                                 .toString()),
                             const SizedBox(width: 20,),

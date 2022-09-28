@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:searchable_listview/searchable_listview.dart';
+import 'package:untitled/components/marketing_agent_appbar.dart';
 import 'package:untitled/manager/login_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
@@ -11,6 +12,7 @@ import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/profile_vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import '../manager/profile_manager.dart';
+import '../manager/vendor_works_manager.dart';
 import '../model/staff.dart';
 
 import 'package:http/http.dart' as http;
@@ -65,111 +67,72 @@ class MarketingAgentPageState extends State<MarketingAgentPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    return MarketingAgentAppBar(child: _mainContainer());
+
+  }
+  Widget _mainContainer() {
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     VendorManager vendorManager = Provider.of<VendorManager>(context);
+    VendorWorksManager vendorWorksManager = Provider.of<VendorWorksManager>(context, listen: false);
 
-    return Scaffold(
-        /*floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.purple,
-          onPressed: () => {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return const RunWheelManagementPage();
-                })
-            )
-          },
-          child: const Icon(Icons.arrow_back),
-        ),*/
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          flexibleSpace: SafeArea(
-            child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text("Marketing",
-                        style: TextStyle(color: Colors.white, fontSize: 23)),
-                    addHorizontalSpace(70),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (BuildContext context) {
-                                return VendorDashboardProfile(isStaff: true,);
-                              })
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.account_circle_rounded,
-                          color: Colors.white,
-                        )),
-                    addHorizontalSpace(20),
-                    const Icon(
-                      Icons.notification_add_rounded,
-                      color: Colors.white,
-                    ),
-                    addHorizontalSpace(20),
-                  ],
-                )),
-          ),
-        ),
-        body: SafeArea(
-            child: Container(
-                padding: const EdgeInsets.all(10),
-                width: double.infinity,
-                child: Column(children: [
-                  const SizedBox(height: 40,),
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child:ElevatedButton(
-                          onPressed: () {
-                            LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
-                            logInManager.setCurrentURLs("vendorRegistration");
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-                              return const LoginScreen();
-                            })
-                            );
-                          },
-                          child: const Text("Add Vendor + ")
-                      )
-                  ),
-                  const SizedBox(height: 20,),
-                  const Text('Vendor List', style: TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
-                  Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: SearchableList<VendorDTO>(
-                          initialList: _initRequests,
-                          builder: (VendorDTO vendor) {
-                            return Item(vendorRegistrationRequest: vendor, assignable: true,);
-                          },
-                          filter: (value) => _initRequests
-                              .where((element) =>
-                          element.phoneNumber?.contains(value) as bool)
-                              .toList(),
-                          onItemSelected: (VendorDTO vendor) {
-                            profileManager.vendorDTO = vendor;
-                            Navigator.of(context).pushReplacement(
+    return SafeArea(
+        child: Container(
+            padding: const EdgeInsets.all(10),
+            width: double.infinity,
+            child: Column(children: [
+              const SizedBox(height: 40,),
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child:ElevatedButton(
+                      onPressed: () {
+                        LogInManager logInManager = Provider.of<LogInManager>(context, listen: false);
+                        logInManager.setCurrentURLs("vendorRegistration");
+                        vendorWorksManager.isMarketingAgent = true;
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                          return const LoginScreen();
+                        })
+                        );
+                      },
+                      child: const Text("Add Vendor + ")
+                  )
+              ),
+              const SizedBox(height: 20,),
+              const Text('Vendor List', style: TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold),),
+              Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: SearchableList<VendorDTO>(
+                      initialList: _initRequests,
+                      builder: (VendorDTO vendor) {
+                        return Item(vendorRegistrationRequest: vendor, assignable: true,);
+                      },
+                      filter: (value) => _initRequests
+                          .where((element) =>
+                      element.phoneNumber?.contains(value) as bool)
+                          .toList(),
+                      onItemSelected: (VendorDTO vendor) {
+                        profileManager.vendorDTO = vendor;
+                        /*Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
                                   return VendorProfile();
                                 })
-                            );
-                          },
-                          inputDecoration: InputDecoration(
-                            labelText: "Search Vendor",
-                            fillColor: Colors.white,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.blue,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
+                            );*/
+                      },
+                      inputDecoration: InputDecoration(
+                        labelText: "Search Vendor",
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: Colors.blue,
+                            width: 1.0,
                           ),
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                      ))
-                ]
-                )
+                      ),
+                    ),
+                  ))
+            ]
             )
         )
     );
@@ -195,7 +158,6 @@ class ItemState extends State<Item> {
 
   Future<http.Response> vendorRegistrationRequest(VendorDTO vendorRegistrationRequest) async {
     String body = jsonEncode(vendorRegistrationRequest);
-    log("vendorRegistrationRequest: $body");
     Map<String, String> headers = {
       'Content-type': 'application/json',
       'Accept': 'application/json',
@@ -223,10 +185,8 @@ class ItemState extends State<Item> {
   void initState() {
     super.initState();
     getAllStaff().then((staff) {
-      log(jsonEncode(staff));
       List<String> list = staff.where((staff) => staff.role?.id == 3).toList()
           .map((staff) => staff.name ?? "").toList();
-      log("list: ${jsonEncode(list)}");
       setState(() {
         executives = [...executives, ...list];
       });
@@ -336,19 +296,14 @@ class ItemState extends State<Item> {
                         onChanged: (val) {
                           setState(() => _dropDownExecutiveValue = val!);
                           _selectedStaff = _staffList.firstWhere((element) => element.name == val);
-                          log("${_selectedStaff?.name}");
                         }
                     ),
                     const SizedBox(width: 40,),
                     ElevatedButton(
                         onPressed: () async {
-                          StaffDTO? staff = _selectedStaff ?? _staffList[0];
-                          widget.vendorRegistrationRequest.executive = staff.id.toString();
+                          StaffDTO? staff = _selectedStaff;
+                          widget.vendorRegistrationRequest.executive = staff?.id.toString();
                           widget.vendorRegistrationRequest.marketingAgent = Provider.of<ProfileManager>(context, listen: false).staffDTO.id.toString();
-                          //widget.vendorRegistrationRequest.status = "Completed";
-
-                          log("request: ${jsonEncode(widget.vendorRegistrationRequest)}");
-                          // pending update executive
 
                           vendorRegistrationRequest(widget.vendorRegistrationRequest)
                               .then((response) {
@@ -358,8 +313,7 @@ class ItemState extends State<Item> {
                             log("ServerError: $error");
                           });
 
-                          log("${staff?.name ?? ""}");
-                          await http.get(Uri.parse("${res.APP_URL}/api/staff/sendNotification?deviceToken=${staff.deviceToken}&requestId=${widget.vendorRegistrationRequest.id}"));
+                          await http.get(Uri.parse("${res.APP_URL}/api/staff/sendNotification?deviceToken=${staff?.deviceToken}&requestId=${widget.vendorRegistrationRequest.id}"));
                           showDialog<void>(
                             context: context,
                             barrierDismissible: false, // user must tap button!
@@ -369,7 +323,7 @@ class ItemState extends State<Item> {
                                 content: SingleChildScrollView(
                                   child: ListBody(
                                     children: <Widget>[
-                                      Text('SentNotification to ${staff.name}'),
+                                      Text('SentNotification to ${staff?.name}'),
                                     ],
                                   ),
                                 ),

@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/manager/preferred_mechanic_manager.dart';
 import 'package:untitled/manager/service_request_manager.dart';
+import 'package:untitled/manager/vendor_works_manager.dart';
 import 'package:untitled/screens/breakdown_services.dart';
 import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/customer_registration_screen.dart';
@@ -14,12 +16,15 @@ import 'package:untitled/screens/login_confirm.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/request_status_screen.dart';
+import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_mgmt_marketing_agent_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/splashscreen.dart';
 import 'package:untitled/screens/test_screen.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_inprogrees_screen.dart';
 import 'package:untitled/screens/vendor_mechanic_accept_screen.dart';
+import 'package:untitled/screens/vendor_mechanic_dashboard.dart';
 import 'package:untitled/screens/vendor_pending_screen.dart';
 import 'package:untitled/screens/vendor_registration_screen_v1.dart';
 import 'package:untitled/screens/vendor_request_accept_screen.dart';
@@ -251,45 +256,49 @@ class RunWheelzState extends State<RunWheelz> {
 
     log("customerJson: $customerJson");
 
-   /* ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
-    serviceRequestManager.serviceRequestDTO = ServiceRequestDTO.fromJson(serviceJson);
-    serviceRequestManager.serviceRequestDTO.customerDTO = Customer.fromJson(customerJson);
-*/
-    if (data["screen"] == "vendor_accept") {
-      navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
-          arguments: ServiceRequestArgs(
-            id: serviceJson["id"],
-            serviceType: serviceJson["serviceType"],
-            make: serviceJson["make"],
-            vehicleNumber: serviceJson["vehicleNumber"],
-            latitude: serviceJson["latitude"],
-            longitude: serviceJson["longitude"],
-            acceptedByVendor: serviceJson["acceptedByVendor"],
-            assignedToMechanic: serviceJson["assignedToMechanic"],
-            status: serviceJson["status"],
-            comments: serviceJson["comments"],
-            customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"])
-          )
-      );
-    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+      if ((prefs.getBool("SHARED_LOGGED") != null)) {
+        bool isLoggedIn = prefs.getBool("SHARED_LOGGED") as bool;
+        log("isLogged: $isLoggedIn");
+        if (isLoggedIn) {
+          if (data["screen"] == "vendor_accept") {
+            navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
+                arguments: ServiceRequestArgs(
+                    id: serviceJson["id"],
+                    serviceType: serviceJson["serviceType"],
+                    make: serviceJson["make"],
+                    vehicleNumber: serviceJson["vehicleNumber"],
+                    latitude: serviceJson["latitude"],
+                    longitude: serviceJson["longitude"],
+                    acceptedByVendor: serviceJson["acceptedByVendor"],
+                    assignedToMechanic: serviceJson["assignedToMechanic"],
+                    status: serviceJson["status"],
+                    comments: serviceJson["comments"],
+                    customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"])
+                )
+            );
+          }else if (data["screen"] == "mechanic_accept") {
+            navigatorKey.currentState?.pushNamed('/mechanic_accept_screen',
+                arguments: ServiceRequestArgs(
+                    id: serviceJson["id"],
+                    serviceType: serviceJson["serviceType"],
+                    make: serviceJson["make"],
+                    vehicleNumber: serviceJson["vehicleNumber"],
+                    latitude: serviceJson["latitude"],
+                    longitude: serviceJson["longitude"],
+                    acceptedByVendor: serviceJson["acceptedByVendor"],
+                    assignedToMechanic: serviceJson["assignedToMechanic"],
+                    status: serviceJson["status"],
+                    comments: serviceJson["comments"],
+                    customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"])
+                )
+            );
+          }
+        } else {
+          navigatorKey.currentState?.pushNamed('/ask_login');
+        }
+      }
 
-    if (data["screen"] == "mechanic_accept") {
-      navigatorKey.currentState?.pushNamed('/mechanic_accept_screen',
-          arguments: ServiceRequestArgs(
-            id: serviceJson["id"],
-            serviceType: serviceJson["serviceType"],
-            make: serviceJson["make"],
-            vehicleNumber: serviceJson["vehicleNumber"],
-            latitude: serviceJson["latitude"],
-            longitude: serviceJson["longitude"],
-            acceptedByVendor: serviceJson["acceptedByVendor"],
-            assignedToMechanic: serviceJson["assignedToMechanic"],
-            status: serviceJson["status"],
-            comments: serviceJson["comments"],
-              customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"])
-          )
-      );
-    }
 
   }
 
@@ -313,7 +322,8 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<VendorMechanicManager>(create: (context) => VendorMechanicManager()),
         ChangeNotifierProvider<ServiceRequestManager>(create: (context) => ServiceRequestManager()),
         ChangeNotifierProvider<LiveTrackerManager>(create: (context) => LiveTrackerManager()),
-        ChangeNotifierProvider<PreferredMechanicManager>(create: (context) => PreferredMechanicManager())
+        ChangeNotifierProvider<PreferredMechanicManager>(create: (context) => PreferredMechanicManager()),
+        ChangeNotifierProvider<VendorWorksManager>(create: (context) => VendorWorksManager())
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -324,8 +334,13 @@ class RunWheelzState extends State<RunWheelz> {
         //home: const SplashScreen(),
         initialRoute: '/',
         routes: {
-          '/': (context) => const LogInConfirmation(),
+          '/': (context) => SplashScreen(),
+          '/ask_login': (context) => const LogInConfirmation(),
           '/phone_verification': (context) => const LoginScreen(),
+          '/vendor_dashboard': (context) => const VendorDashBoard(),
+          '/customer_dashboard': (context) => CustomerDashBoard(isCustomer: true,),
+          '/mechanic_dashboard': (context) => VendorMechanicDashBoard(requestId: ''),
+          '/staff_dashboard': (context) => const RunWheelManagementPage(),
           VendorRequestAcceptScreen.routeName: (context) => const VendorRequestAcceptScreen(),
           VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()
         },

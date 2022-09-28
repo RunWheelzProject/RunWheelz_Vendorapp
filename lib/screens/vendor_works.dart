@@ -2,11 +2,19 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:searchable_listview/widgets/list_item.dart';
+import 'package:untitled/components/marketing_agent_appbar.dart';
+import 'package:untitled/components/staff_appbar.dart';
 import 'package:untitled/components/vendor_appbar.dart';
 import 'package:untitled/screens/profile.dart';
+import 'package:untitled/screens/rw_management_screen.dart';
+import 'package:untitled/screens/rw_mgmt_marketing_agent_screen.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/utils/add_space.dart';
 import '../components/menu.dart';
+import '../manager/vendor_manager.dart';
+import '../manager/vendor_works_manager.dart';
 import '../model/vendor_works_dto.dart';
 import '../resources/resources.dart' as res;
 
@@ -18,7 +26,10 @@ class MapKeyValue {
 }
 
 class VendorWorks extends StatefulWidget {
-  const VendorWorks({Key? key}) : super(key: key);
+
+  const VendorWorks({
+    Key? key,
+  }) : super(key: key);
 
   @override
   VendorWorksState createState() => VendorWorksState();
@@ -27,7 +38,7 @@ class VendorWorks extends StatefulWidget {
 class VendorWorksState extends State<VendorWorks> {
   List<Map<String, String>> services = [
     {"painting": "Painting"},
-    {"electricalWork": "Electrical Wrork"},
+    {"electricWork": "Electrical Wrork"},
     {"spares": "Spares"},
     {"washing": "Washing"},
     {"puncture": "Puncture"},
@@ -76,7 +87,10 @@ class VendorWorksState extends State<VendorWorks> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return VendorAppBar(child: _mainContainer());
+    VendorWorksManager vendorWorksManager = Provider.of<VendorWorksManager>(context);
+    if (vendorWorksManager.isVendor) return VendorAppBar(child: _mainContainer());
+    if (vendorWorksManager.isAdmin) return StaffAppBar(child: _mainContainer());
+    return MarketingAgentAppBar(child: _mainContainer());
   }
   Widget _mainContainer() {
 
@@ -167,16 +181,14 @@ class VendorWorksState extends State<VendorWorks> {
                       Border(top: BorderSide(color: Colors.black54))),
                   child: ElevatedButton(
                       onPressed: () {
-                        Map<String, dynamic> json =
-                        jsonDecode(jsonEncode(VendorWorksDTO()));
-                        json["id"] = 2;
+                        Map<String, dynamic> json = jsonDecode(jsonEncode(VendorWorksDTO()));
                         for (Map<String, String> item in _selectedItems) {
                           for (var entry in item.entries) {
                             json[entry.key] = true;
                           }
                         }
-                        VendorWorksDTO vendorWorksDTO =
-                        VendorWorksDTO.fromJson(json);
+                        VendorWorksDTO vendorWorksDTO = VendorWorksDTO.fromJson(json);
+                        vendorWorksDTO.id = Provider.of<VendorManager>(context, listen: false).vendorDTO.id;
                         updateVendorWorks(vendorWorksDTO)
                             .then((bool response) {
                           if (true) {
@@ -198,12 +210,7 @@ class VendorWorksState extends State<VendorWorks> {
                                     TextButton(
                                       child: const Text('Done'),
                                       onPressed: () {
-                                        Navigator.of(context)
-                                            .pushReplacement(
-                                            MaterialPageRoute(builder:
-                                                (BuildContext context) {
-                                              return const VendorWorks();
-                                            }));
+                                        Navigator.of(context).pop();
                                       },
                                     ),
                                   ],

@@ -10,6 +10,7 @@ import 'package:untitled/manager/profile_manager.dart';
 import 'package:untitled/manager/vendor_manager.dart';
 import 'package:untitled/screens/customer_board.dart';
 import '../model/customer.dart';
+import '../utils/validations.dart';
 import './google_map_location_screen.dart';
 import '../utils/add_space.dart';
 
@@ -97,15 +98,18 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
                           label: 'Name',
                           icon: const Icon(Icons.person,
                               color: Colors.deepPurple),
-                          onSaved: (value) => profileManager.customerDTO.name = value //cu.ownerName = value
+                          textInputFormatters: [
+                            CapitalizeTextFormatter()
+                          ],
+                          onSaved: (value) =>  profileManager.customerDTO.name = value //cu.ownerName = value
                           ),
                       addVerticalSpace(30),
                       RWTextFormField(
                           label: 'Email',
-                          icon:
-                              const Icon(Icons.email, color: Colors.deepPurple),
-                          onSaved: (value) => profileManager.customerDTO.email = value //cu.ownerName = value
-                          ),
+                          icon: const Icon(Icons.email, color: Colors.deepPurple),
+                          onSaved: (value){
+                            profileManager.customerDTO.email = value;
+                          }),
                       addVerticalSpace(30),
                       Align(
                           alignment: Alignment.topLeft,
@@ -133,7 +137,26 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
                               onPressed: _isTermsChecked
                                   ? () {
                                       if (_formKey.currentState!.validate()) {
-                                        log(jsonEncode(profileManager.customerDTO));
+                                        String email = profileManager.customerDTO.email ?? "";
+                                        !email.isValidEmail() ? showDialog<String>(
+                                            context: context,
+                                            builder: (BuildContext context) =>
+                                                AlertDialog(
+                                                    title:
+                                                    const Text("Email"),
+                                                    content: const Text(
+                                                        "Not valid email, please check your email",
+                                                        style: TextStyle(
+                                                            fontSize: 18,
+                                                            color: Colors.black87)),
+                                                    actions: <Widget>[
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(context, 'OK'),
+                                                        child: const Text('OK'),
+                                                      ),
+                                                    ])
+                                        ) :
                                         customerUpdate(profileManager.customerDTO).then((response) {
                                           var responseJson = jsonDecode(response.body);
 

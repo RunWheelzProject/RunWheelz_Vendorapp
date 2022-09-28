@@ -57,7 +57,7 @@ class VendorWorksDTO {
 
   Map toJson() => {
     "id": id,
-    "electicWork": electricWork,
+    "electricWork": electricWork,
     "painting": painting,
     "spares": spares,
     "washing": washing,

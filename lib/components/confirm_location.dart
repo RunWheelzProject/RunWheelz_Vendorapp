@@ -22,12 +22,14 @@ class ConfirmLocation extends StatefulWidget {
   bool isVendor;
   bool isCustomer;
   bool isGeneral;
-  ConfirmLocation(
-      {Key? key,
+  bool isVendorInitialRequest;
+  ConfirmLocation({
+      Key? key,
       this.isVendor = false,
       this.isCustomer = false,
-      this.isGeneral = false})
-      : super(key: key);
+      this.isGeneral = false,
+      this.isVendorInitialRequest = false,
+  }) : super(key: key);
 
   @override
   ConfirmLocationState createState() => ConfirmLocationState();
@@ -74,21 +76,21 @@ class ConfirmLocationState extends State<ConfirmLocation> {
           Center(
               child: ElevatedButton(
                   onPressed: () {
-                    if (widget.isVendor) {
-                      VendorRegistrationService()
-                          .vendorRegistrationRequest(vendorManager.vendorDTO)
+                    if (widget.isVendorInitialRequest) {
+                      log(jsonEncode(vendorManager.vendorDTO));
+                      VendorRegistrationService().vendorRegistrationRequest(vendorManager.vendorDTO)
                           .then((response) {
                         var body = jsonDecode(response.body);
                         Navigator.of(context).pushReplacement(
                             MaterialPageRoute(builder: (BuildContext context) {
-                          return VendorRegistrationInfoDisplay(id: body["id"]);
+                          return VendorRegistrationInfoDisplay(id: body["id"] ?? 0);
                           //return const RequestStatusDetails();
                         }));
                       }).catchError((error) {
                         log("ServerError: $error");
                       });
                     }
-                    if (widget.isCustomer & widget.isGeneral != true) {
+                    else if (widget.isCustomer & widget.isGeneral != true) {
                       serviceRequestManager
                               .serviceRequestDTO.requestedCustomer =
                           Provider.of<ProfileManager>(context, listen: false)
@@ -111,18 +113,14 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                         log("ServerError: $error");
                       });
                     }
-                    if (widget.isGeneral) {
-                      PreferredMechanicService()
-                          .sendNotification(
-                              serviceRequestManager.serviceRequestDTO)
-                          .then((request) {
-                        log("request");
+                    else if (widget.isGeneral) {
+                      PreferredMechanicService().sendNotification(serviceRequestManager.serviceRequestDTO).then((request) {
                         serviceRequestManager.serviceRequestDTO = request;
-                        // need to implement preferred mechanic
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                          return const RequestStatusDetailsV1();
-                        }));
+
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (BuildContext context) {
+                                return const RequestStatusDetailsV1();
+                              }));
                       });
                     }
                   },

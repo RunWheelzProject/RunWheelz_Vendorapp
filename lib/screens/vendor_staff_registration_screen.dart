@@ -21,6 +21,7 @@ import 'package:http/http.dart' as http;
 
 import '../model/vendor.dart';
 import '../resources/resources.dart' as res;
+import '../utils/validations.dart';
 
 
 class VendorStaffRegistration extends StatefulWidget {
@@ -109,7 +110,10 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                         RWTextFormField(
                             label: 'Name',
                             icon: const Icon(Icons.person, color: Colors.deepPurple),
-                            onSaved: (value) => _name = value
+                            onSaved: (value) => _name = value,
+                          textInputFormatters: [
+                            CapitalizeTextFormatter()
+                          ],
                         ),
                         addVerticalSpace(20),
                         RWTextFormField(
@@ -165,10 +169,7 @@ class VendorStaffRegistrationState extends State<VendorStaffRegistration> {
                                     vendorMechanicManager.vendorMechanic.registrationStatus = true;
                                     vendorMechanicManager.vendorMechanic.name = _name;
                                     vendorMechanicManager.vendorMechanic.aadharNumber = _aadhaarCard;
-                                    log("vendor: ${jsonEncode(Provider.of<ProfileManager>(context, listen: false).vendorDTO)}");
                                     vendorMechanicManager.vendorMechanic.vendor = Provider.of<ProfileManager>(context, listen: false).vendorDTO;
-                                    log("vendor: ${jsonEncode(vendorMechanicManager.vendorMechanic)}");
-
                                     updateMechanic(vendorMechanicManager.vendorMechanic).then((response) {
                                         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
                                           return const VendorDashBoard();

@@ -41,6 +41,8 @@ import '../services/phone_verification.dart';
 import '../components/positioned_view.dart';
 import '../utils/add_space.dart';
 import '../resources/resources.dart' as res;
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class OtpScreen extends StatefulWidget {
   final VendorOtpResponse vendorOtpResponse;
@@ -91,27 +93,50 @@ class _OTPState extends State<OtpScreen> {
     return await Geolocator.getCurrentPosition();
   }
 
-  void collectData(RoleBasedLogIn role, var responseJson) {
+  void collectData(RoleBasedLogIn role, var responseJson) async {
     VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);
     CustomerManager customerManager = Provider.of<CustomerManager>(context, listen: false);
     StaffManager staffManager = Provider.of<StaffManager>(context, listen: false);
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
     VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context, listen: false);
-    if (role.roleType == 4) {
 
+    if (role.roleType == 0) {
+      log(jsonEncode(responseJson));
+      vendorManager.vendorDTO.id = responseJson["id"];
+      vendorManager.vendorDTO.phoneNumber = responseJson["phoneNumber"];
+      log("vendorDTO: ${jsonEncode(profileManager.vendorDTO)}");
+    } else if (role.roleType == 4) {
       profileManager.vendorDTO = VendorDTO.fromJson(responseJson["vendorDTO"]);
       vendorManager.vendorDTO = VendorDTO.fromJson(responseJson["vendorDTO"]);
-      log("vendorDTO: ${jsonEncode(profileManager.vendorDTO)}");
+      if (responseJson["vendorDTO"] != null) {
+        log("true");
+        log("vendorDTO: ${responseJson["vendorDTO"]}");
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("vendorDTO", jsonEncode(responseJson["vendorDTO"]));
+        log("TEST: ${prefs.getString("vendorDTO") as String}");
+      }
     } else if (role.roleType == 7) {
       log("vendorStaffDTO: ${responseJson["vendorStaffDTO"]}");
       profileManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
       vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
+      if (responseJson["vendorStaffDTO"] != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("vendorStaffDTO", responseJson["vendorDTO"]);
+      }
     } else if (role.roleType == 1 || role.roleType == 3 || role.roleType == 2) {
       profileManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
       staffManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+      if (responseJson["runwheelzStaffDTO"] != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("runwheelzStaffDTO", responseJson["vendorDTO"]);
+      }
     } else if (role.roleType == 5) {
       profileManager.customerDTO = CustomerDTO.fromJson(responseJson["customerDTO"]);
       customerManager.customerDTO = CustomerDTO.fromJson(responseJson["customerDTO"]);
+      if (responseJson["customerDTO"] != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("customerDTO", responseJson["vendorDTO"]);
+      }
     }
   }
 
@@ -279,10 +304,12 @@ class _OTPState extends State<OtpScreen> {
           otp: _currentVerificationCode));
       log("isResendOTP: $isResendOTP");
       log("phoneVerification: $phoneVerification");
-      PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1]).then((http.Response response) {
+      PhoneVerificationService().verifyOtp(phoneVerification, logInManager.currentURLs![1])
+          .then((http.Response response) async {
         var responseJson = jsonDecode(response.body);
         log(jsonEncode(responseJson));
-
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setBool("SHARED_LOGGED", true);
           RoleBasedLogIn roleBasedLoggedIn = RoleBasedLogIn(
             status: response.statusCode,
             roleType: responseJson["roleType"],

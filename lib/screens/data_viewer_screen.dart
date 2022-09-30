@@ -4,12 +4,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/manager/profile_manager.dart';
+import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/model/staff.dart';
 import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/customer_reqeust_history.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
+import 'package:untitled/screens/request_status_screen.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_inprogrees_screen.dart';
@@ -34,13 +36,17 @@ class VendorDataManagementPage extends StatelessWidget {
   bool isCustomer;
   bool isVendor;
   bool isMechanic;
+  bool isCustomerNotification;
+  bool isVendorNotification;
   List<ServiceRequestDTO>? serviceRequestList;
   VendorDataManagementPage({Key? key,
     required this.pageTitle,
     this.serviceRequestList,
     this.isCustomer = false,
     this.isVendor = false,
-    this.isMechanic= false
+    this.isMechanic= false,
+    this.isCustomerNotification = false,
+    this.isVendorNotification = false
   }) : super(key: key);
 
 
@@ -59,7 +65,7 @@ class VendorDataManagementPage extends StatelessWidget {
           onPressed: () => {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (BuildContext context) {
-                  if (isCustomer) return const CustomerRequestHistory();
+                  if (isCustomer) return CustomerDashBoard(isCustomer: true);
                   if(isVendor) return const VendorDashBoard();
                   return VendorMechanicDashBoard(requestId: '');
                 })
@@ -94,13 +100,21 @@ class VendorDataManagementPage extends StatelessWidget {
                           onItemSelected: (ServiceRequestDTO item) {
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(builder: (BuildContext context) {
-                                    return VendorInprogressScreen(
-                                      serviceRequestDTO: item,
-                                      pageTitle: pageTitle,
-                                      isVendor: isVendor,
-                                      isCustomer: isCustomer,
-                                      isMechanic: isMechanic
-                                    );
+                                    if (isVendorNotification) {
+                                      return  VendorRequestAcceptScreen(serviceRequestDTO: item,);
+                                    } else if (isCustomerNotification) {
+                                      ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
+                                      serviceRequestManager.serviceRequestDTO = item;
+                                      return const RequestStatusDetailsV1();
+                                    } else {
+                                      return VendorInprogressScreen(
+                                          serviceRequestDTO: item,
+                                          pageTitle: pageTitle,
+                                          isVendor: isVendor,
+                                          isCustomer: isCustomer,
+                                          isMechanic: isMechanic
+                                      );
+                                    }
                                   })
                               );
                             },

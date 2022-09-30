@@ -91,11 +91,10 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                       });
                     }
                     else if (widget.isCustomer & widget.isGeneral != true) {
-                      serviceRequestManager
-                              .serviceRequestDTO.requestedCustomer =
-                          Provider.of<ProfileManager>(context, listen: false)
+                      serviceRequestManager.serviceRequestDTO.requestedCustomer = Provider.of<ProfileManager>(context, listen: false)
                               .customerDTO
                               .id;
+                      serviceRequestManager.serviceRequestDTO.id = null;
                       log("it's customer");
                       BreakdownService()
                           .customerRequest(
@@ -104,6 +103,7 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                         var json = jsonDecode(response.body);
                         serviceRequestManager.serviceRequestDTO =
                             ServiceRequestDTO.fromJson(json);
+                        log(jsonEncode(serviceRequestManager.serviceRequestDTO));
                         // need to implement preferred mechanic
                         Navigator.of(context).pushReplacement(
                             MaterialPageRoute(builder: (BuildContext context) {
@@ -114,9 +114,9 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                       });
                     }
                     else if (widget.isGeneral) {
+                      serviceRequestManager.serviceRequestDTO.id = null;
                       PreferredMechanicService().sendNotification(serviceRequestManager.serviceRequestDTO).then((request) {
                         serviceRequestManager.serviceRequestDTO = request;
-
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (BuildContext context) {
                                 return const RequestStatusDetailsV1();

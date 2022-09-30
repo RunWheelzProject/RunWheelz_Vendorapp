@@ -3,12 +3,14 @@ import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/model/servie_request.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import '../manager/profile_manager.dart';
 import '../model/vendor_mechanic.dart';
 import 'package:http/http.dart' as http;
 import '../resources/resources.dart' as res;
+import '../utils/get_location.dart';
 
 class CustomerArgs {
   int? id;
@@ -16,6 +18,20 @@ class CustomerArgs {
   String? phoneNumber;
 
   CustomerArgs({this.id, this.name, this.phoneNumber});
+
+  Map toJson() => {
+    "id": id,
+    "name": name,
+    "phoneNumber": phoneNumber
+  };
+
+  factory CustomerArgs.fromJson(Map<String, dynamic> json) {
+    return CustomerArgs(
+      id: json["id"],
+      name: json["name"],
+      phoneNumber: json["phoneNumber"]
+    );
+  }
 }
 
 class ServiceRequestArgs {
@@ -43,11 +59,42 @@ class ServiceRequestArgs {
       this.status,
       this.comments,
       this.customerArgs});
+  Map toJson() => {
+    "id": id,
+    "serviceType": serviceType,
+    "make": make,
+    "vehicleNumber": vehicleNumber,
+    "latitude": latitude,
+    "longitude": longitude,
+    "accetedByVendor": acceptedByVendor,
+    "assignedToMechanic": assignedToMechanic,
+    "status": status,
+    "customerArgs": customerArgs
+  };
+
+  factory ServiceRequestArgs.fromJson(Map<String, dynamic> json) {
+    return ServiceRequestArgs(
+      id: json["id"],
+      serviceType: json["serviceType"],
+      make: json["make"],
+      vehicleNumber: json["vehicleNumber"],
+      latitude: json["latitude"],
+      longitude: json["longitude"],
+      acceptedByVendor: json["acceptedByVendor"],
+      assignedToMechanic: json["assignedToMechanic"],
+      status: json["status"],
+      customerArgs: CustomerArgs.fromJson(json["customerArgs"])
+    );
+  }
 }
 
 class VendorRequestAcceptScreen extends StatefulWidget {
   static const routeName = '/vendor_accept_screen';
-  const VendorRequestAcceptScreen({Key? key}) : super(key: key);
+  ServiceRequestDTO? serviceRequestDTO;
+  VendorRequestAcceptScreen({
+    Key? key,
+    this.serviceRequestDTO
+  }) : super(key: key);
 
   @override
   _VendorRequestAcceptScreen createState() => _VendorRequestAcceptScreen();
@@ -58,10 +105,32 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
   List<String> _mechanicDropDown = ['Select Mechanic'];
   VendorMechanic _selectedMechanic = VendorMechanic();
   String _dropDownMechanicValue = "Select Mechanic";
+  String _location = "";
+  ServiceRequestArgs? serviceRequestArgs;
+  var customerArgs;
 
+  Future<String> getServiceRequestArgs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? serviceRequestArgs = prefs.getString("ServiceRequestArgs");
+
+    if (serviceRequestArgs != null) {
+      return serviceRequestArgs;
+    }
+
+    throw Exception("could not find service_request_args");
+  }
+
+  Future<String> getCustomerDetails() async {
+    http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/customer/${widget.serviceRequestDTO?.requestedCustomer}"));
+    return response.body;
+  }
   @override
   void initState() {
+
     super.initState();
+    
+    getServiceRequestArgs().then((json) => serviceRequestArgs = ServiceRequestArgs.fromJson(jsonDecode(json)));
+    if (widget.serviceRequestDTO != null) log(jsonEncode(widget.serviceRequestDTO));
     getMechanics().then((mechanics) {
       log("mechanic ${jsonEncode(mechanics)}");
       List<String> list = mechanics.map((staff) => staff.name ?? "").toList();
@@ -71,6 +140,20 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
         _mechanicDropDown = [..._mechanicDropDown, ...list];
       });
     }).catchError((error) => log("error: $error"));
+
+    getServiceLocation(
+        widget.serviceRequestDTO == null ? (serviceRequestArgs?.latitude ?? 0.0) : (widget.serviceRequestDTO?.latitude ?? 0.0),
+        widget.serviceRequestDTO == null ? (serviceRequestArgs?.longitude ?? 0.0) : (widget.serviceRequestDTO?.longitude ?? 0.0)
+    ).then((location) => {
+      setState(() => _location = location)
+    });
+
+    if (widget.serviceRequestDTO != null) {
+      getCustomerDetails().then((response) {
+        customerArgs = jsonDecode(response);
+      });
+    }
+
   }
 
   Future<List<VendorMechanic>> getMechanics() async {
@@ -87,9 +170,7 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
-
+    //final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.purple,
@@ -154,7 +235,7 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                Text(args.serviceType ?? "")
+                                Text(widget.serviceRequestDTO == null ?  (serviceRequestArgs?.serviceType ?? "") : (widget.serviceRequestDTO?.serviceType ?? ""))
                               ],
                             ),
                             const SizedBox(
@@ -171,7 +252,8 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                Text(args.make ?? "")
+                                Text(widget.serviceRequestDTO == null ?  (serviceRequestArgs?.make ?? "") : (widget.serviceRequestDTO?.make ?? ""))
+                                // Text(serviceRequestArgs?.make ?? "")
                               ],
                             ),
                             const SizedBox(
@@ -188,59 +270,31 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                Text(args.vehicleNumber ?? "")
+                                Text(widget.serviceRequestDTO == null ?  (serviceRequestArgs?.vehicleNumber ?? "") : (widget.serviceRequestDTO?.vehicleNumber ?? ""))
                               ],
                             ),
                             const SizedBox(
                               height: 10,
                             ),
                             Row(
-                              children: const [
-                                Text(
-                                  "Latitude: ",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text("127.11")
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: const [
-                                Text(
-                                  "Longitude: ",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text("77.23")
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: const [
-                                Text(
+                              children: [
+                                const Text(
                                   "Location: ",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 10,
                                 ),
-                                Text("lingampalley")
+                                Text(_location)
                               ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const SizedBox(
+                              height: 10,
                             ),
                           ],
                         )
@@ -253,7 +307,7 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                           color: Colors.purple,
                           border: Border(bottom: BorderSide())),
                       child: const Text(
-                        "Mechanic Details",
+                        "Customer Details",
                         style: TextStyle(fontSize: 16, color: Colors.white),
                         textAlign: TextAlign.center,
                       ),
@@ -274,10 +328,10 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                Text(args.customerArgs?.name ?? "")
+                                Text(widget.serviceRequestDTO == null ? (serviceRequestArgs?.customerArgs?.name ?? "") : (customerArgs["name"]))
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             Row(
@@ -289,7 +343,7 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                Text(args.customerArgs?.phoneNumber ?? "")
+                                Text(widget.serviceRequestDTO == null ? (serviceRequestArgs?.customerArgs?.phoneNumber ?? "") : (customerArgs["phoneNumber"]))
                               ],
                             ),
                             const SizedBox(
@@ -316,7 +370,7 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                                     }),
                                 ElevatedButton(
                                     onPressed: () async {
-                                      if (args.status == "VENDOR_ACCEPTED") {
+                                      if (serviceRequestArgs?.status == "VENDOR_ACCEPTED") {
                                         showDialog<void>(
                                           context: context,
                                           barrierDismissible: false, // user must tap button!
@@ -342,20 +396,13 @@ class _VendorRequestAcceptScreen extends State<VendorRequestAcceptScreen> {
                                         );
                                       } else {
                                         http.Response response = await http.get(Uri.parse(
-                                            "${res.APP_URL}/api/servicerequest/service_request/${args.id}"));
+                                            "${res.APP_URL}/api/servicerequest/service_request/${serviceRequestArgs?.id}"));
                                         var json = jsonDecode(response.body);
                                         ServiceRequestDTO serviceRequestDTO =
                                         ServiceRequestDTO.fromJson(json);
                                         serviceRequestDTO.status = 'VENDOR_ACCEPTED';
-                                        serviceRequestDTO.acceptedByVendor =
-                                            Provider.of<ProfileManager>(context, listen: false)
-                                                .vendorDTO
-                                                .id;
-                                        serviceRequestDTO.assignedToMechanic =
-                                            _selectedMechanic.id;
-                                        log("vendoMechanicId: ${_selectedMechanic.id}");
-                                        log("vendoMechanicId: ${_selectedMechanic.deviceToken}");
-                                        log("ServiceRequestDTO: ${jsonEncode(serviceRequestDTO)}");
+                                        serviceRequestDTO.acceptedByVendor = Provider.of<ProfileManager>(context, listen: false).vendorDTO.id;
+                                        serviceRequestDTO.assignedToMechanic = _selectedMechanic.id;
                                         Map<String, String> headers = {
                                           'Content-type': 'application/json',
                                           'Accept': 'application/json',

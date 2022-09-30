@@ -35,6 +35,31 @@ class VendorMechanicTrakcer {
   int id = 0;
 }
 
+
+class Message {
+  final String latitude;
+  final String longitude;
+
+  const Message({
+    required this.latitude,
+    required this.longitude,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'sender': latitude,
+      'text': longitude,
+    };
+  }
+
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      latitude: map['latitude'] as String,
+      longitude: map['longitude'] as String,
+    );
+  }
+}
+
 class RequestStatusDetailsV1 extends StatefulWidget {
   const RequestStatusDetailsV1({Key? key}) : super(key: key);
   @override
@@ -48,48 +73,50 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
   VendorMechanic? _vendorMechanic;
   LatLng? _mechanicLatLng;
   String? _serviceLocation;
+  bool isMechanicStarted = false;
+
   List<Row> createRows(List<List<String?>> list) {
     List<Row> rows = [];
     log("service Details ${jsonEncode(list)}");
     for (var item in list) {
       log(jsonEncode(item));
-      rows.add(
-          Row(
-            children: [
-              Text(
-                "${item[0]}: " ?? "",
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Text(item[1] ?? "")
-            ],
-          )
-      );
+      rows.add(Row(
+        children: [
+          Text(
+            "${item[0]}: " ?? "",
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Text(item[1] ?? "")
+        ],
+      ));
     }
 
     return rows;
   }
 
-
   @override
   void initState() {
     super.initState();
 
-    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
+    ServiceRequestManager serviceRequestManager =
+        Provider.of<ServiceRequestManager>(context, listen: false);
 
-    getServiceLocation(
-      serviceRequestManager.serviceRequestDTO.latitude ?? 0.0,
-      serviceRequestManager.serviceRequestDTO.longitude ?? 0.0
-    ).then((String location) => setState(() => _serviceLocation = location));
+    getServiceLocation(serviceRequestManager.serviceRequestDTO.latitude ?? 0.0,
+            serviceRequestManager.serviceRequestDTO.longitude ?? 0.0)
+        .then((String location) => setState(() => _serviceLocation = location));
 
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (isStopped) {
         timer.cancel();
       }
       getMechanicDetails(vendorMechanicTrakcer);
+      if (_vendorMechanic != null) {
+        checkIdExists(_vendorMechanic?.id.toString() ?? "")
+            .then((res) => setState(() => isMechanicStarted = res));
+      }
     });
   }
 
@@ -105,7 +132,8 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
   }
 
   Widget _mainContainer() {
-    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
+    ServiceRequestManager serviceRequestManager =
+        Provider.of<ServiceRequestManager>(context, listen: false);
 
     return Container(
         padding: const EdgeInsets.all(10),
@@ -114,51 +142,58 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
             height: 10,
           ),
           CardWithHeader(
-            title: "Request Details",
+              title: "Request Details",
               children: createRows([
-                ["Service Type", serviceRequestManager.serviceRequestDTO?.serviceType ?? "None"],
+                [
+                  "Service Type",
+                  serviceRequestManager.serviceRequestDTO?.serviceType ?? "None"
+                ],
                 ["Make", serviceRequestManager.serviceRequestDTO?.make],
-                ["Vehicle Number", serviceRequestManager.serviceRequestDTO?.vehicleNumber],
+                [
+                  "Vehicle Number",
+                  serviceRequestManager.serviceRequestDTO?.vehicleNumber
+                ],
                 ["Location", _serviceLocation]
-              ])
+              ])),
+          const SizedBox(
+            height: 20,
           ),
-          const SizedBox(height: 20,),
           if (_vendorMechanic == null)
             Container(
               margin: const EdgeInsets.symmetric(vertical: 50),
-              child: Column(
-                  children: const [
-                    SpinKitFadingCircle(
-                      color: Colors.red,
-                      size: 100.0,
-                    ),
-                    SizedBox(height: 60,),
-                    Text("Waiting for mechanic approval of your request",
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 16
-                    ))
-                  ]
-              ),
+              child: Column(children: const [
+                SpinKitFadingCircle(
+                  color: Colors.red,
+                  size: 100.0,
+                ),
+                SizedBox(
+                  height: 60,
+                ),
+                Text("Waiting for mechanic approval of your request",
+                    style: TextStyle(color: Colors.red, fontSize: 16))
+              ]),
             ),
           if (_vendorMechanic != null)
-          CardWithHeader(
-            title: "Vendor Details",
-              children: createRows([
-                ["Name", _vendorMechanic?.vendor?.ownerName],
-                ["Phone", _vendorMechanic?.vendor?.phoneNumber],
-              ])
+            CardWithHeader(
+                title: "Vendor Details",
+                children: createRows([
+                  ["Name", _vendorMechanic?.vendor?.ownerName],
+                  ["Phone", _vendorMechanic?.vendor?.phoneNumber],
+                ])),
+          const SizedBox(
+            height: 20,
           ),
-          const SizedBox(height: 20,),
           if (_vendorMechanic != null)
-          CardWithHeader(
-            title: "Mechanic Details",
-              children: createRows([
-                ["Name", _vendorMechanic?.name],
-                ["Phone", _vendorMechanic?.phoneNumber],
-              ])
-          ),
-          requestStatus() ?? const SizedBox(height: 0,),
+            CardWithHeader(
+                title: "Mechanic Details",
+                children: createRows([
+                  ["Name", _vendorMechanic?.name],
+                  ["Phone", _vendorMechanic?.phoneNumber],
+                ])),
+            requestStatus() ??
+                const SizedBox(
+                  height: 0,
+                ),
           const SizedBox(
             height: 10,
           ),
@@ -174,7 +209,8 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
     var json = jsonDecode(response.body);
     if (json["assignedToMechanic"] != 0) {
       setState(() => isStopped = true);
-      response = await http.get(Uri.parse("${res.APP_URL}/api/vendorstaff/${json["assignedToMechanic"]}"));
+      response = await http.get(Uri.parse(
+          "${res.APP_URL}/api/vendorstaff/${json["assignedToMechanic"]}"));
       json = jsonDecode(response.body);
       if (response.statusCode == 200) {
         setState(() => _vendorMechanic = VendorMechanic.fromJson(json));
@@ -205,18 +241,32 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
     }
   }
 
+  Future<bool> checkIdExists(String id) async {
+    final snapShot = await FirebaseFirestore.instance
+        .collection('locations')
+        .doc(id) // varuId in your case
+        .get();
+
+    if (!snapShot.exists) {
+      return false;
+    }
+    return true;
+  }
+
   Widget? requestStatus() {
-    ServiceRequestManager serviceRequestManager = Provider.of<ServiceRequestManager>(context, listen: false);
-    ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
+    ServiceRequestManager serviceRequestManager =
+        Provider.of<ServiceRequestManager>(context, listen: false);
+    ProfileManager profileManager =
+        Provider.of<ProfileManager>(context, listen: false);
     if (_vendorMechanic != null) {
       log(jsonEncode(_vendorMechanic?.id));
+      String id = _vendorMechanic?.id.toString() ?? "";
       return Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Container(
               margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.symmetric(
-                  vertical: 10, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(5),
@@ -226,79 +276,86 @@ class RequestStatusDetailsState extends State<RequestStatusDetailsV1> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection('location').snapshots(),
-                      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (!snapshot.hasData) {
+                      stream: FirebaseFirestore.instance.collection('location').doc(id).snapshots(),
+                    builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (snapshot.hasData) {
+                          if (snapshot.data != null) {
+                            final Map<String, dynamic>?  ds = snapshot.data?.data() as Map<String, dynamic>?;
+                            double lat = 0.0;
+                            double lang = 0.0;
+
+                            if (ds != null) {
+                              lat = ds["latitude"];
+                              lang = ds["longitude"];
+                              log("co: $lat, $lang");
+                            }
+                            _mechanicLatLng = LatLng(lat, lang);
+                              return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                  const Text("Distance: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
+                      Text(double.parse((Geolocator.distanceBetween(serviceRequestManager.serviceRequestDTO.latitude ?? 0.0,
+                          serviceRequestManager.serviceRequestDTO.longitude ??
+                      0.0,lat, lang) /
+                                    1000)
+                                    .toStringAsFixed(2))
+                                    .toString()),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                ElevatedButton(
+                                  child: const Text("Track Customer"),
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                LocationTrackingMap(
+                                                  isCustomer: true,
+                                                  id: _vendorMechanic?.id
+                                                      .toString() ??
+                                                      "",
+                                                  requestId:
+                                                  serviceRequestManager
+                                                      .serviceRequestDTO
+                                                      .id
+                                                      .toString() ??
+                                                      "",
+                                                  customerLatLng: LatLng(
+                                                      serviceRequestManager
+                                                          .serviceRequestDTO
+                                                          ?.latitude ??
+                                                          0.0,
+                                                      serviceRequestManager
+                                                          .serviceRequestDTO
+                                                          ?.longitude ??
+                                                          0.0),
+                                                  mechanicLatLng:
+                                                  _mechanicLatLng as LatLng,
+                                                )));
+                                  },
+                                ),
+                              ],
+                            );
+                        } else {
                           return const Center(
                               child: CircularProgressIndicator());
-                        }
-                        _mechanicLatLng = LatLng(
-                            snapshot.data!.docs.singleWhere((element) =>
-                              element.id == _vendorMechanic?.id.toString()
-                            )['latitude'],
-                            snapshot.data!.docs.singleWhere((element) =>
-                            element.id == _vendorMechanic?.id.toString()
-                            )['longitude']
-                        );
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text("Distance: ", style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                            Text(double.parse((Geolocator.distanceBetween(
-                                serviceRequestManager.serviceRequestDTO.latitude ?? 0.0,
-                                serviceRequestManager.serviceRequestDTO.longitude ?? 0.0,
-                                snapshot.data!.docs.singleWhere((element) =>
-                                  element.id == _vendorMechanic?.id.toString()
-                                )['latitude'],
-                                snapshot.data!.docs.singleWhere((element) =>
-                                  element.id == _vendorMechanic?.id.toString()
-                                )['longitude']) / 1000)
-                                .toStringAsFixed(2))
-                                .toString()),
-                            const SizedBox(width: 20,),
-                            ElevatedButton(
-                              child: const Text("Track Customer"),
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        LocationTrackingMap(
-                                          isCustomer: true,
-                                          id: _vendorMechanic?.id
-                                              .toString() ??
-                                              "",
-                                          requestId: serviceRequestManager
-                                              .serviceRequestDTO.id
-                                              .toString() ??
-                                              "",
-                                          customerLatLng: LatLng(
-                                              serviceRequestManager
-                                                  .serviceRequestDTO
-                                                  ?.latitude ??
-                                                  0.0,
-                                              serviceRequestManager
-                                                  .serviceRequestDTO
-                                                  ?.longitude ??
-                                                  0.0),
-                                          mechanicLatLng:
-                                          _mechanicLatLng as LatLng,
-                                        ))
-                                );
-                              },
-                            ),
-                          ],
-                        );
+                        }}
+                        return const SizedBox();
                       }),
-                  const SizedBox(height: 20,),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context)
-                          .pushReplacement(
+                      Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (BuildContext context) {
-                            return CustomerDashBoard(isCustomer: true);
-                            //return LocationTrackingMap(id: _vendorMechanic?.id.toString() as String);
-                          }));
+                        return CustomerDashBoard(isCustomer: true);
+                        //return LocationTrackingMap(id: _vendorMechanic?.id.toString() as String);
+                      }));
                     },
                     child: const Text("Cancel Request"),
                   ),

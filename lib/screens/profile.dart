@@ -90,6 +90,13 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
     return file;
   }
 
+  Future<bool> userLogOut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool res = await prefs.setBool("SHARED_LOGGED", false);
+    await prefs.remove("vendorDTO");
+    return res;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -295,14 +302,17 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                 ),
               ),
               IconButton(
-                onPressed: () async {
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool("SHARED_LOGGED", false);
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (BuildContext context) {
-                        return SplashScreen();
-                      })
-                  );
+                onPressed: () {
+                  userLogOut().then((res) {
+                    if (res) {
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                            return SplashScreen();
+                          })
+                      );
+                    }
+                  });
+
                 },
                 icon: const Icon(
                   Icons.logout,

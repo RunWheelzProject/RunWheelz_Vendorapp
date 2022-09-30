@@ -250,56 +250,42 @@ class RunWheelzState extends State<RunWheelz> {
 
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
     var serviceJson = jsonDecode(response.body);
-    log("customerJson: ${serviceJson["requestedCustomer"]}");
     response = await http.get(Uri.parse("${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
     var customerJson = jsonDecode(response.body);
 
-    log("customerJson: $customerJson");
+    ServiceRequestArgs serviceRequestArgs = ServiceRequestArgs(
+        id: serviceJson["id"],
+        serviceType: serviceJson["serviceType"],
+        make: serviceJson["make"],
+        vehicleNumber: serviceJson["vehicleNumber"],
+        latitude: serviceJson["latitude"],
+        longitude: serviceJson["longitude"],
+        acceptedByVendor: serviceJson["acceptedByVendor"],
+        assignedToMechanic: serviceJson["assignedToMechanic"],
+        status: serviceJson["status"],
+        comments: serviceJson["comments"],
+        customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"]));
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove("ServiceRequestArgs");
+      await prefs.setString("ServiceRequestArgs", jsonEncode(serviceRequestArgs));
       if ((prefs.getBool("SHARED_LOGGED") != null)) {
         bool isLoggedIn = prefs.getBool("SHARED_LOGGED") as bool;
         log("isLogged: $isLoggedIn");
         if (isLoggedIn) {
           if (data["screen"] == "vendor_accept") {
             navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
-                arguments: ServiceRequestArgs(
-                    id: serviceJson["id"],
-                    serviceType: serviceJson["serviceType"],
-                    make: serviceJson["make"],
-                    vehicleNumber: serviceJson["vehicleNumber"],
-                    latitude: serviceJson["latitude"],
-                    longitude: serviceJson["longitude"],
-                    acceptedByVendor: serviceJson["acceptedByVendor"],
-                    assignedToMechanic: serviceJson["assignedToMechanic"],
-                    status: serviceJson["status"],
-                    comments: serviceJson["comments"],
-                    customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"])
-                )
+                arguments: serviceRequestArgs
             );
           }else if (data["screen"] == "mechanic_accept") {
             navigatorKey.currentState?.pushNamed('/mechanic_accept_screen',
-                arguments: ServiceRequestArgs(
-                    id: serviceJson["id"],
-                    serviceType: serviceJson["serviceType"],
-                    make: serviceJson["make"],
-                    vehicleNumber: serviceJson["vehicleNumber"],
-                    latitude: serviceJson["latitude"],
-                    longitude: serviceJson["longitude"],
-                    acceptedByVendor: serviceJson["acceptedByVendor"],
-                    assignedToMechanic: serviceJson["assignedToMechanic"],
-                    status: serviceJson["status"],
-                    comments: serviceJson["comments"],
-                    customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"])
-                )
+                arguments: serviceRequestArgs
             );
           }
         } else {
           navigatorKey.currentState?.pushNamed('/ask_login');
         }
       }
-
-
   }
 
   themeListener() {
@@ -341,7 +327,7 @@ class RunWheelzState extends State<RunWheelz> {
           '/customer_dashboard': (context) => CustomerDashBoard(isCustomer: true,),
           '/mechanic_dashboard': (context) => VendorMechanicDashBoard(requestId: ''),
           '/staff_dashboard': (context) => const RunWheelManagementPage(),
-          VendorRequestAcceptScreen.routeName: (context) => const VendorRequestAcceptScreen(),
+          VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen(),
           VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()
         },
       ),

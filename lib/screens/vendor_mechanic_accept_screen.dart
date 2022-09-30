@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
@@ -109,8 +110,7 @@ class _VendorMechanicRequestAcceptScreen
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
+    final args = ModalRoute.of(context)!.settings.arguments as ServiceRequestArgs;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.purple,
@@ -250,12 +250,8 @@ class _VendorMechanicRequestAcceptScreen
                     ElevatedButton(
                         onPressed: () {
                           _listenLocation();
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                            return VendorMechanicDashBoard(
-                              requestId: args.id.toString(),
-                            );
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+                            return VendorMechanicDashBoard(requestId: args.id.toString(),);
                           }));
                         },
                         child: const Text("Accept")

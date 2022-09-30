@@ -43,8 +43,8 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
   void initState() {
     super.initState();
     setState(() => countRequests());
-    log("counts: ${requestCounts}");
-    //log("${jsonEncode(requestCounts)}");
+    // log("counts: $requestCounts");
+    // log("${jsonEncode(requestCounts)}");
   }
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
@@ -79,7 +79,7 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
   void goToRequests() {
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
-      log("accepted: ${jsonEncode(requests)}");
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return VendorDataManagementPage(
@@ -97,6 +97,7 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
 
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_INPROGRESS').toList();
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return VendorDataManagementPage(
@@ -112,6 +113,7 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
 
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_PENDING').toList();
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return VendorDataManagementPage(
@@ -128,6 +130,7 @@ class VendorDashBoardState extends State<CustomerRequestHistory> {
 
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
+      requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return VendorDataManagementPage(

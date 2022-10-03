@@ -97,24 +97,6 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                             FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
                           ],
                         ),
-                        addVerticalSpace(25),
-                        Row(
-                          children: [
-                            RWCheckBox(
-                              name: "M",
-                              isText: true,
-                              value: _isMale,
-                              onChanged: (value) => _isMale = value!,
-                            ),
-                            addHorizontalSpace(20),
-                            RWCheckBox(
-                              name: "F",
-                              isText: true,
-                              value: _isFemale,
-                              onChanged: (value) => _isFemale = value!,
-                            ),
-                          ],
-                        ),
                         addVerticalSpace(20),
                         RWTextFormField(
                             label: 'Aadhaar Card',
@@ -212,7 +194,7 @@ class RWStaffRegistrationState extends State<RWStaffRegistration> {
                                     staffManager.staffDTO.aadharNumber = _aadhaarCard;
                                     staffManager.staffDTO.zipcode = _zipCode;
 
-                                    log("vendor: ${jsonEncode(staffManager.staffDTO)}");
+                                    log("staff: ${jsonEncode(staffManager.staffDTO)}");
 
                                     StaffService().updateStaffInfo(staffManager.staffDTO)
                                     .then((response) {

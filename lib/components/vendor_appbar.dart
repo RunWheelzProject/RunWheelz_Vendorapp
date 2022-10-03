@@ -91,9 +91,10 @@ class VendorAppBarState extends State<VendorAppBar> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    const SizedBox(width: 70,),
                     const Text("Run Wheelz",
                         style: TextStyle(color: Colors.white, fontSize: 23)),
-                    addHorizontalSpace(70),
+                    addHorizontalSpace(10),
                     IconButton(
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
@@ -108,7 +109,7 @@ class VendorAppBarState extends State<VendorAppBar> {
                           Icons.account_circle_rounded,
                           color: Colors.white,
                         )),
-                    addHorizontalSpace(20),
+                    addHorizontalSpace(10),
                     IconBadge(
                       icon: const Icon(Icons.notifications_none, color: Colors.white),
                       itemCount: _notificationCount,

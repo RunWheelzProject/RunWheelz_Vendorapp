@@ -9,11 +9,14 @@ import 'package:untitled/manager/staff_manager.dart';
 import 'package:untitled/model/staff.dart';
 import 'package:untitled/screens/login_page_screen.dart';
 import 'package:untitled/screens/profile.dart';
+import 'package:untitled/screens/profile_mechanic.dart';
+import 'package:untitled/screens/profile_staff.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 
+import '../manager/vendor_mechanic_manager.dart';
 import '../model/vendor_mechanic.dart';
 import '../resources/resources.dart' as res;
 import 'package:http/http.dart' as http;
@@ -116,10 +119,11 @@ class VendorStaffManagementPageState extends State<VendorStaffManagementPage> {
                           filter: (value) => _vendorMechanic.where((element) =>
                           element.phoneNumber?.contains(value) as bool).toList(),
                           onItemSelected: (VendorMechanic vendorMechanic) {
-                            //profileManager.staffDTO = staff;
+                            VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context, listen: false);
+                            vendorMechanicManager.vendorMechanic = vendorMechanic;
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (BuildContext context) {
-                                  return VendorDashboardProfile(isMechanic: true,);
+                                  return const MechanicProfile();
                                 })
                             );
                           },

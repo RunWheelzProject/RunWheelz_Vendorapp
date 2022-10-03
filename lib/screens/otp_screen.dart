@@ -122,19 +122,20 @@ class _OTPState extends State<OtpScreen> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString("vendorStaffDTO", responseJson["vendorDTO"]);
       }
-    } else if (role.roleType == 1 || role.roleType == 3 || role.roleType == 2) {
+    } else if (role.roleType == 1 || role.roleType == 3 || role.roleType == 2 || role.roleType == 6) {
       profileManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
       staffManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
+      log(jsonEncode(staffManager.staffDTO));
       if (responseJson["runwheelzStaffDTO"] != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("runwheelzStaffDTO", responseJson["vendorDTO"]);
+        await prefs.setString("runwheelzStaffDTO", responseJson["runwheelzStaffDTO"]);
       }
     } else if (role.roleType == 5) {
       profileManager.customerDTO = CustomerDTO.fromJson(responseJson["customerDTO"]);
       customerManager.customerDTO = CustomerDTO.fromJson(responseJson["customerDTO"]);
       if (responseJson["customerDTO"] != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("customerDTO", responseJson["vendorDTO"]);
+        await prefs.setString("customerDTO", responseJson["customerDTO"]);
       }
     }
   }

@@ -19,6 +19,7 @@ import '../resources/resources.dart' as res;
 import 'package:http/http.dart' as http;
 
 import '../screens/data_viewer_screen.dart';
+import '../screens/preferred_mechanics.dart';
 
 
 class CustomerAppBar extends StatefulWidget {
@@ -90,10 +91,11 @@ class CustomerAppBarState extends State<CustomerAppBar> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    const SizedBox(width: 70,),
                     const Text("Run Wheelz",
                         style: TextStyle(color: Colors.white, fontSize: 23)
                     ),
-                    addHorizontalSpace(70),
+                    addHorizontalSpace(10),
                     IconButton(
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
@@ -109,7 +111,7 @@ class CustomerAppBarState extends State<CustomerAppBar> {
                           Icons.account_circle_rounded,
                           color: Colors.white,
                         )),
-                    addHorizontalSpace(20),
+                    addHorizontalSpace(10),
                     IconBadge(
                       icon: const Icon(Icons.notifications_none, color: Colors.white),
                       itemCount: _notificationCount,
@@ -143,7 +145,7 @@ class CustomerAppBarState extends State<CustomerAppBar> {
                 RWMap(
                     title: "My Mechanic",
                     icon: const Icon(Icons.person, color: Colors.deepPurple,),
-                    navigateTo: CustomerFavoriteMechanic()
+                    navigateTo: const PreferredMechanic()
                 )
               ],
             )

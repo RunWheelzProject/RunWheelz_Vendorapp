@@ -42,8 +42,6 @@ class VendorDashBoardState extends State<VendorDashBoard> {
   void initState() {
     super.initState();
     setState(() => countRequests());
-    log("counts: $requestCounts");
-    //log("${jsonEncode(requestCounts)}");
   }
 
   Future<List<ServiceRequestDTO>> getNewRequests() async {
@@ -79,7 +77,6 @@ class VendorDashBoardState extends State<VendorDashBoard> {
     getNewRequests().then((requests) {
       requests = requests.where((element) => element.status == 'VENDOR_ACCEPTED').toList();
       requests.sort((b, a) => a.id?.compareTo(b?.id as num) as int);
-      log("accepted: ${jsonEncode(requests)}");
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) {
             return VendorDataManagementPage(
@@ -209,7 +206,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
                             size: 34,
                           ),
                           title: "Raise Request",
-                          count: "34"
+                          count: ""
                       ),
                     ],
                   )

@@ -46,6 +46,7 @@ set curDropDownValue(String val) {
   var jsonList = jsonDecode(response.body) as List;
   List<VendorMechanic> vendorMechanicList = [];
 
+
   return jsonList.map((mechanic) => VendorMechanic.fromJson(mechanic)).toList();
 
  }

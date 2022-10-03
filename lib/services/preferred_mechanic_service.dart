@@ -54,6 +54,7 @@ class PreferredMechanicService {
 
     var body = jsonEncode(serviceRequestDTO);
 
+    log("bod: body");
 
     http.Response response = await http.put(
         _URLSendNotification,
@@ -66,7 +67,7 @@ class PreferredMechanicService {
       return ServiceRequestDTO.fromJson(jsonResponse);
     }
 
-    throw Exception("could not add preferred mechanic");
+    throw Exception("could not send notification");
   }
 
 }

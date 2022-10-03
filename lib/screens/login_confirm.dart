@@ -26,12 +26,12 @@ class LogInConfirmation extends StatelessWidget {
     return Scaffold(
         backgroundColor: Colors.deepPurple,
         body: Container(
-            decoration: const BoxDecoration(
+            /*decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("images/download.jpg"),
                   fit: BoxFit.cover,
                 ),
-              ),
+              ),*/
             child:Center(
               child: Container(
                 margin: const EdgeInsets.all(20),

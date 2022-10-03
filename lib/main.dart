@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_phone_auth_handler/firebase_phone_auth_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/manager/preferred_mechanic_manager.dart';
@@ -11,6 +12,7 @@ import 'package:untitled/manager/vendor_works_manager.dart';
 import 'package:untitled/screens/breakdown_services.dart';
 import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/customer_registration_screen.dart';
+import 'package:untitled/screens/firebase_authentication.dart';
 import 'package:untitled/screens/general_services_screen.dart';
 import 'package:untitled/screens/login_confirm.dart';
 import 'package:untitled/screens/login_page_screen.dart';
@@ -69,50 +71,62 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   log("Handling a background message: ${message.messageId}");
   if (message.notification != null ) {
     var data = message.data;
-    _handleMessage(data);
+    //_handleMessage(data);
   }
 }
-
 
 void _handleMessage(data) async {
   int id = int.parse(data["id"] ?? "");
 
-  http.Response response = await http.get(
-      Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
+  http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
   var serviceJson = jsonDecode(response.body);
-  log("customerJson: ${serviceJson["requestedCustomer"]}");
-  response = await http.get(Uri.parse(
-      "${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
+  response = await http.get(Uri.parse("${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
   var customerJson = jsonDecode(response.body);
 
-  log("customerJson: $customerJson");
+  ServiceRequestArgs serviceRequestArgs = ServiceRequestArgs(
+      id: serviceJson["id"],
+      serviceType: serviceJson["serviceType"],
+      make: serviceJson["make"],
+      vehicleNumber: serviceJson["vehicleNumber"],
+      latitude: serviceJson["latitude"],
+      longitude: serviceJson["longitude"],
+      acceptedByVendor: serviceJson["acceptedByVendor"],
+      assignedToMechanic: serviceJson["assignedToMechanic"],
+      status: serviceJson["status"],
+      comments: serviceJson["comments"],
+      customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"]));
 
-  if (data["screen"] == "vendor_accept") {
-    navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
-        arguments: ServiceRequestArgs(
-            id: serviceJson["id"],
-            serviceType: serviceJson["serviceType"],
-            make: serviceJson["make"],
-            vehicleNumber: serviceJson["vehicleNumber"],
-            latitude: serviceJson["latitude"],
-            longitude: serviceJson["longitude"],
-            acceptedByVendor: serviceJson["acceptedByVendor"],
-            assignedToMechanic: serviceJson["assignedToMechanic"],
-            status: serviceJson["status"],
-            comments: serviceJson["comments"],
-            customerArgs: CustomerArgs(id: customerJson["id"],
-                name: customerJson["name"],
-                phoneNumber: customerJson["phoneNumber"])
-        )
-    );
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove("ServiceRequestArgs");
+  await prefs.setString("ServiceRequestArgs", jsonEncode(serviceRequestArgs));
+  if ((prefs.getBool("SHARED_LOGGED") != null)) {
+    bool isLoggedIn = prefs.getBool("SHARED_LOGGED") as bool;
+    log("isLogged: $isLoggedIn");
+    if (isLoggedIn) {
+      if (data["screen"] == "vendor_accept") {
+        navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
+            arguments: serviceRequestArgs
+        );
+      }else if (data["screen"] == "mechanic_accept") {
+        navigatorKey.currentState?.pushNamed('/mechanic_accept_screen',
+            arguments: serviceRequestArgs
+        );
+      }
+    } else {
+      navigatorKey.currentState?.pushNamed('/ask_login');
+    }
   }
 }
+
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const RunWheelz());
 }
@@ -139,6 +153,9 @@ class RunWheelzState extends State<RunWheelz> {
 
   void fireBaseInstallation() async {
     messaging = FirebaseMessaging.instance;
+
+    // while app running in background
+
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -152,19 +169,6 @@ class RunWheelzState extends State<RunWheelz> {
     await flutterLocalNotificationsPlugin?.
     resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel as AndroidNotificationChannel);
 
-    await FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((value) =>
-        _handleMessage(value?.notification?.body ?? "1"));
-
-    String? token = await FirebaseMessaging.instance.getToken();
-    log("$token");
-
-    /*await FirebaseMessaging.instance
-      .getInitialMessage()
-      .then((value) =>
-      _handleMessage(value?.notification?.body ?? "1"));
-*/
 
   }
 
@@ -172,6 +176,7 @@ class RunWheelzState extends State<RunWheelz> {
   void initState() {
     super.initState();
     fireBaseInstallation();
+
     var initializationSettingsAndroid = const AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = const IOSInitializationSettings();
     var initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
@@ -179,6 +184,10 @@ class RunWheelzState extends State<RunWheelz> {
       initializationSettings,
       onSelectNotification: onSelectNotification
     );
+
+    setupInteractedMessage();
+
+    // while application in foreground but not terminated
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
 
@@ -217,35 +226,13 @@ class RunWheelzState extends State<RunWheelz> {
       log('Got a message whilst in the foreground!');
       log('Message data: ${message.data}, ${message.notification}');
 
-      /*if (message.notification != null) {
-        log('body: ${message.notification?.body}');
-        int id = int.parse(message.notification?.body ?? "");
-        navigatorKey.currentState?.pushNamed('/vendor_accept_screen', arguments: ServiceRequestArgs(requestID: id));
-        log('Message also contained a notification: ${message.notification?.title}');
-      }*/
     });
-
-    setupInteractedMessage();
-
-    FirebaseMessaging.onMessageOpenedApp
-        .listen((message) => _handleMessage(message.notification?.body ?? ""));
 
     themeManager.addListener(themeListener);
   }
 
-  Future<dynamic> onSelectNotification(payload) async {
-    Map<String, dynamic> action = jsonDecode(payload);
-    _handleMessage(action);
-  }
-
-  Future<void> setupInteractedMessage() async {
-    await FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((value) =>
-        _handleMessage(value?.notification?.body ?? "1"));
-  }
-
-  void _handleMessage(data) async {
+  Future<Map<String, dynamic>> _handleRemoteMessage(RemoteMessage message) async {
+    Map<String, dynamic> data = message.data;
     int id = int.parse(data["id"] ?? "");
 
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
@@ -266,33 +253,65 @@ class RunWheelzState extends State<RunWheelz> {
         comments: serviceJson["comments"],
         customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"]));
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove("ServiceRequestArgs");
-      await prefs.setString("ServiceRequestArgs", jsonEncode(serviceRequestArgs));
-      if ((prefs.getBool("SHARED_LOGGED") != null)) {
-        bool isLoggedIn = prefs.getBool("SHARED_LOGGED") as bool;
-        log("isLogged: $isLoggedIn");
-        if (isLoggedIn) {
-          if (data["screen"] == "vendor_accept") {
-            navigatorKey.currentState?.pushNamed('/vendor_accept_screen',
-                arguments: serviceRequestArgs
-            );
-          }else if (data["screen"] == "mechanic_accept") {
-            navigatorKey.currentState?.pushNamed('/mechanic_accept_screen',
-                arguments: serviceRequestArgs
-            );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove("ServiceRequestArgs");
+    await prefs.setString("ServiceRequestArgs", jsonEncode(serviceRequestArgs));
+
+    Map<String, dynamic> result = {"isLoggedIn": false, "screen": data["screen"]};
+
+
+    if ((prefs.getBool("SHARED_LOGGED") != null)) {
+      result["isLoggedIn"] = prefs.getBool("SHARED_LOGGED") as bool;
+    }
+
+    return result;
+  }
+
+
+  Future<dynamic> onSelectNotification(payload) async {
+    Map<String, dynamic> action = jsonDecode(payload);
+    _handleMessage(action);
+  }
+
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    log("iam working");
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    String action = jsonEncode(initialMessage?.data);
+
+    if (initialMessage != null) {
+      _handleRemoteMessage(initialMessage).then((res) {
+        log(jsonEncode(res));
+        if (res["isLoggedIn"]) {
+          if (res["screen"] == "vendor_accept") {
+            Navigator.pushNamed(context, '/vendor_accept_screen');
+          } else if (res["screen"] == "mechanic_accept") {
+            Navigator.pushNamed(context, '/mechanic_accept_screen');
           }
         } else {
           navigatorKey.currentState?.pushNamed('/ask_login');
         }
-      }
+      });
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleRemoteMessage);
   }
+
+
 
   themeListener() {
     if (mounted) {
       setState(() => {} );
     }
   }
+
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -311,26 +330,28 @@ class RunWheelzState extends State<RunWheelz> {
         ChangeNotifierProvider<PreferredMechanicManager>(create: (context) => PreferredMechanicManager()),
         ChangeNotifierProvider<VendorWorksManager>(create: (context) => VendorWorksManager())
       ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        navigatorKey: navigatorKey,
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        themeMode: themeManager.themeMode,
-        //home: const SplashScreen(),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => SplashScreen(),
-          '/ask_login': (context) => const LogInConfirmation(),
-          '/phone_verification': (context) => const LoginScreen(),
-          '/vendor_dashboard': (context) => const VendorDashBoard(),
-          '/customer_dashboard': (context) => CustomerDashBoard(isCustomer: true,),
-          '/mechanic_dashboard': (context) => VendorMechanicDashBoard(requestId: ''),
-          '/staff_dashboard': (context) => const RunWheelManagementPage(),
-          VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen(),
-          VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()
-        },
-      ),
+      child: FirebasePhoneAuthProvider(
+        child: MaterialApp(
+            title: 'Flutter Demo',
+            navigatorKey: navigatorKey,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: themeManager.themeMode,
+            //home: const SplashScreen(),
+            initialRoute: '/',
+            routes: {
+              '/': (context) => SplashScreen(),
+              '/ask_login': (context) => const LogInConfirmation(),
+              '/phone_verification': (context) => const LoginScreen(),
+              '/vendor_dashboard': (context) => const VendorDashBoard(),
+              '/customer_dashboard': (context) => CustomerDashBoard(isCustomer: true,),
+              '/mechanic_dashboard': (context) => VendorMechanicDashBoard(requestId: ''),
+              '/staff_dashboard': (context) => const RunWheelManagementPage(),
+              VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen(),
+              VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()
+            },
+          ),
+        )
     );
   }
 }

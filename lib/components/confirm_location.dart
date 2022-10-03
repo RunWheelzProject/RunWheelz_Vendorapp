@@ -115,6 +115,8 @@ class ConfirmLocationState extends State<ConfirmLocation> {
                     }
                     else if (widget.isGeneral) {
                       serviceRequestManager.serviceRequestDTO.id = null;
+                      serviceRequestManager.serviceRequestDTO.requestedCustomer = Provider.of<ProfileManager>(context, listen: false).customerDTO.id;
+                      log(jsonEncode(serviceRequestManager.serviceRequestDTO));
                       PreferredMechanicService().sendNotification(serviceRequestManager.serviceRequestDTO).then((request) {
                         serviceRequestManager.serviceRequestDTO = request;
                           Navigator.of(context).pushReplacement(

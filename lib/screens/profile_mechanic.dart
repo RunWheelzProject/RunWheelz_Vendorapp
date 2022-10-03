@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/manager/vendor_mechanic_manager.dart';
 import 'package:untitled/model/vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
@@ -33,15 +34,15 @@ import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
 
 
-class StaffProfile extends StatefulWidget {
-  const StaffProfile({Key? key}) : super(key: key);
+class MechanicProfile extends StatefulWidget {
+  const MechanicProfile({Key? key}) : super(key: key);
 
 
   @override
   StaffStateProfile createState() => StaffStateProfile();
 }
 
-class StaffStateProfile extends State<StaffProfile> {
+class StaffStateProfile extends State<MechanicProfile> {
 
   bool circular = false;
   File? _imageFile;
@@ -64,12 +65,11 @@ class StaffStateProfile extends State<StaffProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final StaffManager staffManager = Provider.of<StaffManager>(context);
-    final StaffDTO vendor = staffManager.staffDTO;
-    _nameController.text = vendor.name ?? "not exists";
-    _phoneController.text = vendor.phoneNumber ?? "not exists";
-    _aadhaarController.text = vendor.aadharNumber ?? "not exists";
-    _addressController.text = vendor.addressLine ?? "not exists";
+    final VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
+    _nameController.text = vendorMechanicManager.vendorMechanic.name ?? "not exists";
+    _phoneController.text = vendorMechanicManager.vendorMechanic.phoneNumber ?? "not exists";
+    _aadhaarController.text = vendorMechanicManager.vendorMechanic.aadharNumber ?? "not exists";
+    _addressController.text = "not exists";
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -106,19 +106,19 @@ class StaffStateProfile extends State<StaffProfile> {
 
               IconButton(
                 onPressed: () {
-                  if (staffManager.isEnable) {
-                    staffManager.isEnable = false;
-                    StaffService().updateStaffInfo(staffManager.staffDTO);
+                  if (vendorMechanicManager.isEnable) {
+                    vendorMechanicManager.isEnable = false;/*
+                    StaffService().updateStaffInfo(r.staffDTO);
                     Future<StaffDTO> future =
                     StaffService().getStaffById(vendor.id as int);
                     future.then((StaffDTO vendor) => staffManager.staffDTO = vendor)
-                        .catchError((error) { log("error: $error"); });
+                        .catchError((error) { log("error: $error"); });*/
                   } else {
-                    staffManager.isEnable = true;
+                    vendorMechanicManager.isEnable = true;
                   }
                 },
                 icon: Icon(
-                  staffManager.isEnable ? Icons.save : Icons.edit,
+                  vendorMechanicManager.isEnable ? Icons.save : Icons.edit,
                   color: Colors.purple,
                 ),
               ),
@@ -128,7 +128,7 @@ class StaffStateProfile extends State<StaffProfile> {
                       builder: (BuildContext context) => AlertDialog(
                           title: const Text("Delete"),
                           content: Text(
-                              "Are you sure deleting Vendor: -  '${vendor.name}' -  ?",
+                              "Are you sure deleting Vendor: -  '${vendorMechanicManager.vendorMechanic.name}' -  ?",
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black87)),
                           actions: <Widget>[
@@ -182,9 +182,9 @@ class StaffStateProfile extends State<StaffProfile> {
                   IntrinsicWidth(
                     child: TextField(
                       controller: _nameController,
-                      enabled: staffManager.isEnable,
-                      decoration: staffManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                      onChanged: (val) => staffManager.staffDTO.name = val,
+                      enabled: vendorMechanicManager.isEnable,
+                      decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                      onChanged: (val) => vendorMechanicManager.vendorMechanic.name = val,
                     ),
                   ),
                 ],
@@ -200,9 +200,9 @@ class StaffStateProfile extends State<StaffProfile> {
               IntrinsicWidth(
                 child: TextField(
                   controller: _phoneController,
-                  enabled: staffManager.isEnable,
-                  decoration: staffManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => staffManager.staffDTO.phoneNumber = val,
+                  enabled: vendorMechanicManager.isEnable,
+                  decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorMechanicManager.vendorMechanic.phoneNumber = val,
                 ),
               )
             ],
@@ -215,9 +215,9 @@ class StaffStateProfile extends State<StaffProfile> {
               IntrinsicWidth(
                 child: TextField(
                   controller: _aadhaarController,
-                  enabled: staffManager.isEnable,
-                  decoration: staffManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => staffManager.staffDTO.aadharNumber = val,
+                  enabled: vendorMechanicManager.isEnable,
+                  decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                  onChanged: (val) => vendorMechanicManager.vendorMechanic.aadharNumber = val,
                 ),
               )
             ],
@@ -229,10 +229,10 @@ class StaffStateProfile extends State<StaffProfile> {
               const Text("Address", style: TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
               IntrinsicWidth(
                 child: TextField(
-                  controller: _addressController,
-                  enabled: staffManager.isEnable,
-                  decoration: staffManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => staffManager.staffDTO.addressLine = val,
+                    controller: _addressController,
+                    enabled: vendorMechanicManager.isEnable,
+                    decoration: vendorMechanicManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                    onChanged: (val) => {} //staffManager.staffDTO.addressLine = val,
                 ),
               )
             ],
@@ -371,3 +371,4 @@ class StaffStateProfile extends State<StaffProfile> {
   }
 
 }
+

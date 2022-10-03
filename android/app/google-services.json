@@ -29,6 +29,13 @@
             {
               "client_id": "243985447468-7gmh7sfnikp4aspctusu831eqrkb0moi.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "243985447468-qvgrol4merqr5bif1r1rvsrbfk910h6n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.runwheelz.vendorapp"
+              }
             }
           ]
         }

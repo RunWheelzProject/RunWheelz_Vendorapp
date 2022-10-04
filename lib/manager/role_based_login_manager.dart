@@ -61,7 +61,6 @@ class RoleBasedLogInManager extends ChangeNotifier {
     ),
 
 
-
     // customer_registration
     RoleBasedLogIn(
         status: 201,

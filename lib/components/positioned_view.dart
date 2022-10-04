@@ -24,7 +24,6 @@ class PositionedView extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
     // double scaffoHeight = Scaffold.of(context).appBarMaxHeight as double;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
         appBar: isMenu ? PreferredSize(
             preferredSize: const Size.fromHeight(60),
             child: AppBar(

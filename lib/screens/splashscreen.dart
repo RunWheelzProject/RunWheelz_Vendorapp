@@ -27,6 +27,7 @@ class SplashScreen extends StatefulWidget {
   SplashScreenState createState() => SplashScreenState();
 }
 class SplashScreenState extends State<SplashScreen>{
+  Timer? timer;
 
   Future<String> checkLogIn() async {
     ProfileManager profileManager = Provider.of<ProfileManager>(context, listen: false);
@@ -63,7 +64,7 @@ class SplashScreenState extends State<SplashScreen>{
   void initState() {
     super.initState();
     //checkLogIn();
-    Timer(const Duration(seconds: 5), () async {
+    timer = Timer(const Duration(seconds: 5), () async {
       checkLogIn().then((route) {
         if (route.isNotEmpty) {
           Navigator.pushNamed(context, route);
@@ -74,6 +75,13 @@ class SplashScreenState extends State<SplashScreen>{
 
     }
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
+
   }
 
   @override

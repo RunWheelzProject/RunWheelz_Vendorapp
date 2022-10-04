@@ -7,7 +7,7 @@ ThemeData lightTheme = ThemeData(
     primaryColor: Colors.deepPurple,
     scaffoldBackgroundColor: Colors.grey.shade200,
     textTheme: const TextTheme(
-      headline2: TextStyle(fontFamily: 'josefin slab', color: Color(0xffeec616)),
+      headline2: TextStyle(fontFamily: 'josefin slab', color: Color(0xfffdcd00)),
       headline5: TextStyle(color: Colors.white)
     ),
     appBarTheme: const AppBarTheme(
@@ -32,7 +32,7 @@ ThemeData lightTheme = ThemeData(
               }
               return const TextStyle(fontSize: 17, color: Colors.white);
             }) ,
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple),
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.purple),
         )
     ),
     disabledColor: Colors.grey,
@@ -87,18 +87,8 @@ ThemeData darkTheme = ThemeData(
       labelStyle: const TextStyle(color: Colors.black87)
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ButtonStyle(
-          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-              const EdgeInsets.symmetric(horizontal: 40.0,vertical: 20.0)
-          ),
-          shape: MaterialStateProperty.all<OutlinedBorder>(
-              RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0)
-              )
-          ),
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-          overlayColor: MaterialStateProperty.all<Color>(Colors.black26)
+      style: ElevatedButton.styleFrom(
+        primary: Colors.purple
       )
   ),
 );

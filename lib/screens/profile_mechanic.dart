@@ -11,6 +11,7 @@ import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_staff_management_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/vendor_assign_screen.dart';
+import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/services/vendor_registration.dart';
 
 import '../manager/profile_manager.dart';
@@ -78,7 +79,7 @@ class StaffStateProfile extends State<MechanicProfile> {
         onPressed: () => {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
-                return const StaffManagementPage();
+                return const VendorDashBoard();
               })
           )
         },

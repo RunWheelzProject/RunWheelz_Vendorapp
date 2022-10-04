@@ -24,9 +24,9 @@ class DashBoardBoxState extends State<DashBoardBox> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return InkWell(
         onTap: widget.callBack,
-        child: Container(
-          width: 140,
+        child: Expanded(  child: Container(
           height: 140,
+          width: 140,
           decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: Colors.grey[100] as Color),
@@ -54,6 +54,6 @@ class DashBoardBoxState extends State<DashBoardBox> {
                   Text(count, style: const TextStyle(fontSize: 21, color: Colors.red)),
               ]),
         )
-    );
+    ));
   }
 }

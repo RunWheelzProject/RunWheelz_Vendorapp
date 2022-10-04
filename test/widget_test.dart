@@ -7,24 +7,33 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/manager/login_manager.dart';
+import 'package:untitled/screens/login_page_screen.dart';
 
-import '../lib/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  Widget createWidgetForTesting({required Widget child}){
+    return MaterialApp(
+      home: child,
+    );
+  }
+  
+  group("LogInPage:", () {
+    testWidgets("on page load proceed button inactive", (widgetTester) async {
+      await widgetTester.pumpWidget(
+          ChangeNotifierProvider(
+            child: createWidgetForTesting(child: const LoginScreen()),
+              create: (context) => LogInManager()
+            )
+      );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      expect(!widgetTester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Proceed')).enabled, isTrue);
+      await widgetTester.enterText(find.byType(TextField), "7013298534");
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(widgetTester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Proceed')).enabled, isFalse);
+
+    });
   });
 }

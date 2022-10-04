@@ -148,7 +148,7 @@ class VendorDashBoardState extends State<VendorDashBoard> {
     return SafeArea(
         child: SingleChildScrollView(
             child: Container(
-                height: 500,
+                height: MediaQuery.of(context).size.height * 0.62,
                 margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
                 padding: const EdgeInsets.only(top: 40),
                 decoration: BoxDecoration(

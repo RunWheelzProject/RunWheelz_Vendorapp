@@ -24,7 +24,7 @@ class LogInConfirmation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.purple,
         body: Container(
             /*decoration: const BoxDecoration(
                 image: DecorationImage(

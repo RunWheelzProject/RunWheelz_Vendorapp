@@ -91,7 +91,11 @@ class VendorAppBarState extends State<VendorAppBar> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(width: 70,),
+                    const Flexible(
+                      child: FractionallySizedBox(
+                        widthFactor: 0.7,
+                      )
+                    ),
                     const Text("Run Wheelz",
                         style: TextStyle(color: Colors.white, fontSize: 23)),
                     addHorizontalSpace(10),

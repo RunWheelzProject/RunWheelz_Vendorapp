@@ -467,7 +467,7 @@ class _OTPState extends State<OtpScreen> {
       vendorMechanicManager.vendorMechanic = VendorMechanic.fromJson(responseJson["vendorStaffDTO"]);
       if (responseJson["vendorStaffDTO"] != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("vendorStaffDTO", responseJson["vendorDTO"]);
+        await prefs.setString("vendorStaffDTO", jsonEncode(responseJson["vendorStaffDTO"]));
       }
     } else if (role.roleType == 1 || role.roleType == 3 || role.roleType == 2 || role.roleType == 6) {
       profileManager.staffDTO = StaffDTO.fromJson(responseJson["runwheelzStaffDTO"]);
@@ -475,14 +475,15 @@ class _OTPState extends State<OtpScreen> {
       log(jsonEncode(staffManager.staffDTO));
       if (responseJson["runwheelzStaffDTO"] != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("runwheelzStaffDTO", responseJson["runwheelzStaffDTO"]);
+        await prefs.setString("runwheelzStaffDTO", jsonEncode(responseJson["runwheelzStaffDTO"]));
       }
     } else if (role.roleType == 5) {
+      log("json: ${responseJson["customerDTO"]}");
       profileManager.customerDTO = CustomerDTO.fromJson(responseJson["customerDTO"]);
       customerManager.customerDTO = CustomerDTO.fromJson(responseJson["customerDTO"]);
       if (responseJson["customerDTO"] != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("customerDTO", responseJson["customerDTO"]);
+        await prefs.setString("customerDTO", jsonEncode(responseJson["customerDTO"]));
       }
     }
   }

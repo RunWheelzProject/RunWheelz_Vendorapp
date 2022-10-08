@@ -62,17 +62,17 @@ class StaffAppBar extends StatelessWidget {
               menuList: [
                 RWMap(
                     title: "Home",
-                    icon: const Icon(Icons.home, color: Colors.deepPurple,),
+                    icon: const Icon(Icons.home, color: Colors.purple,),
                     navigateTo: const RunWheelManagementPage()
                 ),
                 RWMap(
                     title: "Vendor",
-                    icon: const Icon(Icons.electric_bike_outlined, color: Colors.deepPurple,),
+                    icon: const Icon(Icons.electric_bike_outlined, color: Colors.purple,),
                     navigateTo: VendorManagementPage()
                 ),
                 RWMap(
                     title: "Staff",
-                    icon: const Icon(Icons.person, color: Colors.deepPurple,),
+                    icon: const Icon(Icons.person, color: Colors.purple,),
                     navigateTo: const StaffManagementPage()
                 ),
               ],

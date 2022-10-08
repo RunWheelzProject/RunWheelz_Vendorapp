@@ -99,7 +99,8 @@ class CustomerRegistrationState extends State<CustomerRegistration> {
                           icon: const Icon(Icons.person,
                               color: Colors.deepPurple),
                           textInputFormatters: [
-                            CapitalizeTextFormatter()
+                            CapitalizeTextFormatter(),
+                            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
                           ],
                           onSaved: (value) =>  profileManager.customerDTO.name = value //cu.ownerName = value
                           ),

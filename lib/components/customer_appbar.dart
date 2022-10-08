@@ -12,6 +12,7 @@ import 'package:untitled/utils/add_space.dart';
 
 import '../manager/profile_manager.dart';
 import '../model/servie_request.dart';
+import '../screens/current_offers.dart';
 import '../screens/customer_board.dart';
 
 import '../resources/resources.dart' as res;
@@ -146,6 +147,11 @@ class CustomerAppBarState extends State<CustomerAppBar> {
                     title: "My Mechanic",
                     icon: const Icon(Icons.person, color: Colors.deepPurple,),
                     navigateTo: const PreferredMechanic()
+                ),
+                RWMap(
+                    title: "Today Offers",
+                    icon: const Icon(Icons.person, color: Colors.deepPurple,),
+                    navigateTo: CurrentOffersScreen()
                 )
               ],
             )

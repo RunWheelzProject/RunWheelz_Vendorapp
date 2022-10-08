@@ -100,6 +100,7 @@ class BreakDownServicesState extends State<BreakDownServices> {
                             textEditingController: _vehicleController,
                             label: "Vehicle Number",
                             icon: const Icon(Icons.numbers),
+                            helperText: "TG 21 B 4592",
                             textInputFormatters: [
                               maskTextInputFormatter,
                             ],

@@ -5,6 +5,7 @@ class CustomerDTO {
   String? name;
   String? email;
   String? phoneNumber;
+  String? deviceToken;
   bool? registrationStatus;
   bool? termsAndConditions;
   RoleDTO? role;
@@ -14,6 +15,7 @@ class CustomerDTO {
     this.name,
     this.email,
     this.phoneNumber,
+    this.deviceToken,
     this.registrationStatus,
     this.termsAndConditions,
     this.role,
@@ -25,6 +27,7 @@ class CustomerDTO {
     "name": name,
     "email": email,
     "phoneNumber": phoneNumber,
+    "deviceToken": deviceToken,
     "registrationStatus": registrationStatus,
     "termsAndConditions": termsAndConditions,
     "role": role,
@@ -37,6 +40,7 @@ class CustomerDTO {
       name: json["name"],
       email: json["email"],
       phoneNumber: json["phoneNumber"],
+      deviceToken: json["deviceToken"],
       registrationStatus: json["registrationStatus"],
       termsAndConditions: json["termsAndConditions"],
       role: RoleDTO.fromJson(json["role"]),

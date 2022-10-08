@@ -87,8 +87,18 @@ ThemeData darkTheme = ThemeData(
       labelStyle: const TextStyle(color: Colors.black87)
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        primary: Colors.purple
+      style: ButtonStyle(
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+              const EdgeInsets.symmetric(horizontal: 40.0,vertical: 20.0)
+          ),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)
+              )
+          ),
+          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+          overlayColor: MaterialStateProperty.all<Color>(Colors.black26),
       )
   ),
 );

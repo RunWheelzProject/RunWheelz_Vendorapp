@@ -97,7 +97,8 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                         label: 'Name',
                         icon: const Icon(Icons.person, color: Colors.deepPurple),
                         textInputFormatters: [
-                          CapitalizeTextFormatter()
+                          CapitalizeTextFormatter(),
+                          FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
                         ],
                         onSaved: (value) => vendorManager.vendorDTO.ownerName = value
                     ),
@@ -119,7 +120,8 @@ class VendorRegistration extends State<VendorRegistrationV1> {
                         label: 'Garage Name',
                         icon: const Icon(Icons.home, color: Colors.deepPurple),
                         textInputFormatters: [
-                          CapitalizeTextFormatter()
+                          CapitalizeTextFormatter(),
+                          FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'))
                         ],
                         onSaved: (value) => vendorManager.vendorDTO.garageName = value
 

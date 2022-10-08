@@ -10,18 +10,21 @@ import 'package:untitled/manager/preferred_mechanic_manager.dart';
 import 'package:untitled/manager/service_request_manager.dart';
 import 'package:untitled/manager/vendor_works_manager.dart';
 import 'package:untitled/screens/breakdown_services.dart';
+import 'package:untitled/screens/current_offers.dart';
 import 'package:untitled/screens/customer_board.dart';
 import 'package:untitled/screens/customer_registration_screen.dart';
 import 'package:untitled/screens/firebase_authentication.dart';
 import 'package:untitled/screens/general_services_screen.dart';
 import 'package:untitled/screens/login_confirm.dart';
 import 'package:untitled/screens/login_page_screen.dart';
+import 'package:untitled/screens/offer_screen.dart';
 import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/request_status_screen.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/screens/rw_mgmt_marketing_agent_screen.dart';
 import 'package:untitled/screens/rw_vendor_management_screen.dart';
 import 'package:untitled/screens/splashscreen.dart';
+import 'package:untitled/screens/splashscreen_v1.dart';
 import 'package:untitled/screens/test_screen.dart';
 import 'package:untitled/screens/vendor_dashboard.dart';
 import 'package:untitled/screens/vendor_inprogrees_screen.dart';
@@ -78,27 +81,47 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void _handleMessage(data) async {
   int id = int.parse(data["id"] ?? "");
 
-  http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
-  var serviceJson = jsonDecode(response.body);
-  response = await http.get(Uri.parse("${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
-  var customerJson = jsonDecode(response.body);
-
-  ServiceRequestArgs serviceRequestArgs = ServiceRequestArgs(
-      id: serviceJson["id"],
-      serviceType: serviceJson["serviceType"],
-      make: serviceJson["make"],
-      vehicleNumber: serviceJson["vehicleNumber"],
-      latitude: serviceJson["latitude"],
-      longitude: serviceJson["longitude"],
-      acceptedByVendor: serviceJson["acceptedByVendor"],
-      assignedToMechanic: serviceJson["assignedToMechanic"],
-      status: serviceJson["status"],
-      comments: serviceJson["comments"],
-      customerArgs: CustomerArgs(id: customerJson["id"], name: customerJson["name"], phoneNumber: customerJson["phoneNumber"]));
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove("ServiceRequestArgs");
-  await prefs.setString("ServiceRequestArgs", jsonEncode(serviceRequestArgs));
+
+  http.Response response;
+  ServiceRequestArgs? serviceRequestArgs;
+  var offersJson;
+
+
+  if (data["screen"] == "mechanic_accept" ||
+      data["screen"] == "vendor_accept") {
+    response = await http.get(
+        Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
+    var serviceJson = jsonDecode(response.body);
+    response = await http.get(Uri.parse(
+        "${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
+    var customerJson = jsonDecode(response.body);
+    serviceRequestArgs = ServiceRequestArgs(
+        id: serviceJson["id"],
+        serviceType: serviceJson["serviceType"],
+        make: serviceJson["make"],
+        vehicleNumber: serviceJson["vehicleNumber"],
+        latitude: serviceJson["latitude"],
+        longitude: serviceJson["longitude"],
+        acceptedByVendor: serviceJson["acceptedByVendor"],
+        assignedToMechanic: serviceJson["assignedToMechanic"],
+        status: serviceJson["status"],
+        comments: serviceJson["comments"],
+        customerArgs: CustomerArgs(id: customerJson["id"],
+            name: customerJson["name"],
+            phoneNumber: customerJson["phoneNumber"]));
+
+    await prefs.remove("ServiceRequestArgs");
+    await prefs.setString("ServiceRequestArgs", jsonEncode(serviceRequestArgs));
+  } else {
+    response = await http.get(Uri.parse("${res.APP_URL}/api/offers/$id"));
+    offersJson = jsonDecode(response.body);
+    await prefs.remove("offersJson");
+    await prefs.setString("offersJson", jsonEncode(offersJson));
+  }
+
+
   if ((prefs.getBool("SHARED_LOGGED") != null)) {
     bool isLoggedIn = prefs.getBool("SHARED_LOGGED") as bool;
     log("isLogged: $isLoggedIn");
@@ -111,14 +134,18 @@ void _handleMessage(data) async {
         navigatorKey.currentState?.pushNamed('/mechanic_accept_screen',
             arguments: serviceRequestArgs
         );
+      } else if (data["screen"] == "new_offer") {
+        log("new_offer");
+        log(jsonEncode(offersJson));
+        navigatorKey.currentState?.pushNamed('/new_offer',
+            arguments: offersJson
+        );
       }
     } else {
       navigatorKey.currentState?.pushNamed('/ask_login');
     }
   }
 }
-
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -340,13 +367,15 @@ class RunWheelzState extends State<RunWheelz> {
             //home: const SplashScreen(),
             initialRoute: '/',
             routes: {
-              '/': (context) => SplashScreen(),
-              '/ask_login': (context) => const LogInConfirmation(),
+              '/': (context) => SplashScreenV1(),
+              '/ask_login': (context) => SplashScreenV1(),
               '/phone_verification': (context) => const LoginScreen(),
               '/vendor_dashboard': (context) => const VendorDashBoard(),
               '/customer_dashboard': (context) => CustomerDashBoard(isCustomer: true,),
               '/mechanic_dashboard': (context) => VendorMechanicDashBoard(requestId: ''),
               '/staff_dashboard': (context) => const RunWheelManagementPage(),
+              '/new_offer': (context) => RunWheelzOffer(),
+              '/offers_screen': (context) => CurrentOffersScreen(),
               VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen(),
               VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()
             },

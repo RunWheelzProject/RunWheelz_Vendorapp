@@ -39,7 +39,7 @@ class SideMenu extends StatelessWidget {
               shape: const UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.black38)
               ),
-              title: Text(menu.title, style: const TextStyle(color: Colors.red, fontSize: 16),),
+              title: Text(menu.title, style: const TextStyle(color: Colors.black, fontSize: 16),),
               leading: menu.icon,
               onTap: () {
                 VendorManager vendorManager = Provider.of<VendorManager>(context, listen: false);

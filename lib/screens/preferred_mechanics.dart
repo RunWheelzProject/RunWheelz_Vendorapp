@@ -15,6 +15,7 @@ import 'package:untitled/screens/profile.dart';
 import 'package:untitled/screens/profile_vendor.dart';
 import 'package:untitled/screens/rw_management_screen.dart';
 import 'package:untitled/services/preferred_mechanic_service.dart';
+import '../components/customer_appbar.dart';
 import '../manager/login_manager.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 
@@ -69,25 +70,13 @@ class PreferredMechanicState extends State<PreferredMechanic> {
 
   @override
   Widget build(BuildContext context) {
-    VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
-
-    return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.purple,
-          onPressed: () => {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return CustomerDashBoard(isCustomer: true);
-                })
-            )
-          },
-          child: const Icon(Icons.arrow_back),
-        ),
-        appBar: AppBar(
-          title: const Text("Management"),
-          automaticallyImplyLeading: false,
-        ),
-        body: SafeArea(
+    return CustomerAppBar(
+        child: _mainContainer()
+    );
+  }
+    Widget _mainContainer() {
+      VendorMechanicManager vendorMechanicManager = Provider.of<VendorMechanicManager>(context);
+    return SafeArea(
             child: Container(
                 padding: const EdgeInsets.all(10),
                 width: double.infinity,
@@ -162,8 +151,7 @@ class PreferredMechanicState extends State<PreferredMechanic> {
                 ]
                 )
             )
-        )
-    );
+        );
   }
 }
 class Item extends StatefulWidget {

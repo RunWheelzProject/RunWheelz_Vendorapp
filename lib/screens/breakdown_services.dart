@@ -101,8 +101,8 @@ class BreakDownServicesState extends State<BreakDownServices> {
                             label: "Vehicle Number",
                             icon: const Icon(Icons.numbers),
                             helperText: "TG 21 B 4592",
-                            textInputFormatters: [
-                              maskTextInputFormatter,
+                            textInputFormatters: const [
+                              // maskTextInputFormatter,
                             ],
                             onSaved: (String? val) {
                               serviceRequestManager.serviceRequestDTO.vehicleNumber = val?.toUpperCase();

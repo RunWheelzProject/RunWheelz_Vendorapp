@@ -85,7 +85,7 @@ class RunWheelzOfferState extends State<RunWheelzOffer> {
     super.initState();
     if (widget.offerDTO == null) {
       getOfferFromSharedPreference().then((offer) {
-        log(offer);
+        log("test: $offer");
         setState(() => widget.offerDTO = OfferDTO.fromJson(jsonDecode(offer)));
       }).catchError((error) => log("$error"));
     }
@@ -263,7 +263,7 @@ class RunWheelzOfferState extends State<RunWheelzOffer> {
                                 color: Colors.black),
                             ),
                             const SizedBox(width: 45,),
-                            Text(widget.offerDTO?.offerDiscountAmount ?? "0.0", style: const TextStyle(
+                            Text(widget.offerDTO?.offerDiscountAmount.toString() ?? "0.0", style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black),
@@ -285,14 +285,14 @@ class RunWheelzOfferState extends State<RunWheelzOffer> {
                 onPressed: () {
                   widget.offerDTO?.customer = Provider.of<ProfileManager>(context, listen: false).customerDTO;
 
-                  log("offer: ${jsonEncode(widget.offerDTO)}");
+                  //log("offer: ${jsonEncode(widget.offerDTO)}");
                   updateOffer(widget.offerDTO!).then((offer) {
 
                   });
 
                   Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (BuildContext context) {
-                        return const PaymentScreen();
+                        return PaymentScreen(amount: widget.offerDTO?.offerDiscountAmount ?? 0.0);
                       })
                   );
 

@@ -2,7 +2,7 @@ class ProductDTO {
   int? id;
   String? productName;
   String? productDescription;
-  int? price;
+  double? price;
 
   ProductDTO({
     this.id,

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:icon_badge/icon_badge.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/components/side_menu.dart';
 import 'package:untitled/screens/customer_favorite_mechnic.dart';
 import 'package:untitled/screens/customer_reqeust_history.dart';
@@ -71,6 +72,32 @@ class CustomerAppBarState extends State<CustomerAppBar> {
 
   }
 
+  Future<bool> userLogOut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool res = await prefs.setBool("SHARED_LOGGED", false);
+    await prefs.remove("vendorDTO");
+    await prefs.remove("vendorStaffDTO");
+    await prefs.remove("customerDTO");
+    await prefs.remove("runwheelzStaffDTO");
+    return res;
+  }
+
+  void onSelected(BuildContext context, int item) {
+    switch (item) {
+      case 0:
+        Navigator.pushNamed(context, '/customer_profile');
+        break;
+      case 1:
+        userLogOut().then((res) {
+          if (res) {
+            Navigator.pushNamed(context, '/ask_login');
+          }
+        });
+
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -86,48 +113,51 @@ class CustomerAppBarState extends State<CustomerAppBar> {
     return Scaffold(
         primary: true,
         appBar: AppBar(
-          flexibleSpace: SafeArea(
-            child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 70,),
-                    const Text("Run Wheelz",
-                        style: TextStyle(color: Colors.white, fontSize: 23)
+          // title: Text("Run Wheelz"),
+          actions: [
+            InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/customer_dashboard');
+              },
+              child: const Center( child: Text("Run Wheelz", style: TextStyle(fontSize: 24))),
+            ),
+            const SizedBox(width: 25),
+            PopupMenuButton<int>(
+              offset: const Offset(45, 58),
+              color: Colors.white70,
+              icon: const Icon(Icons.person,),
+              onSelected: (item) =>  onSelected(context, item),
+              itemBuilder: (context) => [
+                const PopupMenuItem<int>(
+                  value: 0,
+                  child: ListTile(
+                    leading: Icon(Icons.person, color: Colors.purple,
+
                     ),
-                    addHorizontalSpace(10),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                    return VendorDashboardProfile(
-                                        isCustomer: true
-                                    );
-                                  })
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.account_circle_rounded,
-                          color: Colors.white,
-                        )),
-                    addHorizontalSpace(10),
-                    IconBadge(
-                      icon: const Icon(Icons.notifications_none, color: Colors.white),
-                      itemCount: _notificationCount,
-                      badgeColor: Colors.red,
-                      itemColor: Colors.white,
-                      maxCount: 99,
-                      hideZero: true,
-                      onTap: () {
-                        goToRequests();
-                      },
-                    ),
-                    addHorizontalSpace(20),
-                  ],
-                )),
-          ),
+                    title: Text('Profile'),
+                  ),
+                ),
+                const PopupMenuItem<int>(
+                  value: 1,
+                  child: ListTile(
+                    leading: Icon(Icons.logout, color: Colors.purple),
+                    title: Text('Log out'),
+                  ),
+                ),
+              ],
+            ),
+            IconBadge(
+              icon: const Icon(Icons.notifications_none, color: Colors.white),
+              itemCount: _notificationCount,
+              badgeColor: Colors.red,
+              itemColor: Colors.white,
+              maxCount: 99,
+              hideZero: true,
+              onTap: () {
+                goToRequests();
+              },
+            ),
+          ],
         ),
         drawer: Padding(
             padding: const EdgeInsets.fromLTRB(0, 122, 0, 0),

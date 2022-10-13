@@ -68,16 +68,29 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
   XFile? _imageFile;
   Image? image;
   String title = "";
-
+  final FocusNode _focusNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _aadhaarController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
-  final InputDecoration enableInputDecoration = const InputDecoration(
-      contentPadding: EdgeInsets.only(left: 5, right: 10),
-      fillColor: Color(0xfffbf0f0)
+  final InputDecoration enableInputDecoration = InputDecoration(
+      contentPadding: const EdgeInsets.only(left: 5, right: 10),
+      fillColor: const Color(0xfffbf0f0),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(2),
+      borderSide: BorderSide.none,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(2),
+      borderSide: BorderSide.none,
+    ),
+    focusedBorder: OutlineInputBorder(
+      gapPadding: 0.0,
+      borderRadius: BorderRadius.circular(2),
+      borderSide: BorderSide.none,
+    ),
   );
   final InputDecoration disableInputDecoration = const InputDecoration(
       fillColor: Colors.white
@@ -94,9 +107,17 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool res = await prefs.setBool("SHARED_LOGGED", false);
     await prefs.remove("vendorDTO");
+    await prefs.remove("customerDTO");
+    await prefs.remove("vendorStaffDTO");
+    await prefs.remove("runwheelzStaffDTO");
     return res;
   }
 
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
   @override
   void initState() {
     super.initState();
@@ -162,6 +183,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
         _nameController.text = profileManager.vendorMechanic.name ?? "not exists";
         _phoneController.text = profileManager.vendorMechanic.phoneNumber  ?? "not exists";
         _aadhaarController.text = profileManager.vendorMechanic.aadharNumber ?? "not exists";
+        _addressController.text = "not available";
         profileData.name = profileManager.vendorMechanic.name?? "";
         profileData.phoneNumber = profileManager.vendorMechanic.phoneNumber ?? "";
         profileData.aadharNumber = profileManager.vendorMechanic.aadharNumber ?? "";
@@ -172,6 +194,8 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
       setState(() {
         _nameController.text = profileManager.customerDTO.name ?? "not exists";
         _phoneController.text = profileManager.customerDTO.phoneNumber  ?? "not exists";
+        _aadhaarController.text = "not available";
+        _addressController.text = "not available";
         profileData.name = profileManager.customerDTO.name?? "";
         profileData.phoneNumber = profileManager.customerDTO.phoneNumber ?? "";
       });
@@ -218,9 +242,11 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
 
         children: <Widget>[
+          Container(
+            color: Colors.purple,
+            child:
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -228,6 +254,13 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
 
               IconButton(
                 onPressed: () {
+                  if (profileManager.isEnable) {
+                    _focusNode.requestFocus();
+                    setState(() {
+
+                    });
+                  }
+
                   if (widget.isVendor) {
                     if (profileManager.isEnable) {
                       profileManager.isEnable = false;
@@ -243,6 +276,16 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                       Future<VendorDTO> future = VendorRegistrationService().getVendorById(profileManager.vendorDTO.id as int);
                       future.then((VendorDTO staffDTO) => profileManager.vendorDTO = staffDTO)
                           .catchError((error) { log("error: $error"); });
+                    } else {
+                      profileManager.isEnable = true;
+                    }
+                  }
+
+                  if (widget.isCustomer) {
+                    if (profileManager.isEnable) {
+                      profileManager.isEnable = false;
+                      profileManager.customerDTO.name = profileData?.name;
+                      profileManager.customerDTO.phoneNumber = profileData?.phoneNumber;
                     } else {
                       profileManager.isEnable = true;
                     }
@@ -267,7 +310,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                 },
                 icon: Icon(
                   profileManager.isEnable ? Icons.save : Icons.edit,
-                  color: Colors.purple,
+                  color: Colors.white,
                 ),
               ),
               IconButton(
@@ -298,7 +341,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                 },
                 icon: const Icon(
                   Icons.delete,
-                  color: Colors.purple,
+                  color: Colors.white,
                 ),
               ),
               IconButton(
@@ -316,82 +359,91 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
                 },
                 icon: const Icon(
                   Icons.logout,
-                  color: Colors.red,
+                  color: Colors.white,
                 ),
               ),
             ],
-          ),
+          )),
           imageProfile(context, _picker),
-          const SizedBox(height: 30,),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text("Name", style: TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-              //Text(value ?? "not exists", style: const TextStyle(fontSize: 20)),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  IntrinsicWidth(
-                    child: TextField(
-                      controller: _nameController,
-                      enabled: profileManager.isEnable,
-                      decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                      onChanged: (val) {
-                        profileData?.name = val;
-                      }
+          Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(
+                        width: 150,
+                        child: Text("Name", style: TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.bold))
                     ),
-                  ),
-                ],
-              ),
-              Text(title, style: const TextStyle(fontSize: 16))
-            ],
-          ),
-          const SizedBox(height: 80,),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Phone Number", style: TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-              IntrinsicWidth(
-                child: TextField(
-                  controller: _phoneController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileData?.phoneNumber = val,
+                    IntrinsicWidth(
+                      child: TextField(
+                        autofocus: true,
+                          focusNode: _focusNode,
+                          controller: _nameController,
+                          enabled: profileManager.isEnable,
+                          decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                          onChanged: (val) {
+                            profileData?.name = val;
+                          }
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
-          const SizedBox(height: 20,),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Aadhaar Card", style: TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-              IntrinsicWidth(
-                child: TextField(
-                  controller: _aadhaarController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileData?.aadharNumber = val,
+                const SizedBox(height: 3,),
+                Row(
+                  children: [
+                    const SizedBox(
+                        width: 150,
+                        child: Text("Phone Number", style: TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.bold))
+                    ),
+                    IntrinsicWidth(
+                      child: TextField(
+                        controller: _phoneController,
+                        enabled: profileManager.isEnable,
+                        decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                        onChanged: (val) => profileData?.phoneNumber = val,
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
-          const SizedBox(height: 20,),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Address", style: TextStyle(fontSize: 16, color: Colors.black38, fontWeight: FontWeight.bold)),
-              IntrinsicWidth(
-                child: TextField(
-                  controller: _addressController,
-                  enabled: profileManager.isEnable,
-                  decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
-                  onChanged: (val) => profileData?.addressLine = val,
+                const SizedBox(height: 3,),
+                Row(
+                  children: [
+                    const SizedBox(
+                        width: 150,
+                        child: Text("Aadhar Card", style: TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.bold))
+                    ),
+                    IntrinsicWidth(
+                      child: TextField(
+                        controller: _aadhaarController,
+                        enabled: profileManager.isEnable,
+                        decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                        onChanged: (val) => profileData?.aadharNumber = val,
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
+                const SizedBox(height: 3,),
+                Row(
+                  children: [
+                    const SizedBox(
+                        width: 150,
+                        child: Text("Address", style: TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.bold))
+                    ),
+                    IntrinsicWidth(
+                      child: TextField(
+                        controller: _addressController,
+                        enabled: profileManager.isEnable,
+                        decoration: profileManager.isEnable ? enableInputDecoration : disableInputDecoration,
+                        onChanged: (val) => profileData?.addressLine = val,
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          )
+
 
         ],
       ),
@@ -399,7 +451,10 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
   }
 
   Widget imageProfile(BuildContext context, ImagePicker _picker) {
-    return Center(
+    return Container(
+        height: 200,
+        color: Colors.purple,
+        child: Center(
 
       child: Stack(children: <Widget>[
 
@@ -428,7 +483,7 @@ class VendorDashboardProfileState extends State<VendorDashboardProfile> {
           ),
         ),
       ]),
-    );
+    ));
   }
 
   Widget bottomSheet(BuildContext context, ImagePicker _picker) {

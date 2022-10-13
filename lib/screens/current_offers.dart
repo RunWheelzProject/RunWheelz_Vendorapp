@@ -35,9 +35,11 @@ import '../model/staff.dart';
 import '../services/staff_service.dart';
 import '../utils/get_location.dart';
 import 'data_viewer_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 
 class CurrentOffersScreen extends StatefulWidget {
-   CurrentOffersScreen({Key? key}) : super(key: key);
+  CurrentOffersScreen({Key? key}) : super(key: key);
 
   @override
   CurrentOffersScreenState createState() => CurrentOffersScreenState();
@@ -45,8 +47,6 @@ class CurrentOffersScreen extends StatefulWidget {
 
 class CurrentOffersScreenState extends State<CurrentOffersScreen> {
   List<OfferDTO> _offerDTOList = [];
-
-
 
   Future<bool> checkLogIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -59,8 +59,6 @@ class CurrentOffersScreenState extends State<CurrentOffersScreen> {
     }
     return false;
   }
-
-
 
   Future<List<OfferDTO>> getActiveOffers() async {
     Uri uri = Uri.parse("${res.APP_URL}/api/offers/getAllOffers");
@@ -77,6 +75,7 @@ class CurrentOffersScreenState extends State<CurrentOffersScreen> {
 
     throw Exception("servier error");
   }
+
   @override
   void initState() {
     super.initState();
@@ -90,69 +89,65 @@ class CurrentOffersScreenState extends State<CurrentOffersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomerAppBar(
-        child: _mainContainer()
-    );
+    return CustomerAppBar(child: _mainContainer());
   }
-
 
   Widget _mainContainer() {
     return Container(
-          margin: const EdgeInsets.only(top: 80),
-          padding: const EdgeInsets.all(20),
-          child: SearchableList<OfferDTO>(
-            initialList: _offerDTOList,
-            builder: (OfferDTO offerDTO) => Item(offerDTO: offerDTO,),
-            filter: (value) => _offerDTOList.where((element) => element.id?.toString().contains(value) as bool).toList(),
-            onItemSelected: (OfferDTO item) {
-
-              checkLogIn().then((res) {
-                if (res) {
-                  log("test: ${jsonEncode(item)}");
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (BuildContext context) {
-                        return RunWheelzOffer(offerDTO: item,);
-                      })
-                  );
-                } else {
-                  showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) =>
-                          AlertDialog(
-                              title:
-                              const Text("LogIn"),
-                              content: const Text("Please login to view offer details",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black87)),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () => Navigator.pushNamed(context, '/ask_login'),
-                                  child: const Text('OK'),
-                                ),
-                              ]
-                          )
-                  );
-                }
-              });
-
-            },
-            inputDecoration: InputDecoration(
-              labelText: "Search offer",
-              fillColor: Colors.white,
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: Colors.blue,
-                  width: 1.0,
-                ),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+      margin: const EdgeInsets.only(top: 80),
+      padding: const EdgeInsets.all(20),
+      child: SearchableList<OfferDTO>(
+        initialList: _offerDTOList,
+        builder: (OfferDTO offerDTO) => Item(
+          offerDTO: offerDTO,
+        ),
+        filter: (value) => _offerDTOList
+            .where((element) => element.id?.toString().contains(value) as bool)
+            .toList(),
+        onItemSelected: (OfferDTO item) {
+          checkLogIn().then((res) {
+            if (res) {
+              //log("test: ${jsonEncode(item)}");
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return RunWheelzOffer(
+                  offerDTO: item,
+                );
+              }));
+            } else {
+              showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                          title: const Text("LogIn"),
+                          content: const Text(
+                              "Please login to view offer details",
+                              style: TextStyle(
+                                  fontSize: 18, color: Colors.black87)),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/ask_login'),
+                              child: const Text('OK'),
+                            ),
+                          ]));
+            }
+          });
+        },
+        inputDecoration: InputDecoration(
+          labelText: "Search offer",
+          fillColor: Colors.white,
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              color: Colors.blue,
+              width: 1.0,
             ),
+            borderRadius: BorderRadius.circular(10.0),
           ),
-        );
+        ),
+      ),
+    );
   }
 }
-
 
 class Item extends StatelessWidget {
   OfferDTO offerDTO;
@@ -161,78 +156,102 @@ class Item extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Column(
+        height: 100,
+        color: Colors.white,
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(10),
+          child: Row(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
-                Icon(
-                  Icons.remove_red_eye,
-                  color: Colors.purple,
-                )
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Column(children: [
+              Container(
+
+                  height: 80,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(5),
+                    color: Colors.white,
+                  ),
+                  child: const SizedBox(
+                      height: 70,
+                      width: 70,
+                      child: Image(
+                        image: AssetImage("images/bike-oil.jpg"),
+                      )))
+            ]),
+            const SizedBox(width: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(children: const [
-                  CircleAvatar(radius: 45.0, backgroundImage: AssetImage("images/bike-oil.jpg"))
+                Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(
+                    offerDTO.offerName ?? "No Name",
+                    style: GoogleFonts.roboto(textStyle: const TextStyle(fontWeight: FontWeight.bold)),
+                    textAlign: TextAlign.left,
+                  )
                 ]),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      const SizedBox(
-                        width: 10,
-                      ),
+                const SizedBox(height: 3,),
+                Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        offerDTO.offerName ?? "No Name",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.black87),
+                        "Item Description",
+                        style: GoogleFonts.roboto(textStyle: const TextStyle(fontSize: 12, color: Colors.black38)),
                         textAlign: TextAlign.left,
                       )
                     ]),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        const SizedBox(
-                          width: 15,
-                        ),
-                        const Icon(
-                          Icons.attach_money,
-                          color: Colors.purple,
-                          size: 20,
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Text("${offerDTO.offerDiscountAmount}" ?? "not found",
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Colors.black)),
-                        const SizedBox(
-                          width: 15,
-                        ),
-                      ],
+                const SizedBox(height: 25,),
+                Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "100.00 INR",
+                        style: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.bold)),
+                        textAlign: TextAlign.left,
+                      )
+                    ])
+              ],
+            ),
+            const SizedBox(width: 85,),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                GestureDetector(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: Colors.black38,
+                      ),
+                      width: 25,
+                      height: 25,
+                      child: const Center(
+                        child: Icon(Icons.add,size: 14.0, color: Colors.white,),
+                      ),
                     )
-                  ],
-                )
+                ),
+                const SizedBox(height: 5,),
+                Text(
+                  "1" ,
+                  style: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.bold)),
+                  textAlign: TextAlign.left,
+                ),
+                const SizedBox(height: 5,),
+                  GestureDetector(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      color: Colors.black38,
+                      ),
+                    width: 25,
+                    height: 25,
+                    child: const Center(
+                    child: Icon(Icons.remove,size: 14.0, color: Colors.white,),
+                    ),
+                    )
+                  ),
               ],
             )
           ],

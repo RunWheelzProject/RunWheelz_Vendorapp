@@ -5,10 +5,10 @@ const String appName = "Run Wheelz";
 
 /* APP_URL */
 
-const String APP_URL = "http://10.0.2.2:8081";
+const String APP_URL = "http://10.0.2.2:8087";
 //const String APP_URL = "http://ec2-43-205-239-149.ap-south-1.compute.amazonaws.com:8080";
 //const String APP_URL = "http://ec2-43-205-239-149.ap-south-1.compute.amazonaws.com";
-//const String APP_URL = "http://192.168.94.207:8081";
+//const String APP_URL = "http://192.168.26.207:8081";
 /* MENU_ITEMS*/
 const List<String> menuItems = ["Home", "Vendor Staff", "Vendor Services", "New Requests", "Requests History"];
 

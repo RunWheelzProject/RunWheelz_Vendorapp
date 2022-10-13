@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 
 ThemeData lightTheme = ThemeData(
+
     brightness: Brightness.light,
     primaryColor: Colors.deepPurple,
     scaffoldBackgroundColor: Colors.grey.shade200,
@@ -32,7 +34,7 @@ ThemeData lightTheme = ThemeData(
               }
               return const TextStyle(fontSize: 17, color: Colors.white);
             }) ,
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.purple),
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.redAccent),
         )
     ),
     disabledColor: Colors.grey,

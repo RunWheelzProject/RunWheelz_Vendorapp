@@ -155,6 +155,9 @@ Future<void> main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool res = await prefs.setBool("SHARED_LOGGED", false);
+
   runApp(const RunWheelz());
 }
 
@@ -376,6 +379,10 @@ class RunWheelzState extends State<RunWheelz> {
               '/staff_dashboard': (context) => const RunWheelManagementPage(),
               '/new_offer': (context) => RunWheelzOffer(),
               '/offers_screen': (context) => CurrentOffersScreen(),
+              '/customer_profile': (context) => VendorDashboardProfile(isCustomer: true),
+              '/vendor_profile': (context) => VendorDashboardProfile(isVendor: true),
+              '/mechanic_profile': (context) => VendorDashboardProfile(isMechanic: true),
+              '/staff_profile': (context) => VendorDashboardProfile(isStaff: true),
               VendorRequestAcceptScreen.routeName: (context) => VendorRequestAcceptScreen(),
               VendorMechanicRequestAcceptScreen.routeName: (context) => const VendorMechanicRequestAcceptScreen()
             },

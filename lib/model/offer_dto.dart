@@ -10,7 +10,7 @@ class OfferDTO {
   String? offerCreatedDate;
   String? offerExpiryDate;
   String? offerCouponCode;
-  String? offerDiscountAmount;
+  double? offerDiscountAmount;
   ProductDTO? product;
   CustomerDTO? customer;
 

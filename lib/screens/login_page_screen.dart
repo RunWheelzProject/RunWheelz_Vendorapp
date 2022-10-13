@@ -184,7 +184,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/manager/login_manager.dart';
 import 'package:untitled/model/otp_response.dart';
@@ -236,22 +235,10 @@ class _LoginScreen extends State<LoginScreen> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 const SizedBox(height: 40),
-                const Text(
-                  "RUN WHEELZ",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontFamily: 'josefin slab',
-                      fontSize: 48,
-                      color: Colors.redAccent,
-                      shadows: [
-                        Shadow(
-                            color: Colors.black12,
-                            offset: Offset(1.0, 2.0),
-                            blurRadius: 3.0)
-                      ]),
-                ),
+              Text("Run Wheelz",
+                  textAlign: TextAlign.center, style: textTheme.headline2),
                 const SizedBox(height: 20),
-                /*ImageSlideshow(
+                ImageSlideshow(
                   width: MediaQuery.of(context).size.width,
                   height: 220,
                   initialPage: 0,
@@ -273,7 +260,7 @@ class _LoginScreen extends State<LoginScreen> {
                       fit: BoxFit.fill,
                     ),
                   ],
-                )*/
+                ),
                 const SizedBox(height: 15),
                 loginView()
               ],
@@ -287,7 +274,6 @@ class _LoginScreen extends State<LoginScreen> {
   Widget loginView() {
     LogInManager logInManager = Provider.of<LogInManager>(context);
     return Container(
-        margin: const EdgeInsets.all(30),
         height: 300,
         //padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
         decoration: BoxDecoration(
@@ -297,9 +283,9 @@ class _LoginScreen extends State<LoginScreen> {
         child: Container(
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
             child: Column(children: <Widget>[
-              Text.rich(
+              const Text.rich(
                 TextSpan(
-                  style: GoogleFonts.sourceSansPro(),
+                  style: TextStyle(fontSize: 21, color: Colors.black87),
                   text: 'Enter Mobile Number',
                 ),
               ),
@@ -309,14 +295,14 @@ class _LoginScreen extends State<LoginScreen> {
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 SizedBox(
                     height: 60,
-                    width: 240,
+                    width: 260,
                     child: TextField(
                       controller: phoneNumberController,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'Mobile Number',
                           prefixIcon:
-                              Icon(Icons.phone_android, color: Colors.redAccent)),
+                              Icon(Icons.phone_android, color: Colors.purple)),
                       onChanged: (value) {
                         if (value.length < 10) {
                           setState(() => readToProceed = false);

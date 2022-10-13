@@ -347,7 +347,6 @@ class _OTPState extends State<OtpScreen> {
 
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:profile/profile.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -513,20 +512,8 @@ class _OTPState extends State<OtpScreen> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 const SizedBox(height: 40),
-                const Text(
-                  "RUN WHEELZ",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontFamily: 'josefin slab',
-                      fontSize: 48,
-                      color: Colors.redAccent,
-                      shadows: [
-                        Shadow(
-                            color: Colors.black12,
-                            offset: Offset(1.0, 2.0),
-                            blurRadius: 3.0)
-                      ]),
-                ),
+                Text("Run Wheelz",
+                    textAlign: TextAlign.center, style: textTheme.headline2),
                 const SizedBox(height: 40),
                 otpScreenView()
               ],
@@ -547,29 +534,34 @@ class _OTPState extends State<OtpScreen> {
 
     return Container(
         height: 400,
-        margin: const EdgeInsets.all(20),
         padding: const EdgeInsets.only(top: 30, left: 30, right: 30),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.0),
             color: Colors.white,
-            ),
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black12, spreadRadius: 10, blurRadius: 30),
+            ]),
         child: Column(children: <Widget>[
           Center(
               child: Text(
                 "OTP Verification",
-                style: GoogleFonts.sourceSansPro(fontSize: 21, color: Colors.black),
+                style: textTheme.headline4,
               )),
           addVerticalSpace(30),
           Center(
               child: Text(
                 "we have sent an OTP to",
-                style: GoogleFonts.sourceSansPro(fontSize: 18, color: Colors.black),
+                style: textTheme.subtitle1,
               )),
           addVerticalSpace(10),
           Center(
               child: Text(
                 "+ ${widget.vendorOtpResponse.phoneNumber}",
-                style: GoogleFonts.sourceSansPro(fontSize: 21, color: Colors.black),
+                style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
               )),
           addVerticalSpace(40),
           OtpTextField(

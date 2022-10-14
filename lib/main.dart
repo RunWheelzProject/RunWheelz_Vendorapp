@@ -93,6 +93,7 @@ void _handleMessage(data) async {
       data["screen"] == "vendor_accept") {
     response = await http.get(
         Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
+    offersJson = jsonDecode(response.body);
     var serviceJson = jsonDecode(response.body);
     response = await http.get(Uri.parse(
         "${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
@@ -135,8 +136,6 @@ void _handleMessage(data) async {
             arguments: serviceRequestArgs
         );
       } else if (data["screen"] == "new_offer") {
-        log("new_offer");
-        log(jsonEncode(offersJson));
         navigatorKey.currentState?.pushNamed('/new_offer',
             arguments: offersJson
         );
@@ -266,6 +265,7 @@ class RunWheelzState extends State<RunWheelz> {
     int id = int.parse(data["id"] ?? "");
 
     http.Response response = await http.get(Uri.parse("${res.APP_URL}/api/servicerequest/service_request/$id"));
+    log(jsonEncode(response.body));
     var serviceJson = jsonDecode(response.body);
     response = await http.get(Uri.parse("${res.APP_URL}/api/customer/${serviceJson["requestedCustomer"]}"));
     var customerJson = jsonDecode(response.body);

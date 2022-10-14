@@ -259,22 +259,6 @@ class RWVendorRegistrationState extends State<RWVendorRegistration> {
                           },
                         ),
                         addVerticalSpace(25),
-                        Row(
-                          children: [
-                            Checkbox(
-                              onChanged: (val) => {},
-                              value: true,
-                            ),
-                            const Text("M"),
-                            addHorizontalSpace(20),
-                            Checkbox(
-                              onChanged: (val) => {},
-                              value: false,
-                            ),
-                            const Text("F"),
-                          ],
-                        ),
-                        addVerticalSpace(20),
                         TextFormField(
                           decoration: InputDecoration(
                             labelText: "Aadhaar Card",

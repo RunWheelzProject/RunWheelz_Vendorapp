@@ -356,22 +356,34 @@ class SplashScreenState extends State<SplashScreenV1> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Container(
+                    //color: Colors.purple,
                     height: 170,
                     width: MediaQuery.of(context).size.width,
-                    child: const Center(
+                    child: Center(
                         child: Text(
                           "RUN WHEELZ",
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontFamily: 'josefin slab',
-                              fontSize: 48,
-                              color: Colors.redAccent,
-                              shadows: [
-                                Shadow(
-                                    color: Colors.black12,
-                                    offset: Offset(1.0, 2.0),
-                                    blurRadius: 3.0)
-                              ]),
+                          style: GoogleFonts.josefinSans(
+                                  fontSize: 44,
+                                  color: Colors.redAccent, //Color(0xfffdcd00),
+                                  shadows: [
+                                    const Shadow(
+                                        color: Colors.orange,
+                                        offset: Offset(0.5, 0.5),
+                                        blurRadius: 20.0
+                                    ),
+                                    const Shadow(
+                                        color: Colors.deepPurple,
+                                        offset: Offset(1, 1),
+                                        blurRadius: 30.0
+                                    ),
+                                    const Shadow(
+                                        color: Colors.black38,
+                                        offset: Offset(2, 2),
+                                        blurRadius: 100.0
+                                    )
+                                  ]
+                          ),
                         )),
                   ),
                   Center(
@@ -400,8 +412,8 @@ class SplashScreenState extends State<SplashScreenV1> {
                                         MaterialStateProperty.all<OutlinedBorder>(
                                             RoundedRectangleBorder(
                                               side: const BorderSide(
-                                                  color: Colors.purple, width: 0),
-                                              borderRadius: BorderRadius.circular(2.0),
+                                                  color: Colors.white, width: 0),
+                                              borderRadius: BorderRadius.circular(0.0),
                                             ))),
                                     onPressed: () {
                                       LogInManager loginManager =
@@ -413,10 +425,10 @@ class SplashScreenState extends State<SplashScreenV1> {
                                     },
                                     child: const Text("Customer LogIn",
                                         style: TextStyle(color: Colors.white)))),
+                            // customerRegistration
                             const SizedBox(
-                              height: 10,
+                              height: 20,
                             ),
-                            //customerRegistration
                             SizedBox(
                                 width: 250,
                                 child: ElevatedButton(
@@ -425,8 +437,8 @@ class SplashScreenState extends State<SplashScreenV1> {
                                         MaterialStateProperty.all<OutlinedBorder>(
                                             RoundedRectangleBorder(
                                               side: const BorderSide(
-                                                  color: Colors.purple, width: 0),
-                                              borderRadius: BorderRadius.circular(2.0),
+                                                  color: Colors.white, width: 0),
+                                              borderRadius: BorderRadius.circular(0.0),
                                             ))),
                                     onPressed: () {
                                       LogInManager loginManager =
@@ -439,7 +451,7 @@ class SplashScreenState extends State<SplashScreenV1> {
                                     child: const Text("Vendor/Mechanic Login",
                                         style: TextStyle(color: Colors.white)))),
                             const SizedBox(
-                              height: 10,
+                              height: 20,
                             ),
                             SizedBox(
                                 width: 250,
@@ -450,7 +462,7 @@ class SplashScreenState extends State<SplashScreenV1> {
                                             RoundedRectangleBorder(
                                               side: const BorderSide(
                                                   color: Colors.white, width: 0),
-                                              borderRadius: BorderRadius.circular(2.0),
+                                              borderRadius: BorderRadius.circular(0.0),
                                             ))),
                                     onPressed: () {
                                       LogInManager loginManager =
@@ -473,34 +485,37 @@ class SplashScreenState extends State<SplashScreenV1> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("About RunWheelz: ",
+                            const Text("About RunWheelz: ",
                               textAlign: TextAlign.left,
-                              style: GoogleFonts.sourceSansPro(fontSize: 21,
-                                  fontWeight: FontWeight.w500,),
+                              style: TextStyle(fontSize: 21,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.purple),
                             ),
                             const SizedBox(height: 15,),
                             const Text("At Runwheelz we share passion for smooth and excellent riding by maintain values.\n\nBy joining RunWheelz as customer service come to you you don't have to go anywhere."),
                             const SizedBox(height: 25,),
-                            Text("Customer: ",
+                            const Text("Customer: ",
                                 textAlign: TextAlign.left,
-                                style: GoogleFonts.sourceSansPro(fontSize: 21,
-                                    fontWeight: FontWeight.w500,),
+                                style: TextStyle(fontSize: 21,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.purple),
                             ),
                             const SizedBox(height: 15,),
                             const Text("At Runwheelz we share passion for smooth and excellent riding by maintain values.\n\nBy joining RunWheelz as customer service come to you you don't have to go anywhere."),
                             const SizedBox(height: 25,),
-                            Text("Vendor: ",
+                            const Text("Vendor: ",
                               textAlign: TextAlign.left,
-                              style: GoogleFonts.sourceSansPro(fontSize: 21,
-                                  fontWeight: FontWeight.w500,)
-                            ),
+                              style: TextStyle( fontSize: 21,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.purple),),
                             const SizedBox(height: 15,),
                             const Text("At Runwheel we share passion for smooth and excellent riding by maintain values.\n\nBy joining RunWheelz As Vendor you don't have to find customer, customers will come to you for service through app"),
                             const SizedBox(height: 25,),
-                            Text("ToDay's Offers: ",
+                            const Text("ToDay's Offers: ",
                               textAlign: TextAlign.left,
-                              style: GoogleFonts.sourceSansPro(fontSize: 21,
-                                  fontWeight: FontWeight.w500,),),
+                              style: TextStyle( fontSize: 21,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.purple),),
                             const SizedBox(height: 25,),
                             ListView.separated(
                                 shrinkWrap: true,

@@ -34,7 +34,7 @@ ThemeData lightTheme = ThemeData(
               }
               return const TextStyle(fontSize: 17, color: Colors.white);
             }) ,
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.redAccent),
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.purple),
         )
     ),
     disabledColor: Colors.grey,

@@ -347,6 +347,7 @@ class _OTPState extends State<OtpScreen> {
 
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:profile/profile.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -546,22 +547,19 @@ class _OTPState extends State<OtpScreen> {
           Center(
               child: Text(
                 "OTP Verification",
-                style: textTheme.headline4,
+                style: GoogleFonts.sourceSansPro(fontSize: 21, color: Colors.black, fontWeight: FontWeight.bold),
               )),
           addVerticalSpace(30),
           Center(
               child: Text(
                 "we have sent an OTP to",
-                style: textTheme.subtitle1,
+                style: GoogleFonts.sourceSansPro(fontSize: 16, color: Colors.black, ),
               )),
           addVerticalSpace(10),
           Center(
               child: Text(
                 "+ ${widget.vendorOtpResponse.phoneNumber}",
-                style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
+                style: GoogleFonts.sourceSansPro(fontSize: 16, color: Colors.black, ),
               )),
           addVerticalSpace(40),
           OtpTextField(

@@ -48,11 +48,8 @@ class SideMenu extends StatelessWidget {
                 vendorWorksManager.isVendor = true;
                 vendorWorksManager.isAdmin = false;
                 vendorWorksManager.isMarketingAgent = false;
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (BuildContext context) {
-                      return menu.navigateTo;
-                    })
-                );
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => menu.navigateTo));
               },
             ),
           ],
